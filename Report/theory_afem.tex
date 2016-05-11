@@ -1,0 +1,399 @@
+\documentclass[thesis.tex]{subfiles}
+\begin{document}
+For self-completeness this chapter contains summary of the finite element method ---
+a method for approximating solutions of partial differential equations.
+A complete formal derivation of the theory can be found in various books, e.g. \cite{brenner}. 
+We shall focus on second-order elliptic boundary value problems. For a bounded Lipschitz domain $\Omega \subset \R^n$ the 
+general form boundary value problem with Dirichlet boundary conditions can given by
+\begin{alignat}{2}
+  -\nabla \cdot {\left(A \nabla u\right)} + \mathbf{b} \cdot \nabla u + c &= &f \quad  &\text {in } \Omega,  \label{eq:elliptic}\\
+  u  &=& 0 \quad &\text{on } \partial\Omega.\nonumber
+\end{alignat}
+The theory works equally well for other boundary conditions as Neumann, or Mixed; but we omit
+these types for ease of presentation and calculations. Under specific conditions on $A,\mathbf{b}, c$ 
+and $f$ we can approximate the solution to this problem using the finite element method.
+
+\section{Weak formulation}
+The first step consists of finding a \emph{weak formulation} for the boundary value problem \eqref{eq:elliptic}. 
+That is, we define a space $V$ of test functions and consider the problem of finding $u$ such that \eqref{eq:elliptic} holds 
+in a distributional sense. Suppose that $u$ solves \eqref{eq:elliptic} with $A, \mathbf{b}, c, f$ sufficiently smooth functions, then for $v \in V$ --- which we will define later on--- we calculate
+\begin{align*}
+  \ip{f,v} = &\ip{-\nabla \cdot {\left(A \nabla u\right)} + \mathbf{b} \cdot \nabla u + c, v} \\
+           = &\int_\Omega \left( -\nabla \cdot {\left(A(x) \nabla u(x)\right)}\right)v(x) + \left(\mathbf{b}(x) \cdot \nabla u(x)\right)v(x) + c(x) v(x) \, \dif x\\
+           = &\int_{\partial \Omega} -\left(A(x) \nabla u(x) \cdot n\right)v(x) \, \dif x \\
+              &+ \int_{\Omega} \left( A(x) \nabla u(x)\right) \cdot \nabla v(x) + \left(\mathbf{b}(x) \cdot \nabla u(x)\right)v(x) + c(x) v(x) \, \dif x.
+\end{align*}
+Where the third equality follows from the Divergence theorem. Suppose that all test functions $v$ vanish on the boundary $\partial \Omega$, then the boundary integral disappears and we find
+\begin{equation}
+  \label{eq:ellipticweak}
+  F(v) := \ip{f,v} = \ip{A \nabla u, \nabla v} + \ip{\mathbf{b} \cdot \nabla u + cu, v}=: a(u,v).
+\end{equation}
+A weak solution of \eqref{eq:elliptic} is a function $u$ that solves the above equation for all $v \in V$.
+It turns out that under (mild) conditions there is a unique weak solution $u$. To see this
+we must formalise the previous calculations. First we tackle the definition of $V$.
+
+In the weak formulation we use the $L^2(\Omega)$-inner product, so we naturally require that $V \subset L^2(\Omega)$. Moreover, all the partial derivatives of $v$ are taken in a distributive sense. For these to be correctly defined we need that $v$ is at least weakly differentiable. Combining both requirements we see that $V$ should lie in the suitable space $W_2^1(\Omega) = H^1(\Omega)$ (conveniently this is a Hilbert space). First we must check that the calculations, in particular the Divergence theorem, are still valid for $v \in H^1(\Omega)$; of course this is the case, cf. \cite[Ch. 5]{brenner}. Formalizing the vanishing boundary requirement can be done using the trace operator $T$\footnote{Here we need that $\Omega$ has a Lipschitz boundary, cf. \cite[Ch. 1.6]{brenner}.}, i.e. we should have $v \in H^1(\Omega)$ such that $\|Tv\|_{L^2(\Omega)} = 0$. All together this yields
+\[
+  V := \set{v \in H^1(\Omega): v|_{\partial \Omega} = 0} = H_0^1(\Omega).
+\]
+
+The (famous) Lax-Milgram theorem can be used to show that certain weak formulations have a unique solution.
+\begin{thm}[Lax-Milgram]
+  \label{thm:lax}
+  Given a Hilbert space $(V, \ip{\cdot, \cdot})$ and a bilinear form $a(\cdot,\cdot)$ on $V$ which is
+  \begin{alignat*}{3}
+    \text{Continuous} \quad & \exists C < \infty \quad & \text{s.t.} \quad & \abs{a(v,w)} \leq \|v\|\|w\| \quad \forall v,w \in V \\
+    \text{Coercive}   \quad & \exists \alpha > 0 \quad &\text{s.t.} \quad & a(v,v) \geq \alpha \|v\|^2 \quad \forall v \in V
+  \end{alignat*}
+  Then, for every continuous linear functional $F \in V'$, there exists a unique $u \in V$ such that
+  \[
+    a(u,v) = F(v) \quad \forall v\in V.
+  \]
+\end{thm}
+A proof of this theorem can be found in many books, e.g. \cite[Ch. 2]{brenner}. 
+
+To use  Lax-Milgram for our weak formulation \eqref{eq:ellipticweak} we need restrictions on $A, \mathbf{b}, c$ and $f$. We assume that:
+\begin{enumerate}[label=(\alph*)]
+\item $A(x) = (a_{ij}(x))_{1 \leq i,j \leq n}$ is symmetric, $a_{ij} = a_{ji}$, with $a_{ij} \in L^{\infty}(\Omega)$. Furthermore, we suppose that the matrix is uniformly elliptic, i.e. there is a positive constant $\alpha$ such that 
+\[
+  \zeta \cdot (A(x) \zeta) \geq \alpha \|\zeta\|^2 \quad \forall \zeta \in \R^n \quad \text{a.e. in } \Omega;
+\]
+\item $\mathbf{b}(x) = \left(b_1(x), \dots, b_n(x)\right)^\top$ with $b_i \in L^\infty(\Omega)$ such that the weak divergence vanishes, i.e. $\nabla \cdot \mathbf{b} = 0$ in $\Omega$;
+\item $c \in L^\infty(\Omega)$ is non-negative;
+\item $f  \in L^2(\Omega)$.
+\end{enumerate}
+Given these assumptions Lax-Milgram can be applied to the weak formulation \eqref{eq:ellipticweak}. The form $a(\cdot, \cdot)$ is bilinear by linearity of the inner product and derivation, and the space $V = H_0^1(\Omega)$ is Hilbert. The functional $F$ is obviously linear, and since $f \in L^2(\Omega)$ we find using Cauchy-Schwarz that is continuous as well,
+\[
+  \abs{F(v)} = \abs{\ip{f,v}} \leq \|f\|_{L^2(\Omega)} \|v\|_{L^2(\Omega)} \leq \|f\|_{L^2(\Omega)} \|v\|_{H^1(\Omega)}.
+\]
+We are left to check the continuity and coercivity of the bilinear form
+\begin{description}
+  \item[Continuity]Using H\"older we find
+    \begin{align*}
+      \abs{a(v,w)} \leq &\int_\Omega \abs{\sum_{i,j} a_{ij} \pd{v}{x_j}\pd{w}{x_i}  + \sum_i b_i \pd{v}{x_i}w + cvw}\\
+                   \leq &\sum_{i,j} \norm{ a_{ij}}_{L^\infty(\Omega)} \norm{ \pd{v}{x_j}}_{L^2(\Omega)} \norm{ \pd{w}{x_i}}_{L^2(\Omega)} + \sum_i \norm{b_i}_{L^\infty(\Omega)} \norm{\pd{v}{_i}}_{L^2(\Omega)} \norm{w}_{L^2(\Omega)} \\
+                   &+ \norm{c}_{L^2(\Omega)} \norm{v}_{L^2(\Omega)} \norm{w}_{L^2(\Omega)} \\
+                   \leq &C \|v\|_{H^1(\Omega)} \|w\|_{H^1(\Omega)},
+    \end{align*}
+    where $C$ is finite since $a_{ij}, b_i, c \in L^\infty(\Omega)$. So $a(\cdot,\cdot)$ is indeed continuous.
+  \item[Coercivity] This is where our extra assumptions come into play. Since $\mathbf{b}$ has a vanishing weak divergence, a density argument\footnote{Recall that $C_c^\infty(\Omega)$ is dense in $H_0^1(\Omega)$} shows that for $v \in H_0^1(\Omega)$ we have
+    \[
+      \int_\Omega \left(\mathbf{b} \cdot \nabla v\right)v  = \int_\Omega \mathbf{b} \cdot \left({1 \over 2} \nabla v^2\right) = - \int_\Omega \left(\nabla \cdot \mathbf{b} \right) {1 \over 2} v^2 = 0.
+    \]
+    By nonnegativity of $c$ we have $cv^2 \geq 0$ on $\Omega$. 
+    \todo{ref} The Poincar\'e-Friedrich inequality provides us with a constant $C_\Omega$ such that $\|v\|_{L^2(\Omega)} \leq C_\Omega \|\nabla v\|_{L^2(\Omega)}$ for $v \in H_0^1(\Omega)$. Combining the previous with the uniform ellipticity of $A$ gives us for $v \in H_0^1(\Omega)$ that
+    \begin{align*}
+      a(v,v) &= \int_\Omega \left(A \nabla v\right) \cdot \nabla v + \left(\mathbf{b} \cdot \nabla v\right)v + cv^2 \\
+             &\geq  \int_\Omega \left(A(x) \nabla v(x)\right) \cdot \nabla v(x)\, \dif x \\
+             &\geq  \int_\Omega \alpha \|\nabla v(x)\|^2\, \dif x = \alpha \|\nabla v\|^2_{L^2(\Omega)}\\
+             &\geq \frac{\alpha}{2} \left(\frac{1}{C^2_\Omega} \|v\|^2_{L^2(\Omega)} + \|\nabla v\|^2_{L^2(\Omega)}\right) \geq \beta \|v\|^2_{H^1(\Omega)}.
+    \end{align*}
+    Which proves the coercivity of $a(\cdot, c\dot)$.
+\end{description}
+By invoking Lax-Milgram we obtain the wanted result, namely that there is a unique $u \in V$ that solves the weak formulation \eqref{eq:ellipticweak}.
+
+We cannot expect to solve the weak formulation in its current form as this is still an infinite dimensional problem. Instead one generally tries to solve the Galerkin approximation problem:
+\begin{equation}
+  \label{eq:galerk_finite}
+  \text{Given a finite-dimensional } V_h \subset V \text{: find $u_h \in V_h$ s.t. } a(u_h, v) = F(v) \quad \forall v \in V_h.
+\end{equation}
+This is a finite dimensional problem, and carefully choosing subspaces $V_h$ can lead to increasing approximation accuracy. Another application of Lax-Milgram applied to $V_h$ shows that this system has a unique solution as well.
+
+\begin{rem}
+  We have shown that the weak formulation has a unique solution $u \in H_0^1(\Omega)$. We need more smoothness of $u$ to show that this is also a solution to the original boundary value problem.
+\end{rem}
+
+\section{Finite Element Space}
+  Construction of subspaces $V_h$ can be done in a systematic way using \emph{finite elements}. 
+  The general idea is to split the domain $\Omega$ into elements $K$, each with its own function space.
+  The space $V_h$ is then constructed by glueing these pieces together. In this section we will summarize \cite[Ch~3]{brenner}.
+  \begin{defn} 
+    A (unisolvent) finite element is a triplet $(K, \mathcal{P}, \mathcal{N})$ where
+    \begin{enumerate}[label=(\alph*)]
+      \item $K \subset R^n$ is the \emph{element domain}: a bounded closet set with nonempty interior and piecewise boundary;
+    \item $\mathcal{P}$ is the space of \emph{shape functions}: a finite-dimensional space of functions on $K$;
+  \item $\mathcal{N} = \set{N_1, \dots, N_k}$ is the set of \emph{nodal variables}: a basis for $\mathcal{P}'$.
+    \end{enumerate}
+  \end{defn}
+  \begin{defn}
+    Let an element $(K, \mathcal{P}, \mathcal{N})$ be given. The basis $\set{\phi_1, \dots, \phi_k}$ of $\mathcal{P}$ dual to $\mathcal{N}$ --- so $N_i(\phi_j) = \delta_{ij}$ --- is called the \emph{nodal basis} of $\mathcal{P}$.
+  \end{defn}
+  \begin{lem}
+    Let $\mathcal{P}$ be a $k$-dimensional vector space with $\mathcal{N} = \set{N_1, \dots, N_k} \subset \mathcal{P}'$.
+    The set $\mathcal{N}$ is a basis for $\mathcal{P}'$ iff $\mathcal{N}$ determines $\mathcal{P}$, i.e. if $v \in \mathcal{P}$ with $N(v) = 0$ for all $N \in \mathcal{N}$ implies that $v = 0$.
+  \end{lem}
+  Informally, a subspace $V_h$ can now be introduced. Consider a partition $\mathcal{T}$ of the domain $\Omega$ into finite elements,
+  i.e. $\overline{\Omega} = \cup_{K \in \mathcal{T}} K$ where $(K, \mathcal{P}_K, \mathcal{N}_K)$ is a finite element for $K \in \mathcal{T}$.
+  Then we can simply define $V_h$ to be the space of functions that coincide with the shape functions on each element,
+  i.e. $v \in V_h$ if $v|_{K} \in \mathcal{P}_K$ for all $K \in \mathcal{T}$. 
+  Without further conditions on the partition we have no way of giving properties of the subspace $V_h$ --- we do not even know if it is correctly defined\footnote{In general, two adjacent elements have a non-finite intersection. 
+  Therefore $v \in V_h$ might be incorrectly defined on this intersection in a classical sense.}.
+  If we know for example that the exact solution $u$ is continuous, then we might want to use a subspace $V_h$ consisting of
+  continuous functions as well. 
+
+  In the literature a variety of finite elements are used, each element having its pros and cons. For now we will be interested in the \emph{Lagrange element}. For a triangle $K$ the Lagrange element of order 1 --- also called linear Lagrange --- is given by the triplet $(K, \mathcal{P}_1, \set{N_1, N_2, N_3})$, with $\mathcal{P}_1$ linear polynomials and functionals $N_i(v) = v(z_i)$ for the vertices $z_i$ of K. This element can be generalised to have shape functions $\mathcal{P}_k$ for of an arbitrary order $k$.
+
+  To ensure extra properties of the subspace $V_h$ we need more regularity in the partition. In this work  we shall therefore consider subdivisions of the domain into simplices (triangles in $\R^2$, tetrahedra in $\R^3$). Implicitly we therefore also require $\Omega$ to have a polyhedral boundary. Moreover, we require the partition to be \emph{conforming}.
+  \begin{defn}
+    A triangulation $\mathcal{T}_h$ is a conforming partition of the domain $\Omega$ into a finite family of simplices.
+    Formally,
+    \begin{itemize}
+      \item $\overline{\Omega} = \cup_{K \in \mathcal{T}_h} K$;
+      \item $\mathring{K_i} \ne \emptyset, \mathring{K_i} \cap \mathring{K_j} = \emptyset \quad \forall K_i, K_j \in \mathcal{T}_h, K_i \ne K_j$;
+    \item If $F = K_i \cap K_j$ for $K_i \ne K_j$, then $F$ is a common (lower dimensional) face of $K_i$ and~$K_j$.
+  \end{itemize}
+  \end{defn}
+  
+  Let a triangulation $\mathcal{T}_h$ be given. Suppose that we want to consider the subspace $V_h$ consisting
+  of continuous functions $v$ that are linear polynomials when restricted to a triangle $K \in \mathcal{T}_h$. Why
+  would one look at finite elements $(K, \mathcal{P}, \mathcal{N})$? 
+  Instead one could just try to find a basis for this subspace, without ever needing to define finite elements.
+  It appears however, that for analysis of the approximation error these finite elements are extremely useful.
+
+  The linear Lagrange elements are an obvious choice as finite elements, if we want to construct $V_h$ as the space
+  of piecewise linear continuous functions with respect to $\mathcal{T}_h$. Notice that every function $v \in V_h$ is completely
+  determined by its value in the vertices of $\mathcal{T}_h$ by the continuity and piecewise linearity requirements.
+  This precisely coincides with the choice of the local nodal variables. We can lift these local nodal variables to become
+  global variables of the bigger space $V_h'$.
+  
+  Formally, the global nodal variables $\N_\O$ consist of the local nodal variables $N$ that are also defined for $C(\OO)'$. Certain
+  local nodal variables will induce the same global nodal variable. In the linear Lagrange case for example, we see that all nodal variables
+  associated to one vertex $z$ will induce the same global nodal variable. We define the finite element space $V_h$ as the span of the 
+  nodal basis with respect to $\N_\O$. 
+  
+  In the linear Lagrange case we see that $V_h$ is indeed the space of continuous linear piecewise
+  functions with respect to $\mathcal{T}_h$. In the previous we ignored
+  the boundary condition, recall that $v \in V_h$ must vanish on the boundary. This is easily fixed; we can just consider the (non-trivial)
+  nodal variables restricted to $C_0(\OO)'$. In the linear Lagrange case this corresponds to removing nodal variables associated with
+  boundary vertices.  
+  
+  Recall that for the Galerkin approximation \eqref{eq:galerk_finite} we actually must have $V_h \subset H^1_0(\O)$. This
+  condition is satisfied when using Lagrange elements, as summarized in the next lemma.
+  \begin{lem}
+    \label{lem:lin_lagrange}
+    Let $\mathcal{T}_h$ be a triangulation of the domain $\O$, with $V_h$ the finite element space generated
+    by using Lagrange elements. Then $v \in V_h$ is continuous and weak differentiable, i.e. $v \in C(\OO) \cap H^1(\OO)$. 
+  \end{lem}
+  \begin{proof}
+    TODO
+  \end{proof}
+
+\section{Interpolant}
+\label{sec:apriori}
+The literature the element space is frequently defined in terms of the \emph{interpolant} (c.f. \cite[Ch~3]{brenner}). This interpolant is also
+  an important tool in deriving error bounds. 
+  \begin{defn}
+    Given a finite element $(K, \mathcal{P}, \mathcal{N})$ with nodal basis $\set{\phi_1,\dots, \phi_k}$. Then for a function $v$ for which each of the nodal variables $N \in \mathcal{N}$ is defined, the local interpolant is given by
+    \[
+      I_K v = \sum_{i = 1}^k N_i(v)\phi_i.
+    \]
+  \end{defn}
+  \begin{defn}
+    Given a triangulation $\mathcal{T}_h$ where each $K \in \mathcal{T}_h$ has an associated finite element triplet $(K, \mathcal{P}, \mathcal{N})$. Then for
+    a function $v$ which is in the domain of each local interpolant the global interpolant reads
+    \[
+      I_{\mathcal{T}_h} v |_K = I|_K v \quad \forall K \in \mathcal{T}_h
+    \]
+  \end{defn}
+  We would like this global interpolant to preserve some regularity. Most elements provide such a kind of conformity. Consider
+  linear Lagrange elements again, then one easily sees that the global interpolant can be expressed using the global nodal variables, i.e.
+    \[
+      I_{\mathcal{T}_h} v = \sum_{i=1}^m N_i(v)\Phi_i \quad \text{ for } \N_\O =\set{N_1, \dots, N_m} \text{ and its global nodal basis } \Phi_1,\dots,\Phi_m.
+    \]
+    From Lemma~\ref{lem:lin_lagrange} we see that for $f \in C(\OO)$ we have $I_{\mathcal{T}_h} f \in C^0(\OO) \cap H^1(\OO)$. We say
+    that the interpolant has \emph{continuity order 0}, and the finite element space $V_h$ is said to be a $C^0$ finite element space.
+  \section{Error bounds}
+  Given the finite element space $V_h$, one can solve the Galerkin approximation $\eqref{eq:galerk_finite}$. The immediate
+  question is of course `what is the quality of the approximation'. In more mathematical terms, can we find (tight) bounds
+  on the approximation error?
+
+  The first such bound is provided by C\'ea's lemma (c.f. \cite[Thm~2.8.1]{brenner}).
+  \begin{lem}
+    Suppose the same conditions as in the Lax-Milgram theorem~\ref{thm:lax} hold. Then for the solution $u_h \in V_h$ of the
+    finite Galerkin approximation \eqref{eq:galerk_finite} we have
+    \[
+      \| u - u_h\| \leq {C \over \alpha} \min_{v \in V_h} \| u - v\|,
+    \]
+    where $C$ is the continuity constant and $\alpha$ is the coercivity constant of $a(c\dot, \cdot)$ on $V$.
+  \end{lem}
+  Where the norm is the same as the one on $V$; so this is the $H^1$-norm in case of our elliptic boundary value problem \eqref{eq:elliptic}.
+  Loosely, this lemma tells us that the finite element solution $u_h$ is the `best' approximation from the subspace $V_h$. We are
+  only left to find an element in $v \in V_h$ for which we can bound $\|u - v\|$. This is where the interpolant comes into play, since $I_{\T_h}u \in V_h$ if we assume that $u \in C(\OO)$.
+
+  The general idea is to bound $\|v - I_{\mathcal{T}_h} v\|$ by (universally) bounding the error restricted to each of the elements $K\in\T_h$.  
+  First an interpolation error bound is found for a \emph{reference element} $\hat K$. Then, under certain conditions, this bound can be used to estimate the interpolation error on each of the elements $K \in \T_h$. This idea of first considering a reference element is often 
+  used in finite element analysis and implementation. The extra conditions are formalised by the following definitions.
+  \begin{defn}
+    A finite element $(K, \P, \N)$ is affine-interpolation equivalent to $(\hat K, \hat \P, \hat \N)$ if there
+    exists an affine map $ F(\hat x) = B\hat x + c$ ($B$ non singular) such that for $f = \hat f \circ F$,
+    \begin{enumerate}[label=(\roman*)]
+      \item $F(K) = \hat K$;
+      \item $\P = \{f : \hat f \in \hat \P\}$;
+    \item $I_{\hat \N} \hat f = \left( I_{\N} f \right)\circ F$ for all sufficiently smooth $\hat f$.
+    \end{enumerate}
+  \end{defn}
+  \begin{defn}
+    Write $h_K := \text{diam}(K)$ and $p_K := \sup\set{\text{diam}(S): S \text{ ball }, S \subset K}$.
+    A~family of finite elements $(K, \mathcal{P}, \mathcal{N})$ is \emph{uniformly shape regular} if 
+    \[
+      \sup_K h_k/p_k < \infty.
+    \]
+  \end{defn}
+
+  Using the \emph{Sobolev inequalities}, the \emph{Bramble-Hilbert lemma} and the \emph{Transformation lemma}, one
+  can proof the following (see \cite[Ch~3]{chen} or \cite{stevenson} for a concise overview).
+  \begin{thm}
+    Let $(\hat K, \hat \P, \hat \N)$ be finite element with $\hat K \subset \R^n$. Suppose that $m - n/ 2 > l$,
+    \[
+      \P_{m-1}(\hat K) \subset \hat \P \subset H^m(\hat K) \quad \text{and} \quad \hat N \subset  C^l(\hat K)'.
+    \]
+    
+    Then there exists a constant $C(\hat K, \hat P, \hat N)$ such that for all $(K, \P, \N)$ affine-interpolation
+      equivalent to $(\hat K, \hat P, \hat N)$, and for $0 \leq s \leq m$,
+      \[
+        \abs{v - I_K v}_{H^s(K)} \leq C \frac{h_K^{m}}{p_K^s} \abs{v}_{H^m(K)} \quad  \forall v \in H^m(\O).
+      \]
+      If in addition a family $(K, \P, \N)$ is also uniformly shape regular the above is reduced to,
+      \[
+        \abs{v - I_K v}_{H^s(K)} \leq C h_K^{m -s} \abs{v}_{H^m(K)} \quad \forall v \in H^m(\O).
+      \]
+  \end{thm}
+  This theorem provides us with the wanted local error bounds. As a consequence we can now
+  give an error bound for the global interpolant.
+  \begin{thm}
+    Let $(\mathcal{T}_h)$ be a family of uniformly shape regular subdivisions of a domain~$\O \subset \R^n$.
+    Suppose that all the finite elements are affine-interpolation equivalent to a reference element $(\hat K, \hat P, \hat N)$,
+    then under the conditions of the previous theorem we find for $0 \leq s \leq m$ and $h  := \max_{ K \in \T_h} h_K$,
+    \[
+      \left( \sum_{K \in \T_h} \norm{v - I_K v}^2_{H^s(K)}\right)^{1/2} \leq C h^{m-s} \abs{v}_{H^m(\O)} \quad \forall v \in H^m(\Omega).
+    \]
+    In case the global interpolant satisfies $I_{\T_h} C^l(\OO) \subset C^{m-1}(\OO)$, the above left hand side becomes a norm, i.e. 
+    \[
+      \norm{v - I_{\T_h}v}_{H^s(K)} \leq C h^{m-s} \abs{v}_{H^m(\O)} \quad \forall v \in H^m(\Omega).
+    \]
+  \end{thm}
+  Suppose that we approximate the elliptic problem \eqref{eq:elliptic} with Lagrange elements in the plane. Additionally, if
+  the solution $u$ satisfies $u \in H_0^1(\O)\cap H^2(\O)$, then C\'ea's lemma combined with the above theorem tells us that\footnote{
+  Here we also used that the global interpolant preserves the Dirichlet boundary condition, i.e.
+   $I_{\T_h} u$ is actually an element of $V_h \subset H_0^1(\O)$.}
+  \begin{equation}
+    \label{eq:conv_h}
+    \|u - u_h\|_{H^1(\O)} \leq C \min_{v \in V_h} \| u - v\|_{H^1(\O)} \leq C \| u - I_{\T_h}u \|_{H^1(\O)} \leq C h \abs{u}_{H^2(\O)}.
+  \end{equation}
+  Which provides us with a concrete convergence proof. 
+
+  \section{A posteriori error estimation}
+  The last result \eqref{eq:conv_h} shows that the approximation error declines upon solving $u_h$
+  for finite element spaces with decreasing $h$. This so called \emph{a priori} estimator provides an error bound
+  using problem specific information, e.g. $u \in H^2$. It does not capture
+  any local information; it does not tell \emph{where} the approximation error is substantial. 
+  
+  One might suspect that sharpened error bounds can be given if we actually use $u_h$.
+  Instead of globally reducing $h$, it might also be more efficient to consider partitions $\T_h$ with
+  the diameter only locally reduced. This could lead to convergence of problems where $u$ is not sufficiently smooth. For this \emph{a posteriori} error estimators are useful. Given an $u_h$,
+  the a posteriori estimator can be used to indicate on which elements $K \in \T_h$ the error $\|u - u_h\|_K$ is relatively large.
+
+  We follow the terminology given in \cite{stevenson}. For simplicity  we will consider the Poisson problem, i.e. given a polyhedral domain~$\O \subset \R^n$ and $f \in L^2(\O)$, solve for $u$:
+  \begin{alignat}{2}
+    -\Delta u &=&f \quad &\text {in } \Omega, \label{eq:poisson} \\
+    u &=& 0 \quad &\text{on } \partial\O. \nonumber
+  \end{alignat}
+  The bilinear form of the weak formulation is given by $a(v,w) = \ip{\nabla v, \nabla w}_\O$ with
+  test space $V = H_0^1(\O)$. This form
+  induces the energy seminorm,
+  \[
+    \enorm{v}_\O := a(v,v)^{1/2} = \ip{\nabla v, \nabla v}_\O^{1/2} = \abs{v}_{H^1(\O)} \quad \forall v \in V,
+  \]
+  which is a norm on $V$ thanks to the Poincar\'e-Friedrichs inequality.
+
+  Let $\T$ be a uniformly shape regular triangulation of $\O$, with $\VV(\T)$ the Lagrange finite element space of degree $p$, i.e. 
+  \[
+    \VV(\T) = \set{ v \in H_0^1(\O ) \cap C(\O) :  v|_K \in \P_p(K)}.
+  \] 
+  \todo{Replace $u_h$ by $U$}
+  The classical error estimator is based on the \emph{residual} $e_h := u - u_h$, with $u_h\in \VV(\T)$ the discrete solution. Inserting this in the bilinear form yields for $v \in V$,
+  \begin{align*}
+    a(e_h, v) &= \ip{f,v} - a(u_h, v) \\
+              &= \sum_{K \in \T} \int_K fv + \nabla u_h \cdot \nabla v \\
+              &= \sum_{K \in \T} \int_K (f + \Delta u_h)v+\int_{\partial K} \left(\nabla u_h \cdot n\right) v\\
+    &= \sum_{K \in \T} \int_K (f + \Delta u_h)v+\int_{e \in \E^{int}} \left \llbracket \nabla u_h \right \rrbracket  v.
+  \end{align*}
+  Here $\llbracket q \rrbracket$ is the jump of $q$ over an interface in the direction of the unit normal $n$, and~$\E^{int}$~is the set of interior
+  edges of $\T$. The equalities follow from integration by parts, and the fact that $v$ vanishes on the exterior edges of $\T$.
+  Since $I_\T v \in \VV(\T)$ we find from the Galerkin orthogonality that
+  \[
+    a(e_h, v) = a(e_h, v - I_\T v) \leq \sum_{K \in \T} \| f + \Delta u_h\|_{L^2(K)} \| v - I_\T v\|_{L^2(K)} + \sum_{e \in \E^{int}} \|\llbracket \nabla u_h \rrbracket \|_{L^2(e)} \|v - I_\T v\|_{L^2(e)}.
+  \]
+  The norms of  $v - I_\T v$ can be estimated using the interpolation theory.\footnote{Technically we use a different interpolant here than the one given in the previous section, since this required $v$ to have extra smoothness. The so-call \emph{Scott-Zhang} interpolant does the trick (c.f. \cite[Ch~4.9]{brenner}).} This gives reason for the following definitions.
+  \begin{defn}
+    \label{def:clasest}
+    For $K \in \T$ and $v \in \VV(\T)$ the \emph{error indicator} for $v$ on $K$ reads
+    \[
+      \eta(v, K)^2 := h_K^2 \norm{f + \Delta v}^2_{L^2(K)} + h_K\norm{\llbracket \nabla v \rrbracket}^2_{L^2(\partial K\setminus \partial \O)}.
+    \]
+    The \emph{oscillation term} of $f$ on $K$ is given by
+    \[
+      \osc(f,K)^2 := h_K^2 \norm{f - P_K^r f}^2_{L^2(K)} \quad \text{ for some } r \geq k-2,
+    \]
+    where $P_K^r$ is the $L^2(K)$-orthogonal projector on polynomials of degree $r$ on $K$.
+
+    For $\M \subset \T$ the above terms are simply defined as the sum over $K \in \M$, i.e.
+    \[
+      \eta(v, \M)^2 := \sum_{K \in \M} \eta(v, K)^2, \quad \text{and} \quad \osc(f, \M)^2 := \sum_{K \in \M} \osc(f,K)^2.
+    \]
+  \end{defn}
+  Denote $\T_\star \geq \T$ if $\T_\star$ is a refinement of $\T$, and let $R_{\T \to \T_\star}$ be the set of refined elements, 
+  i.e. $R_{\T \to \T_\star} = \T\setminus \T_\star$. To distinguish between finite element solutions, denote  $u_\T$ for the Galerkin approximation in $\VV(\T)$. The following theorem holds (see \cite{stevenson} for a proof).
+  \begin{thm}
+    \label{thm:residual_erro}
+    There exists $C_1$ such that for $\T_\star \geq \T$ we have 
+    \[
+      \enorm{u_{\T_\star} - u_{\T}}^2_{\O} \leq C_1 \eta (u_\T, R_{\T \to \T_\star})^2 \quad \text{and} \quad \enorm{u - u_{\T}}^2_{\O} \leq C_1 \eta (u_\T, \T)^2.
+    \]
+
+    Similarly, there exists a $C_2$ such that
+    \[
+      \eta(u_\T, \T)^2 \leq C_2 \left [\enorm{u - u_\T}^2_{\O} + \osc(f, \T)^2 \right].
+    \]
+  \end{thm}
+  The estimator $\eta(u_\T, \T)^2$ provides an upper- \emph{and} lower bound for the total error:~$\enorm{u-u_\T}^2_{\O} + \osc(f,\T)^2$.
+  That is, the error estimator is proportional to the total error. In practice the $\osc(f,\T)^2$ is magnitudes smaller 
+  than $\eta(u_\T,\T)^2$; in this case, the estimator $\eta(u_\T, \T)^2$ is proportional to the approximation error.
+
+  TODO: More references.
+  \section{Adaptive finite element method}
+  \label{sec:afem}
+  The difference between the a priori estimator from \S\ref{sec:apriori} is that $\eta(u_\T, \T)$ consists of known quantities: $f, u_\T$. 
+  Therefore $\eta(u_\T,\T)$ can be calculated to find out \emph{where} the approximation error is big. This leads to the
+  very intuitive algorithm, called the \emph{adaptive finite element method}:
+  \[
+    TODO
+  \]
+
+  Of course, this method is accomplished with a convergence proof.
+  \begin{thm}
+    There exists constants $\gamma > 0$ and $\alpha \in (0,1)$, such that
+    \[
+      \enorm{u - u_{k+1}}^2_{\O} + \gamma \eta \left(u_{k+1}, \T_{k+1}\right)^2 \leq \alpha\left(\enorm{u - u_k}^2_{\O} + \gamma \eta(u_k, \T_k)^2\right)
+    \]
+  \end{thm}
+  One can even prove that the convergence is with the best possible rate. To formalise this we introduce an approximation class.
+  \begin{defn}
+    For $s > 0$, the approximation class $\A^s$ is defined by
+    \begin{align*}
+      \A^s := \{ u \in H_0^1(\O) :& \Delta u \in L^2(\O),\\
+                                  & \abs{u}_{\A^s} := \sup_{N \in \NN} \left(N + 1\right)^s \min_{\set{\T \in \TT : \#\T -\# \T_0 \leq N}} \sqrt{\enorm{u - u_\T}^2_{\O} + \osc(f,\T)^2} < \infty\}.
+    \end{align*}
+  \end{defn}
+  We have the following theorem (cite TODO)
+  \begin{thm}
+    Let $C_1, C_2$ be as in Theorem~\ref{thm:residual_erro}. Ensure that $\theta^2 < \left(C_1(C_2+1)\right)^{-1}$.
+    Take $u \in \A^s$ for some $s > 0$, then there is a $C$ such that
+    \[
+      \# \T_k - \# T_0 \leq C \abs{u}^{1/s}_{\A^s} \left( \sqrt{ \enorm{u - u_k}^2_{\O} + \osc(\T_k, f)^2}\right)^{-1/s}.
+    \]
+  \end{thm}
+  
+  
+  
+\end{document}

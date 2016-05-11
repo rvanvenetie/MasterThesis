@@ -1,0 +1,155 @@
+\documentclass{uvamath}
+\graphicspath{{Images/}}
+\usepackage[english]{babel}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{stmaryrd}
+\usepackage{commath}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage{subfiles}
+\usepackage{enumitem}
+\usepackage{todonotes}
+\usepackage[pdfborder={0 0 0}]{hyperref}
+
+%\usepackage{titlesec}
+%\titleformat{\chapter}[hang] {\normalfont\bfseries\raggedright\huge}
+%{\thechapter.} {3ex} {} [\titlerule\vspace{-.6cm}]
+
+
+\theoremstyle{plain}% default
+\newtheorem{thm}{Theorem}[chapter]
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem*{cor}{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}[chapter]
+\newtheorem{conj}{Conjecture}[chapter]
+\newtheorem{exmp}{Example}[chapter]
+
+\theoremstyle{remark}
+\newtheorem*{rem}{Remark}
+\newtheorem*{note}{Note}
+\newtheorem{case}{Case}
+
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\N}{\mathcal{N}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\M}{\mathcal{M}}
+\newcommand{\T}{\mathcal{T}}
+\newcommand{\TT}{\mathbb{T}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\RR}{\mathcal{R}}
+\newcommand{\RT}{\mathcal{RT}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\V}{\mathcal{V}}
+\newcommand{\VV}{\mathbb{V}}
+\newcommand{\f}{\varphi}
+\newcommand{\e}{\varepsilon}
+\newcommand{\w}{\omega}
+\newcommand{\W}{\mathcal{K}}
+\newcommand{\ip}[1]{\left \langle #1 \right \rangle}
+\newcommand{\enorm}[1]{\left\vvvert #1 \right \vvvert}
+\renewcommand{\O}{\Omega}
+\renewcommand{\P}{\mathcal{P}}
+\newcommand{\OO}{\overline{\Omega}}
+
+\DeclareMathOperator{\osc}{osc}
+%undefine div
+\let\div\relax
+\DeclareMathOperator{\div}{div}
+\DeclareMathOperator{\supp}{supp}
+% Pretty leq/geq
+\renewcommand{\leq}{\leqslant}
+\renewcommand{\geq}{\geqslant}
+
+% Energy norm
+\DeclareFontFamily{U}{matha}{\hyphenchar\font45}
+\DeclareFontShape{U}{matha}{m}{n}{
+      <5> <6> <7> <8> <9> <10> gen * matha
+      <10.95> matha10 <12> <14.4> <17.28> <20.74> <24.88> matha12
+      }{}
+\DeclareSymbolFont{matha}{U}{matha}{m}{n}
+\DeclareFontSubstitution{U}{matha}{m}{n}
+
+% Math symbol font mathb
+\DeclareFontFamily{U}{mathx}{\hyphenchar\font45}
+\DeclareFontShape{U}{mathx}{m}{n}{
+      <5> <6> <7> <8> <9> <10>
+      <10.95> <12> <14.4> <17.28> <20.74> <24.88>
+      mathx10
+      }{}
+\DeclareSymbolFont{mathx}{U}{mathx}{m}{n}
+\DeclareFontSubstitution{U}{mathx}{m}{n}
+
+% Symbol definition
+\DeclareMathDelimiter{\vvvert}{0}{matha}{"7E}{mathx}{"17}
+
+
+
+
+\title{Equilibrated residual error estimators for the finite element method} % Title of your thesis
+\author[raymond.van.venetie@gmail.com, 10004627]{Raymond van Veneti\"e} %Your name, email and student number
+
+\documentTitle{Master Thesis}
+\program{MSc Mathematics} % MSc Mathematics / MSc Mathematical Physics / Stochastics and Financial Mathematics
+
+\supervisorsTitle{prof.\ dr.\ R.P. Stevenson} %This is the list of supervisors for the title page, seperate with \newline
+
+\supervisors{prof.\ dr.\ R.P. Stevenson} %This is the list of supervisors for the second page, seperate with comma
+
+%If you have a daily supervisor, uncomment and add name here
+%\dailysupervisorTitle{PhD Student (CWI)} % This is the list of daily supervisors for the title page, seperate with \newline
+%\dailysupervisor{PhD Student (CWI)} % This is the list of daily supervisors for the title page, seperate with comma
+
+\secondexaminer{dr.\ Karl Weierstrass} %This is the name of the second examiner, for the second page
+\date{January 1, 2016} %This is the examination date, i.e. the date of your thesis presentation
+
+%%If you do an internship or a research project and another insitute, uncomment and add the name logo and adresss of the other institute here
+%\secondinstitute{Centrum voor Wiskunde en Informatica}
+%\secondlogo{\includegraphics[height=1cm]{cwi-logo}}
+%\secondadress{Centrum voor Wiskunde en Informatica \\
+%Science Park 123, 1098 XG Amsterdam \\
+%\url{http://www.cwi.nl}} %Adress of second institute, for the second page
+
+
+\begin{document}
+\maketitle
+\begin{abstract}
+  \subfile{abstract.tex}
+\end{abstract}
+
+\tableofcontents
+
+\chapter*{Introduction}
+\addcontentsline{toc}{chapter}{Introduction}
+\subfile{introduction.tex}
+
+\chapter{Theoretical Background}
+\subfile{theory_afem.tex}
+
+\chapter{Equilibrated residual estimator}
+\subfile{theory_equil.tex}
+
+\appendix
+\chapter{Definitions and notation}
+\subfile{definitions.tex}
+
+\chapter*{Popular summary}
+\addcontentsline{toc}{chapter}{Popular summary}
+Popular summary (half to one page, in English or Dutch, accessible to a first year bachelor student in mathematics)
+
+\addcontentsline{toc}{chapter}{Bibliography}
+\bibliographystyle{acm}
+\bibliography{thesis}
+%\begin{thebibliography}{10}
+
+\end{document}
