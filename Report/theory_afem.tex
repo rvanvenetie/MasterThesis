@@ -2,9 +2,9 @@
 \begin{document}
 For self-completeness this chapter contains summary of the finite element method ---
 a method for approximating solutions of partial differential equations.
-A complete formal derivation of the theory can be found in various books, e.g. \cite{brenner}. 
+A complete mathematical derivation of the theory can be found in various books, e.g. \cite{brenner}. 
 We shall focus on second-order elliptic boundary value problems. For a bounded Lipschitz domain $\Omega \subset \R^n$ the 
-general form boundary value problem with Dirichlet boundary conditions can given by
+general boundary value problem with Dirichlet boundary conditions is given by
 \begin{alignat}{2}
   -\nabla \cdot {\left(A \nabla u\right)} + \mathbf{b} \cdot \nabla u + c &= &f \quad  &\text {in } \Omega,  \label{eq:elliptic}\\
   u  &=& 0 \quad &\text{on } \partial\Omega.\nonumber
@@ -14,7 +14,7 @@ these types for ease of presentation and calculations. Under specific conditions
 and $f$ we can approximate the solution to this problem using the finite element method.
 
 \section{Weak formulation}
-The first step consists of finding a \emph{weak formulation} for the boundary value problem \eqref{eq:elliptic}. 
+The first step consists of tanslating the boundary value problem \eqref{eq:elliptic} into a \emph{weak formulation}.  
 That is, we define a space $V$ of test functions and consider the problem of finding $u$ such that \eqref{eq:elliptic} holds 
 in a distributional sense. Suppose that $u$ solves \eqref{eq:elliptic} with $A, \mathbf{b}, c, f$ sufficiently smooth functions, then for $v \in V$ --- which we will define later on--- we calculate
 \begin{align*}
@@ -23,7 +23,7 @@ in a distributional sense. Suppose that $u$ solves \eqref{eq:elliptic} with $A, 
            = &\int_{\partial \Omega} -\left(A(x) \nabla u(x) \cdot n\right)v(x) \, \dif x \\
               &+ \int_{\Omega} \left( A(x) \nabla u(x)\right) \cdot \nabla v(x) + \left(\mathbf{b}(x) \cdot \nabla u(x)\right)v(x) + c(x) v(x) \, \dif x.
 \end{align*}
-Where the third equality follows from the Divergence theorem. Suppose that all test functions $v$ vanish on the boundary $\partial \Omega$, then the boundary integral disappears and we find
+Where the third equality follows from the Divergence theorem, see \ref{thm:divergence}. Suppose that all test functions $v$ vanish on the boundary $\partial \Omega$, then the boundary integral disappears and we find
 \begin{equation}
   \label{eq:ellipticweak}
   F(v) := \ip{f,v} = \ip{A \nabla u, \nabla v} + \ip{\mathbf{b} \cdot \nabla u + cu, v}=: a(u,v).
@@ -52,7 +52,7 @@ The (famous) Lax-Milgram theorem can be used to show that certain weak formulati
 \end{thm}
 A proof of this theorem can be found in many books, e.g. \cite[Ch. 2]{brenner}. 
 
-To use  Lax-Milgram for our weak formulation \eqref{eq:ellipticweak} we need restrictions on $A, \mathbf{b}, c$ and $f$. We assume that:
+To use  Lax-Milgram for our weak formulation \eqref{eq:ellipticweak} we need restrictions on the parameters $A, \mathbf{b}, c$ and $f$. We assume that:
 \begin{enumerate}[label=(\alph*)]
 \item $A(x) = (a_{ij}(x))_{1 \leq i,j \leq n}$ is symmetric, $a_{ij} = a_{ji}$, with $a_{ij} \in L^{\infty}(\Omega)$. Furthermore, we suppose that the matrix is uniformly elliptic, i.e. there is a positive constant $\alpha$ such that 
 \[
@@ -66,7 +66,7 @@ Given these assumptions Lax-Milgram can be applied to the weak formulation \eqre
 \[
   \abs{F(v)} = \abs{\ip{f,v}} \leq \|f\|_{L^2(\Omega)} \|v\|_{L^2(\Omega)} \leq \|f\|_{L^2(\Omega)} \|v\|_{H^1(\Omega)}.
 \]
-We are left to check the continuity and coercivity of the bilinear form
+We are left to check the continuity and coercivity of the bilinear form.
 \begin{description}
   \item[Continuity]Using H\"older we find
     \begin{align*}
@@ -75,29 +75,30 @@ We are left to check the continuity and coercivity of the bilinear form
                    &+ \norm{c}_{L^2(\Omega)} \norm{v}_{L^2(\Omega)} \norm{w}_{L^2(\Omega)} \\
                    \leq &C \|v\|_{H^1(\Omega)} \|w\|_{H^1(\Omega)},
     \end{align*}
-    where $C$ is finite since $a_{ij}, b_i, c \in L^\infty(\Omega)$. So $a(\cdot,\cdot)$ is indeed continuous.
-  \item[Coercivity] This is where our extra assumptions come into play. Since $\mathbf{b}$ has a vanishing weak divergence, a density argument\footnote{Recall that $C_c^\infty(\Omega)$ is dense in $H_0^1(\Omega)$} shows that for $v \in H_0^1(\Omega)$ we have
+    where $C$ is a finite constant since $a_{ij}, b_i, c \in L^\infty(\Omega)$. So $a(\cdot,\cdot)$ is indeed continuous.
+  \item[Coercivity] This is where our extra assumptions come into play. Since $\mathbf{b}$ has a vanishing weak divergence, a density argument\footnote{Recall that $C_c^\infty(\Omega)$ is dense in $H_0^1(\Omega)$.} shows that for $v \in H_0^1(\Omega)$ we have
     \[
       \int_\Omega \left(\mathbf{b} \cdot \nabla v\right)v  = \int_\Omega \mathbf{b} \cdot \left({1 \over 2} \nabla v^2\right) = - \int_\Omega \left(\nabla \cdot \mathbf{b} \right) {1 \over 2} v^2 = 0.
     \]
     By nonnegativity of $c$ we have $cv^2 \geq 0$ on $\Omega$. 
-    \todo{ref} The Poincar\'e-Friedrich inequality provides us with a constant $C_\Omega$ such that $\|v\|_{L^2(\Omega)} \leq C_\Omega \|\nabla v\|_{L^2(\Omega)}$ for $v \in H_0^1(\Omega)$. Combining the previous with the uniform ellipticity of $A$ gives us for $v \in H_0^1(\Omega)$ that
+    The Poincar\'e-Friedrich  inequality --- stated in \ref{thm:poincare} --- provides us with a constant $C_\Omega$ such that $\|v\|_{L^2(\Omega)} \leq C_\Omega \|\nabla v\|_{L^2(\Omega)}$ for $v \in H_0^1(\Omega)$. Combining the previous with the uniform ellipticity of $A$ yields,
     \begin{align*}
       a(v,v) &= \int_\Omega \left(A \nabla v\right) \cdot \nabla v + \left(\mathbf{b} \cdot \nabla v\right)v + cv^2 \\
              &\geq  \int_\Omega \left(A(x) \nabla v(x)\right) \cdot \nabla v(x)\, \dif x \\
              &\geq  \int_\Omega \alpha \|\nabla v(x)\|^2\, \dif x = \alpha \|\nabla v\|^2_{L^2(\Omega)}\\
              &\geq \frac{\alpha}{2} \left(\frac{1}{C^2_\Omega} \|v\|^2_{L^2(\Omega)} + \|\nabla v\|^2_{L^2(\Omega)}\right) \geq \beta \|v\|^2_{H^1(\Omega)}.
     \end{align*}
-    Which proves the coercivity of $a(\cdot, c\dot)$.
+    This proves the coercivity of $a(\cdot, c\dot)$.
 \end{description}
-By invoking Lax-Milgram we obtain the wanted result, namely that there is a unique $u \in V$ that solves the weak formulation \eqref{eq:ellipticweak}.
+By the above we may invoke Lax-Milgram to obtain the wanted result, namely that there is a unique $u \in V$ that solves the weak formulation \eqref{eq:ellipticweak}.
 
-We cannot expect to solve the weak formulation in its current form as this is still an infinite dimensional problem. Instead one generally tries to solve the Galerkin approximation problem:
+We cannot expect to solve the weak formulation in its current form since this is still an infinite dimensional problem.
+Instead one generally solves the Galerkin approximation problem:
 \begin{equation}
   \label{eq:galerk_finite}
   \text{Given a finite-dimensional } V_h \subset V \text{: find $u_h \in V_h$ s.t. } a(u_h, v) = F(v) \quad \forall v \in V_h.
 \end{equation}
-This is a finite dimensional problem, and carefully choosing subspaces $V_h$ can lead to increasing approximation accuracy. Another application of Lax-Milgram applied to $V_h$ shows that this system has a unique solution as well.
+This is a finite dimensional problem, and carefully choosing subspaces $V_h$ can lead to increasing approximation accuracy of $u_h$. Another application of Lax-Milgram applied to $V_h$ shows that this system has a unique solution as well.
 
 \begin{rem}
   We have shown that the weak formulation has a unique solution $u \in H_0^1(\Omega)$. We need more smoothness of $u$ to show that this is also a solution to the original boundary value problem.
@@ -122,16 +123,16 @@ This is a finite dimensional problem, and carefully choosing subspaces $V_h$ can
     Let $\mathcal{P}$ be a $k$-dimensional vector space with $\mathcal{N} = \set{N_1, \dots, N_k} \subset \mathcal{P}'$.
     The set $\mathcal{N}$ is a basis for $\mathcal{P}'$ iff $\mathcal{N}$ determines $\mathcal{P}$, i.e. if $v \in \mathcal{P}$ with $N(v) = 0$ for all $N \in \mathcal{N}$ implies that $v = 0$.
   \end{lem}
-  Informally, a subspace $V_h$ can now be introduced. Consider a partition $\mathcal{T}$ of the domain $\Omega$ into finite elements,
+  Informally a subspace $V_h$ can now be introduced. Consider a partition $\mathcal{T}$ of the domain $\Omega$ into finite elements,
   i.e. $\overline{\Omega} = \cup_{K \in \mathcal{T}} K$ where $(K, \mathcal{P}_K, \mathcal{N}_K)$ is a finite element for $K \in \mathcal{T}$.
-  Then we can simply define $V_h$ to be the space of functions that coincide with the shape functions on each element,
+  We can simply define $V_h$ to be the space of functions that coincide with the shape functions on each element,
   i.e. $v \in V_h$ if $v|_{K} \in \mathcal{P}_K$ for all $K \in \mathcal{T}$. 
-  Without further conditions on the partition we have no way of giving properties of the subspace $V_h$ --- we do not even know if it is correctly defined\footnote{In general, two adjacent elements have a non-finite intersection. 
+  Without further conditions on the partition we have no way of giving smoothness  properties for the subspace $V_h$ --- we do not even know if it is correctly defined\footnote{In general, two adjacent elements have a non-finite intersection. 
   Therefore $v \in V_h$ might be incorrectly defined on this intersection in a classical sense.}.
-  If we know for example that the exact solution $u$ is continuous, then we might want to use a subspace $V_h$ consisting of
+  In case the exact solution $u$ is continuous it makes sense to use a subspace $V_h$ consisting of
   continuous functions as well. 
 
-  In the literature a variety of finite elements are used, each element having its pros and cons. For now we will be interested in the \emph{Lagrange element}. For a triangle $K$ the Lagrange element of order 1 --- also called linear Lagrange --- is given by the triplet $(K, \mathcal{P}_1, \set{N_1, N_2, N_3})$, with $\mathcal{P}_1$ linear polynomials and functionals $N_i(v) = v(z_i)$ for the vertices $z_i$ of K. This element can be generalised to have shape functions $\mathcal{P}_k$ for of an arbitrary order $k$.
+  In the literature a variety of finite elements are used, each element having its pros and cons. For now we will be interested in the \emph{Lagrange element}. For a triangle $K$ the Lagrange element of order 1 --- also called linear Lagrange --- is given by the triplet $(K, \mathcal{P}_1, \set{N_1, N_2, N_3})$, with $\mathcal{P}_1$ linear polynomials and functionals $N_i(v) = v(z_i)$, evaluation in the vertices $z_i$ of K. This element can be generalised to have shape functions $\mathcal{P}_k$ for of an arbitrary order $k$.
 
   To ensure extra properties of the subspace $V_h$ we need more regularity in the partition. In this work  we shall therefore consider subdivisions of the domain into simplices (triangles in $\R^2$, tetrahedra in $\R^3$). Implicitly we therefore also require $\Omega$ to have a polyhedral boundary. Moreover, we require the partition to be \emph{conforming}.
   \begin{defn}
@@ -144,19 +145,19 @@ This is a finite dimensional problem, and carefully choosing subspaces $V_h$ can
   \end{itemize}
   \end{defn}
   
-  Let a triangulation $\mathcal{T}_h$ be given. Suppose that we want to consider the subspace $V_h$ consisting
+  Let a triangulation $\mathcal{T}_h$ be given. Suppose that we consider the subspace $V_h$ consisting
   of continuous functions $v$ that are linear polynomials when restricted to a triangle $K \in \mathcal{T}_h$. Why
   would one look at finite elements $(K, \mathcal{P}, \mathcal{N})$? 
   Instead one could just try to find a basis for this subspace, without ever needing to define finite elements.
   It appears however, that for analysis of the approximation error these finite elements are extremely useful.
 
-  The linear Lagrange elements are an obvious choice as finite elements, if we want to construct $V_h$ as the space
-  of piecewise linear continuous functions with respect to $\mathcal{T}_h$. Notice that every function $v \in V_h$ is completely
-  determined by its value in the vertices of $\mathcal{T}_h$ by the continuity and piecewise linearity requirements.
-  This precisely coincides with the choice of the local nodal variables. We can lift these local nodal variables to become
+  Linear Lagrange elements are an obvious choice as finite elements, if we want to construct the continuous piecewise linear subspace $V_h$.
+  Every function $v \in V_h$ is completely
+  determined by its value in the vertices of $\mathcal{T}_h$, because of continuity and piecewise linearity.
+  This precisely coincides with the choice of the local nodal variables. We can therefore lift these local nodal variables to become
   global variables of the bigger space $V_h'$.
   
-  Formally, the global nodal variables $\N_\O$ consist of the local nodal variables $N$ that are also defined for $C(\OO)'$. Certain
+  Formally, the global nodal variables $\N_\O$ are the local nodal variables $\mathcal{N}$ that are also defined for $C(\OO)'$. Certain
   local nodal variables will induce the same global nodal variable. In the linear Lagrange case for example, we see that all nodal variables
   associated to one vertex $z$ will induce the same global nodal variable. We define the finite element space $V_h$ as the span of the 
   nodal basis with respect to $\N_\O$. 
@@ -174,16 +175,14 @@ This is a finite dimensional problem, and carefully choosing subspaces $V_h$ can
     Let $\mathcal{T}_h$ be a triangulation of the domain $\O$, with $V_h$ the finite element space generated
     by using Lagrange elements. Then $v \in V_h$ is continuous and weak differentiable, i.e. $v \in C(\OO) \cap H^1(\OO)$. 
   \end{lem}
-  \begin{proof}
-    TODO
-  \end{proof}
-
+  
+  \textcolor{blue}{This section is vague. Delete or shorten it. }
 \section{Interpolant}
 \label{sec:apriori}
 The literature the element space is frequently defined in terms of the \emph{interpolant} (c.f. \cite[Ch~3]{brenner}). This interpolant is also
   an important tool in deriving error bounds. 
   \begin{defn}
-    Given a finite element $(K, \mathcal{P}, \mathcal{N})$ with nodal basis $\set{\phi_1,\dots, \phi_k}$. Then for a function $v$ for which each of the nodal variables $N \in \mathcal{N}$ is defined, the local interpolant is given by
+    Given a finite element $(K, \mathcal{P}, \mathcal{N})$ with nodal basis $\set{\phi_1,\dots, \phi_k}$. Then for a function $v$ for which all of the nodal variables $N \in \mathcal{N}$ are defined, the local interpolant is given by
     \[
       I_K v = \sum_{i = 1}^k N_i(v)\phi_i.
     \]
@@ -192,11 +191,11 @@ The literature the element space is frequently defined in terms of the \emph{int
     Given a triangulation $\mathcal{T}_h$ where each $K \in \mathcal{T}_h$ has an associated finite element triplet $(K, \mathcal{P}, \mathcal{N})$. Then for
     a function $v$ which is in the domain of each local interpolant the global interpolant reads
     \[
-      I_{\mathcal{T}_h} v |_K = I|_K v \quad \forall K \in \mathcal{T}_h
+      I_{\mathcal{T}_h} v |_K = I|_K v \quad \forall K \in \mathcal{T}_h.
     \]
   \end{defn}
   We would like this global interpolant to preserve some regularity. Most elements provide such a kind of conformity. Consider
-  linear Lagrange elements again, then one easily sees that the global interpolant can be expressed using the global nodal variables, i.e.
+  linear Lagrange elements again; one easily sees that the global interpolant can be expressed using the global nodal variables, i.e.
     \[
       I_{\mathcal{T}_h} v = \sum_{i=1}^m N_i(v)\Phi_i \quad \text{ for } \N_\O =\set{N_1, \dots, N_m} \text{ and its global nodal basis } \Phi_1,\dots,\Phi_m.
     \]
@@ -216,8 +215,8 @@ The literature the element space is frequently defined in terms of the \emph{int
     \]
     where $C$ is the continuity constant and $\alpha$ is the coercivity constant of $a(c\dot, \cdot)$ on $V$.
   \end{lem}
-  Where the norm is the same as the one on $V$; so this is the $H^1$-norm in case of our elliptic boundary value problem \eqref{eq:elliptic}.
-  Loosely, this lemma tells us that the finite element solution $u_h$ is the `best' approximation from the subspace $V_h$. We are
+  The norm is the same as on $V$; so this is the $H^1$-norm in case of our elliptic boundary value problem \eqref{eq:elliptic}.
+  Loosely, the above lemma tells us that the finite element solution $u_h$ is the `best' approximation from the subspace $V_h$. We are
   only left to find an element in $v \in V_h$ for which we can bound $\|u - v\|$. This is where the interpolant comes into play, since $I_{\T_h}u \in V_h$ if we assume that $u \in C(\OO)$.
 
   The general idea is to bound $\|v - I_{\mathcal{T}_h} v\|$ by (universally) bounding the error restricted to each of the elements $K\in\T_h$.  
@@ -272,7 +271,7 @@ The literature the element space is frequently defined in terms of the \emph{int
       \norm{v - I_{\T_h}v}_{H^s(K)} \leq C h^{m-s} \abs{v}_{H^m(\O)} \quad \forall v \in H^m(\Omega).
     \]
   \end{thm}
-  Suppose that we approximate the elliptic problem \eqref{eq:elliptic} with Lagrange elements in the plane. Additionally, if
+  Assume we approximate the elliptic problem \eqref{eq:elliptic} with Lagrange elements in the plane. Additionally, if
   the solution $u$ satisfies $u \in H_0^1(\O)\cap H^2(\O)$, then C\'ea's lemma combined with the above theorem tells us that\footnote{
   Here we also used that the global interpolant preserves the Dirichlet boundary condition, i.e.
    $I_{\T_h} u$ is actually an element of $V_h \subset H_0^1(\O)$.}
@@ -291,8 +290,8 @@ The literature the element space is frequently defined in terms of the \emph{int
   
   One might suspect that sharpened error bounds can be given if we actually use $u_h$.
   Instead of globally reducing $h$, it might also be more efficient to consider partitions $\T_h$ with
-  the diameter only locally reduced. This could lead to convergence of problems where $u$ is not sufficiently smooth. For this \emph{a posteriori} error estimators are useful. Given an $u_h$,
-  the a posteriori estimator can be used to indicate on which elements $K \in \T_h$ the error $\|u - u_h\|_K$ is relatively large.
+  the diameter only locally reduced. This could lead to convergence of problems where $u$ is not sufficiently smooth --- for example $u \not \in H^2$. This is where \emph{a posteriori} error estimators are useful. Given an $u_h$,
+  an a posteriori estimator can be used to indicate on which elements $K \in \T_h$ the error $\|u - u_h\|_K$ is relatively large.
 
   We follow the terminology given in \cite{stevenson}. For simplicity  we will consider the Poisson problem, i.e. given a polyhedral domain~$\O \subset \R^n$ and $f \in L^2(\O)$, solve for $u$:
   \begin{alignat}{2}
@@ -319,7 +318,11 @@ The literature the element space is frequently defined in terms of the \emph{int
               &= \sum_{K \in \T} \int_K (f + \Delta u_h)v+\int_{\partial K} \left(\nabla u_h \cdot n\right) v\\
     &= \sum_{K \in \T} \int_K (f + \Delta u_h)v+\int_{e \in \E^{int}} \left \llbracket \nabla u_h \right \rrbracket  v.
   \end{align*}
-  Here $\llbracket q \rrbracket$ is the jump of $q$ over an interface in the direction of the unit normal $n$, and~$\E^{int}$~is the set of interior
+  Here $\llbracket \nabla u_h \rrbracket$ is the jump of $\nabla u_h \cdot n$ over an interface in the direction of the unit normal~$n$,
+  \[
+    \llbracket \nabla u_h \rrbracket(x) := \lim_{\epsilon \to 0} \nabla u_h(x + \epsilon n) \cdot n - \nabla u_h(x - \epsilon n)\cdot n,
+  \]
+  and~$\E^{int}$~is the set of interior
   edges of $\T$. The equalities follow from integration by parts, and the fact that $v$ vanishes on the exterior edges of $\T$.
   Since $I_\T v \in \VV(\T)$ we find from the Galerkin orthogonality that
   \[
@@ -334,7 +337,7 @@ The literature the element space is frequently defined in terms of the \emph{int
     \]
     The \emph{oscillation term} of $f$ on $K$ is given by
     \[
-      \osc(f,K)^2 := h_K^2 \norm{f - P_K^r f}^2_{L^2(K)} \quad \text{ for some } r \geq k-2,
+      \osc(f,K)^2 := h_K^2 \norm{f - P_K^r f}^2_{L^2(K)} \quad \text{ for some } r \geq p-2,
     \]
     where $P_K^r$ is the $L^2(K)$-orthogonal projector on polynomials of degree $r$ on $K$.
 

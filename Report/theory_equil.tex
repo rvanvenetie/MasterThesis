@@ -16,7 +16,7 @@ used in the finite element space.
 Luckily, there are error estimators that suffer less from these constants problems. Recently quite
 some research interesting has been shown for such constant-free estimators. One of these estimators is the
 \emph{equilibrated residual error estimator} also called the \emph{Braess-Sch\"oberl estimator} \cite{braessequil, braessequilrobust,ernequil}.
-In this chapter we will introduce this estimator, show that it is polynomial-robust, and prove that AFEM driven 
+In this chapter we will introduce this estimator alongside some results, and prove that AFEM driven 
 by this estimator is optimal.
 
 For simplicity we (again) restrict ourself to the Poisson problem \eqref{eq:poisson} on a two-dimensional domain $\O \subset \R^2$,
@@ -25,7 +25,7 @@ The Galerkin approximation (discrete solution) is denoted by $U_h \in \VV(\T_h)$
 also write $V$ for this finite element space.
 \section{Prager and Synge}
 The so-called equilibrated residual estimators are based on the fundamental theorem of Prager and Synge \cite{prager}. 
-For this we require the space $H(div; \Omega)$ as defined in \S \ref{sec:def}.  
+For this we require the space $H(div; \Omega)$ as defined in \ref{def:hdiv}.
 \begin{thm}[Prager and Synge]
   Let $u \in H_0^1(\O)$ be the exact solution of the Poisson problem. 
   For a {flux} $\sigma \in H(\div; \O)$ satisfying the  equilibrium condition $\div \sigma + f = 0$ pointwise\todo{Is distributional also correct?},
@@ -76,19 +76,9 @@ For the moment we let  $f$ be piece-wise constant as this avoids the effect of d
 The flux $\sigma$ will be constructed as an element in the 
 Raviart-Thomas space $\RT_p(\T_h)$. The correction $\sigma^\triangle$ will therefore belong to the broken Raviart-Thomas space $\RT_p^{-1}(\T_h)$.
 
-\todo{Move or delete paragraph}
-\textcolor{red}{
-The conditions on $\sigma$ being an equilibrated flux can now be rewritten (in distributional sense) as (TODO $H(\div)$ characterization) 
-\begin{alignat*}{2}
-  \sigma^\triangle + \nabla U_h \in H(\div; \O) &\iff \llbracket \sigma^\triangle  \rrbracket = -\llbracket \nabla U_h \rrbracket & \quad \text{ on F},\\
-  \nabla \cdot ( \sigma^\triangle + \nabla U_h) = -f &\iff \nabla \cdot \sigma^\triangle = -f & \quad \text{ in T}.
-\end{alignat*}
-The latter follows as $U_h$ is the linear Lagrange solution, so  $\Delta U_h = 0$. Using a partition of unity, this can be turned into
-a set of conditions for smaller patches.
-}
 
 Following \cite{ernequil} we denote $\V_h, \E_h$ for the set of vertices and edges in the triangulation~$\T_h$. 
-We write the superscripts  $^{int}$ or $^{bdr}$ to indicate restrictions of $\V_h, \E_h$ to the interior or the boundary.
+We add the superscripts  $^{int}$ or $^{bdr}$ to indicate restrictions of $\V_h, \E_h$ to the interior or the boundary.
 For each vertex $a \in \V_h$ we write $\psi_a$ for the hat function at vertex $a$, 
 i.e. the unique function in the linear finite element space
 that takes value $1$ at $a$ and vanishes at the other vertices.
@@ -102,7 +92,7 @@ We will denote $\gamma_a$ for the interior edges of $\w_a$, i.e.
 \[
   \gamma_a = \E_h \cap \text{int}(\w_a).
 \]
-The total difference flux $\sigma^\triangle$ is the sum of local fluxes over these patches, 
+The total difference flux $\sigma^\triangle$ is then the sum of local fluxes over these patches, 
 \[
   \sigma^\triangle := \sum_{a \in \V_h} \sigma_{\omega_a}.
 \]
@@ -123,7 +113,7 @@ The local flux $\sigma_a$ is taken from the broken Raviart-Thomas space $\RT_{p}
 holds in distributional sense. Since we consider the \emph{weak} derivative, the latter
 statement is equivalent to
 \[
-  \ip{r_a, v} = \ip{\div \sigma_a, v}_{\w_a} = - \ip{\sigma_a, \nabla v}_{\w_a} \quad \forall v \in H_\star^1(\w_a).
+  \ip{r_a, v} = \ip{\div \sigma_a, v}_{\w_a} = - \ip{\sigma_a, \nabla v}_{\w_a} \quad \forall v \in H^1(\w_a) \cap H_0^1(\O).
 \]
 The residual can be expressed in triangle and edge related terms by applying the divergence theorem.
 This leads to the following decomposition for the local residual:
@@ -135,6 +125,7 @@ where
 \[
   r^T_a := \psi_a \left[ f + \Delta U_h \right], \quad r^e_a := \psi_a \llbracket \nabla U_h \rrbracket.
 \]
+Similarly we can rewrite $\ip{\sigma_a, \nabla v}_{\w_a}$ in triangle and edge related terms using the divergence theorem.
 After expanding, we see that $\div \sigma_a = r_a$ holds if and only if,
 \begin{alignat}{3}
   \div \sigma_a &= \psi_a \left (f + \Delta U_h\right) && \quad\text{in }  K\subset \w_a \label{eq:sigmacons}\\
@@ -142,13 +133,13 @@ After expanding, we see that $\div \sigma_a = r_a$ holds if and only if,
   \sigma_a \cdot n &= 0 &&\quad \text{on } \partial \w_a\nonumber
 \end{alignat}
 Since there is no unique solution for the above system, a solution $\sigma_a \in \RT_p^{-1}(\T_h)$
-with \emph{minimal} $L_2$-norm is chosen. 
+with \emph{minimal} $L_2$-norm is chosen as the equilibrated local flux.
 
-By construction and the partition of unity we have for $v \in H_0^1(\O)$,
+Per construction and by the partition of unity we have for $v \in H_0^1(\O)$,
 \[
   \langle \div \sigma^\triangle,v\rangle_{\O} = \sum_{a \in \V_h} \ip{\div \sigma_a,v}_\O = \sum_{a \in \V_h} \ip{r_a,v} = \langle r, \sum_{a \in \V_h} \psi_a v \rangle  = \ip{r, v}.
 \]
-Set $\sigma = \nabla U_h + \sigma^\triangle$, then from Green's formulas we see that for $v \in V_h$,
+Set $\sigma = \nabla U_h + \sigma^\triangle$, then from Green's identities we see that for $v \in V_h$,
 \begin{align*}
   \ip{\div \sigma, v}_\O &=  \ip{\div \nabla U_h, v}_\O + \langle\div \sigma^\triangle, v\rangle_{\O}\\
   &= \ip{\Delta U_h, v}_\O + \ip{r,v}\\
@@ -187,11 +178,11 @@ With these definitions we are able to proof local efficiency and global reliabil
   \label{lem:loceff}
   For every vertex $a \in \V_h$ we have the following local efficiency on $\omega_a$,
   \[
-    \norm{r_a}_{H_\star^1(\omega_a)'} \lesssim \enorm{ u - U_h}_{\omega_a}
+    \norm{r_a}_{H_\star^1(\omega_a)'} \lesssim \enorm{ u - U_h}_{\omega_a}.
   \]
 \end{lem}
 \begin{proof}
-  By definition and Cauchy-Schwarz we find
+  By definition and the Cauchy-Schwarz inequality we find
   \begin{align*}
     \norm{r_a}_{H_\star^1(\omega_a)'} &= \sup_{v \in H_\star^1(\omega_a) : \norm{\nabla v}_{\w_a} = 1} \abs{\ip{r_a, v}}\\
     &= \sup_{v \in H_\star^1(\omega_a) : \norm{\nabla v}_{\w_a} = 1} \abs{\ip{\nabla \left(u - U_h\right), \nabla \left(\psi_a v\right)}_\O} \\
@@ -204,7 +195,7 @@ With these definitions we are able to proof local efficiency and global reliabil
     &\leq \norm{v}_{\omega_a} \norm{\nabla \psi_a}_{\infty, \omega_a} + \norm{\psi_a}_{\infty, \omega_a} \norm{\nabla v}_{\omega_a},
   \end{align*}
   where the last inequality follows since $\omega_a$ is a bounded set. For the $\psi_a$ terms we note that 
-  $\norm{\psi_a}_{\infty, \omega_a} = 1$, whereas the vector norm $\|\nabla \psi_a\|_{\w_a}$ is constant and bound on each triangle by
+  $\norm{\psi_a}_{\infty, \omega_a} = 1$, whereas the vector norm $\|\nabla \psi_a\|_{\w_a}$ is constant and bounded on each triangle by
   $\rho_{K}$, and thus $\norm{\nabla \psi_a}_{\infty, \omega_a} \leq C h^{-1}_{\w_a}$ for some constant only depending on the 
   shape regularity of the triangulation and the maximum amount of triangles in a patch. 
   The $\norm{v}_{\omega_a}$-term can be estimated using Poincar\'e-Friedrich inequalities (cf \S\ref{sec:aux}):
@@ -273,7 +264,7 @@ The fact that this vector function is of minimum norm enabled Braess et al. \cit
   The proof of the second inequality is much more involved. A constructive proof is given in \cite[Theorem~7]{braessequilrobust}.
 \end{proof}
 \begin{rem}
-  Combing the last Theorem and Lemma's we see that $\sum_{a \in \V_h} \norm{\sigma_a}_{\w_a}$ provides a reliable and efficient estimator.
+  Combing the previous Theorem and Lemma's we see that $\sum_{a \in \V_h} \norm{\sigma_a}_{\w_a}$ provides a reliable and efficient estimator.
   When using this estimator in an adaptive finite element method, an obvious refine strategy would consist
   of refining those patches for which $\norm{\sigma_a}_{\w_a}$ is large. Later we will show that this is indeed
   an optimal choice. To prove this, we will relate this estimator the classical residual estimator.
@@ -308,7 +299,7 @@ The fact that this vector function is of minimum norm enabled Braess et al. \cit
   \[
    r^T_a = \psi_a \left[ f + \Delta U_h \right], \quad r^e_a = \psi_a \llbracket \nabla U_h \rrbracket.
   \]
-  In particular $(r^T_a, r^e_a)$ are piecewise polynomials taken from the broken spaces $\P_r^{-1}(\w_a)\times \P_r^{-1}(\gamma_a)$.
+  In particular $(r^T_a, r^e_a)$ are piecewise polynomials taken from the \todo{Define} broken spaces $\P_r^{-1}(\w_a)\times \P_r^{-1}(\gamma_a)$ for some degree $r$.
 
   Fix a triangle $K \subset \w_a$, and consider the space $H_0^1(K)$. Since a function $v \in H_0^1(K)$ vanishes on the boundary, 
   we can naturally extend it to a function $v \in H^1(\w_a)$ by setting $v \equiv 0$ on $\w_a \setminus K$. As $v$
@@ -338,6 +329,7 @@ The fact that this vector function is of minimum norm enabled Braess et al. \cit
     &\gtrsim h_{\w_a} \norm{\psi_a \left[ f + \Delta U_h \right]}_{\w_a} + h_{\w_a}^{1/2} \norm{ \psi_a \llbracket \nabla U_h \rrbracket}_{\gamma_a}.
   \end{align*}
   With the last equality following since the number of triangles in a patch is uniformly bounded.
+
   \textcolor{blue}{How can we get rid of $\psi_a$? Away from the boundary $\partial \w_a$ we know that $\psi_a > \epsilon$ so we can bound this term. Not sure how to find a bound on boundary `strip'.}
 
 
@@ -382,7 +374,7 @@ Dont we need to assume that $U$ is found solving the discrete solution for $f_{p
 Thus far we have assumed the right hand side $f$ to be a piecewise constant function. In practice, one 
 has a more general $f \in L^2(\O)$, and thus we should use alter the above method to replace $f$ with a computable function.
 The general approach is replace the exact $f$ with a polynomial approximation. 
-Denote $Q_K$ for the $L^2(K)$-orthogonal projector onto polynomials of degree $p$ on $K$. We will replace the (exact) local residuals $r_a$ by  (cf. \cite[Thm~3.17]{ernequil})
+Denote $Q_K$ for the $L^2(K)$-orthogonal projector onto polynomials of degree $p$ on $K$. We will replace the (exact) local residuals~$r_a$ by  (cf. \cite[Thm~3.17]{ernequil})
 \[
   \ip{\tilde r_a, v} := \sum_{K \subset \w_a} \ip{Q_K \left(\psi_a \left[f + \Delta U_h\right]\right), v}_K 
   +\sum_{e \subset \gamma_a} \ip{\psi_a \llbracket \nabla U_h\rrbracket, v}_e.
@@ -427,7 +419,10 @@ broken polynomial space $\P_p^{-1}(\w_a)$.
   \begin{align*}
     \norm{\tilde r_a}_{H^1_\star(\w_a)'} \leq \norm{r_a}_{H^1_\star(\w_a)'} + \norm{\tilde r_a - r_a}_{H^1_\star(\w_a)'} \lesssim \enorm{u - U_h}_{\w_a} + h_{\w_a} \norm{(I - Q_a) (\psi_a f)}_{\w_a}.
   \end{align*}
-  The second result follows similarly using Lemma \ref{lem:loceff} and $\norm{r_a}^2_{H_\star^1(\w_a)'} \leq 3  \norm{\tilde r_a}^2_{H_\star^1(\w_a)'} + 3 \norm{\tilde r_a - r_a}^2_{H^1_\star(\w_a)'}$.
+  The second result follows similarly by combing Lemma \ref{lem:loceff} and 
+  \[
+    \norm{r_a}^2_{H_\star^1(\w_a)'} \leq 3  \left(\norm{\tilde r_a}^2_{H_\star^1(\w_a)'} +  \norm{\tilde r_a - r_a}^2_{H^1_\star(\w_a)'}\right).
+  \]
 
   The proof of Theorem~\ref{thm:locresequiv} holds for any functional $r \in H_\star^1(\w_a)'$ that can be decomposed in triangle and edge terms.
   In particular it holds for $\tilde r_a$, providing us with the second part of the theorem.
@@ -462,12 +457,13 @@ result is a simplified form on the proof given by Casc\'on and Nochetto \cite{ca
 A different optimality proof is given by Kreuzer and Siebert \cite{ainsworthbernstein}; therein
 slightly different versions of \texttt{MARK} and \texttt{REFINE} are used.
 
-First we need some additional notation. Given a triangulation $\T$ we denote $\W$ for the set of patches, i.e.
+First we need some additional notation. Given a triangulation $\T$ we denote $\W$ for the set of patches, i.e. 
+\todo{Better notation than $\W$?}
 \[
   \W := \set{\w_a : a \in \V}.
 \]
-For $a \in \V$ let $\sigma_a$ be the equilibrated local fluxes. We notate the
-  error estimator, oscilation and total error resp by:
+For $a \in \V$ let $\sigma_a$ be the equilibrated local flux. We notate the
+  error estimator, oscilation and total error resp. by:
 \begin{align*}
   \eta^2_\T(U, \w_a) &:= \norm{\sigma_a}^2_{\w_a}, \\
   \osc^2_\T(f, \w_a) &:=h^2_{\w_a} \norm{(I - Q_a) (\psi_a f)}^2_{\w_a}, \\
@@ -484,7 +480,7 @@ associated to a vertex $a \in \V$.
   U = \texttt{SOLVE}(\T),
 \]
 where $U \in \VV(\T)$ is the \emph{exact} Ritz-Galerkin solution. The effects of using an inexact solver have
-been studied in the literature as well.
+been studied in the literature as well, see for example \cite[\S7]{carstensen2014axioms}.
 \paragraph{ESTIMATE} Given a triangulation $\T$ with vertices $\V$ and its discrete solution $U \in \VV(\T)$, this module 
 calculates the total error indicators --- the equilibrated estimator plus the oscillation. We have
 \[
@@ -495,14 +491,14 @@ A \emph{D\"orfler Marking} strategy is used for marking. For a parameter $\theta
 \[
   \mathcal{M} = \texttt{MARK}( \set{\vartheta_\T(U, \w_a)}_{a \in \V}, \T),
 \]
-where $\mathcal{M} \subset \W$ is the minimal cardinality set that satisfies
+where $\mathcal{M} \subset \W$ is the \emph{minimal} cardinality set that satisfies
 \[
   \vartheta_\T(U,\mathcal{M}) \geq \theta \vartheta_\T(U, \W).
 \]
 \begin{rem}
   In contrast to the standard residual estimator, marking is done using the total error.
 \end{rem}
-\todo{Marking for total error really needed}
+\todo{Marking for total error really needed?}
 \paragraph{REFINE}
 The \texttt{MARK} outputs a set $\mathcal{M}$ of \emph{patches} on which the error is proportionally large. 
 Logically, all the triangles in this set should be refined. This module calculates a refinement
@@ -510,12 +506,12 @@ Logically, all the triangles in this set should be refined. This module calculat
   \T_\star = \texttt{REFINE}(\T, \mathcal{M}),
 \]
 where $T_\star$ is the smallest conforming refinement of $\T$ such that the triangles of
-all patches in the marked set are bisected $b \geq 1$ times.
-\todo{Rare refine method in cascon en nochetto}
+all patches in the marked set are bisected.
+\todo{Weird refine method in cascon en nochetto}
 \\\\
 We can now formulate the AFEM algorithm and its produced sequences. For this we use the
 iteration counter $k$ as a subscript to differentiate among the sets.
-Let an initial triangulation $\T_0$ be given, set $k = 0$ and iterate the following steps
+Let an initial triangulation $\T_0$ be given, set $k = 0$ and iterate the following steps:
 \begin{enumerate}
 \item $U_k = \texttt{SOLVE}(\T_k)$;
 \item $\set{\vartheta_k(U_k, \w)}_{\W_k} = \texttt{ESTIMATE}(U_k, \T_k)$;
@@ -558,7 +554,7 @@ So $\RR_{\T \to \T_\star}$ consists of all patches in $\T$ that are \emph{entire
       \]
       \textcolor{blue}{In \cite{cascon2012} this is actually defined in terms of $\RR^n$, this consists
         of all refined patches that satisfy the interior node property. In \cite{kreuzersiebert} this
-        restriction is not made, in stead the estimator is locally compared to the residual estimator.
+        restriction is not made, instead the estimator is locally compared to the residual estimator.
       The latter is what we do as well, so I don't think we need this additional interior node property.}
   \end{enumerate}
 \end{lem}
@@ -580,7 +576,7 @@ So $\RR_{\T \to \T_\star}$ consists of all patches in $\T$ that are \emph{entire
   From Theorem \ref{thm:residual_erro} with $\hat \RR = \T \setminus \T_\star$ we have a localized upper bound for the standard 
   estimator $\hat \eta_\T$. We can then bound this in terms in patches, specifically
   \begin{align*}
-    \norm{\nabla U_\star - \nabla U}^2 &\lesssim \hat\eta_\T(U, \hat\RR)^2 \\
+    \enorm{ U_\star -  U}^2 &\lesssim \hat\eta_\T(U, \hat\RR)^2 \\
     &=\sum_{K \in \hat \RR}h^2_K\norm{f +\Delta U}_K^2+h_K \norm{\llbracket \nabla U  \rrbracket}^2_{\partial K \setminus \partial \O} \\
     &\leq\sum_{K\in\hat\RR} \sum_{\w \in \W:K \subset \w}h_\w^2 \norm{f + \Delta U}^2_\w + h_\w \norm{\llbracket \nabla U \rrbracket}^2_{\E^{int} \cap \w}\\
     &= \sum_{w \in \widetilde\RR} h_\w^2\norm{f + \Delta U}^2_\w + h_\w \norm{\llbracket \nabla U \rrbracket}^2_{\E^{int} \cap \w}\\
@@ -598,7 +594,7 @@ So $\RR_{\T \to \T_\star}$ consists of all patches in $\T$ that are \emph{entire
   \]
   so this does not become a problem later on.
   \textcolor{blue}{Since we only consider one type of estimator, maybe its wise to just consider $\widetilde \RR$ as the
-  definition of the refined set. Moreover, the diameters in the above equivalence have to be shown correctly.}
+  definition of the refined set.  }
 
   For the discrete lower bound, we first need to relate the standard oscillation $\hat\osc_\T^2$ (cf. Definition \ref{def:clasest})
   with the equilibrated oscillation $\osc_\T^2$. We calculate,
@@ -610,14 +606,14 @@ So $\RR_{\T \to \T_\star}$ consists of all patches in $\T$ that are \emph{entire
   \end{align*}
   Using this, we can deduce the discrete lower bound from the standard estimator,\todo{Reference for this standard bound}
   \begin{align*}
-    \norm{\nabla U_\star - \nabla U}^2 + \osc_\T^2(f, \widetilde \RR) &\gtrsim \norm{\nabla U_\star - \nabla U}^2 + \hat\osc_\T^2(f, \hat \RR) \\
+    \enorm{ U_\star -  U}^2 + \osc_\T^2(f, \widetilde \RR) &\gtrsim \norm{ U_\star -  U}^2 + \hat\osc_\T^2(f, \hat \RR) \\
     &\gtrsim \hat \eta^2_\T(U, \hat \RR) \\
     &= \sum_{K \in \hat \RR} h_K^2\norm{f + \Delta U}_K^2 + h_K\norm{\llbracket U  \rrbracket}^2_{\partial K \setminus \partial \O}\\
     &\gtrsim \sum_{\w \in \RR} h_\w^2\norm{f + \Delta U}_\w^2 + h_\w \norm{\llbracket U  \rrbracket}^2_{\E^{int} \cap \w}= \eta_\T^2(U, \RR).
   \end{align*}
   Here the last inequality follows from the fact that every triangle is contained in a uniformly bounded number of patches.
-  \textcolor{blue}{Deze ongelijkheid staat erg op lossen schroeven. We beginnen met $\widetilde \RR$ en eindigen met $\RR$.. Hebben
-  we dit ding uberhaupt nodig?}
+  \textcolor{blue}{Deze ongelijkheid staat op lossen schroeven. We beginnen met $\widetilde \RR$ en eindigen met $\RR$. Eigenlijk wil ik
+  de hele ongelijkheid in termen van $\widetilde \RR$ hebben.}
 \end{proof}
 Furthermore the oscillation satisfies the reduction property.
 \begin{lem}
@@ -628,7 +624,7 @@ Furthermore the oscillation satisfies the reduction property.
   \]
 \end{lem}
 \begin{proof}
-  \textcolor{blue}{Todo, but this seems like reasonable properties.}
+  \textcolor{blue}{Todo, but this seems like a reasonable property.}
 \end{proof}
 
 
@@ -636,7 +632,7 @@ We can now prove the so-called contraction property; this shows convergence of t
 \begin{thm}
 There exists a constant $0 < \alpha < 1$ and $\gamma > 0$, depending on the shape regularity of $\T_0, \theta$ such that
 \[
-  \norm{\nabla u - \nabla U_{k+1}}^2 +\gamma \osc^2_{k+1}(f, \W_{k+1}) \leq \alpha^2\left(\norm{\nabla u - \nabla U_k}^2 + \gamma\osc^2_k(f, \W_k)\right)
+  \enorm{ u - U_{k+1}}^2 +\gamma \osc^2_{k+1}(f, \W_{k+1}) \leq \alpha^2\left(\enorm{ u - U_k}^2 + \gamma\osc^2_k(f, \W_k)\right)
 \]
 \end{thm}
 \begin{proof}
@@ -649,7 +645,7 @@ There exists a constant $0 < \alpha < 1$ and $\gamma > 0$, depending on the shap
     However, in our case the oscillation is not expressed in terms of discrete solutions. How do we fix this?
     Maybe the result shoud use $\eta^2_{j}$ instead of $\osc^2_j$, i.e.
     \[
-      \norm{\nabla u - \nabla U_{k+1}}^2 +\gamma \eta^2_{k+1}(U_{k+1}, \W_{k+1}) \leq \alpha^2\left(\norm{\nabla u - \nabla U_k}^2 + \gamma\eta^2_k(U_k, \W_k)\right)
+      \enorm{ u -  U_{k+1}}^2 +\gamma \eta^2_{k+1}(U_{k+1}, \W_{k+1}) \leq \alpha^2\left(\enorm{ u -  U_k}^2 + \gamma\eta^2_k(U_k, \W_k)\right)
   \]}
 
   Adapt the notation used in \cite{cascon2012}, for $j =0,1,2,\dots$ we write
@@ -746,14 +742,14 @@ Our goal is to proof that the sequence $\left(U_k\right)_{k \geq 0}$ satisfies a
   it tougher to compare optimally results among different estimators. Possibly show equivalence of
 our oscillation term with a standard one?}
 
-The proof of this optimally is very similar to the standard case in \S\cite{sec:afem}. 
+The proof of this optimally is very similar to the standard case in \S\ref{sec:afem}. 
 We opt to follow the steps given by Casc\'on and Nochetto in \cite{cascon2012}.
-Let the maximum marking parameter be given by
+Define the maximum marking parameter by
 \[
   \theta_*^2 := \frac{C_2}{(1+ C_1)(1 + C_2)}.
 \]
 \begin{lem}
-  Let $\T \in \TT$ with discrete solution $U \in \VV(\T)$, then for any marking parameter $\theta \in (0, \theta_*)$ and refinement $\T \leq \T_\star \in \TT$ with
+  Let $\T \in \TT$ with discrete solution $U \in \VV(\T)$, with a marking parameter $\theta \in (0, \theta_*)$ and refinement $\T \leq \T_\star \in \TT$ with
   a discrete solution $U_\star \in \VV(\T_\star)$ that satisfies
   \[
     \enorm{ u - U_\star}_\O^2+ \osc^2_{\T_\star}(f, \W_\star) \leq \mu (\enorm{u - U}_\O^2 + \osc_\T^2(f, \W)),
@@ -802,18 +798,18 @@ Let the maximum marking parameter be given by
 \end{cor}
 \begin{proof}
   Let $\mu$ be as in the previous Lemma and set $\epsilon^2 := \mu \left( \enorm{u - U_k}_\O^2 + \osc_{\T_k}^2(f, \W_k)\right)$.
-  Since $u \in \A_s$, by definition of the approximation class there exists a triangulation $\T_\epsilon \TT$ with
+  Since $u \in \A_s$, by definition of the approximation class there exists a triangulation $\T_\epsilon \in \TT$ with
   discrete solution $U_\epsilon$ such that \todo{Elaborate}
   \[
     \# \T_\epsilon - \# \T_0 \leq \abs{u}^{1/s} \epsilon^{-1/s}, \quad \text{and } \enorm{u - U_\epsilon}_\O^2 + \osc^2_{\T_\epsilon}(f, \W_{\epsilon}) \leq \epsilon^2.
   \]
   Now take $\T_\star = \T_k \oplus \T_\epsilon$ --- the smallest common refinement of $\T_k$ and $\T_\epsilon$ --- then
-  we have 
+  we have  \todo{proof this, see Lemma 6.1 \cite{cascon2012}}
   \begin{align*}
     \enorm{u - U_\star}_\O^2 + \osc^2_{\T_\star}(f, \W_\star) \leq \enorm{u - U_\epsilon}_\O^2 + \osc^2_{\T_\epsilon}(f,\W_\epsilon) \leq \epsilon^2.
   \end{align*}
   By definition of $\epsilon^2$ we see that $u - U_\star$ satisfies the conditions of the previous lemma, and thus we 
-  may conclude that $\RR_{\T_k \to \T_\star}$ satisfies the D\"orfler property. Now, since $\mathcal{M}_k$ is the \emph{minimal} cardinality set that satisfies
+  may conclude that $\RR_{\T_k \to \T_\star}$ satisfies the D\"orfler property. Since $\mathcal{M}_k$ is the \emph{minimal} cardinality set that satisfies
   the D\"orfler property we may conclude that $\# \mathcal{M}_k \leq \# \RR_{\T_K \to \T_\star}$.
   
   Now $\RR_{\T_k \to \T_\star}$ consists of all those patches that were completely refined when going from $\T_k$ to $\T_\star$. Since
@@ -821,18 +817,19 @@ Let the maximum marking parameter be given by
   \[
     \# \mathcal{M}_k \leq \RR_{\T_k \to \T_\star} \lesssim \# \T_\star - \# T_k \leq \# \T_\epsilon - \# \T_0 \leq \abs{u}_{\A_s}^{1/s}\epsilon^{-1/s}.
   \]
-  The third inequality follows by a property of the smallest common refinement.
+  The third inequality follows by a property of the smallest common refinement.\todo{Lemma toevoegen}
 \end{proof}
 We are almost ready to give the main theorem. For this we need to bound the number of refined triangles. This number can inflate in
 one iteration, but the cumulative sum behaves correctly. We have
-\[
+\begin{equation}
+  \label{eq:nvbound}
   \# \T_k - \# \T_0 \lesssim \sum_{i = 0}^{k-1} \# \mathcal{M}_i.
-\]
-For a proof in the standard case, see \cite{ste08}. In the standard case $\hat \mathcal{M}_i$ consists of the marked \emph{triangles}.
-We consider marked \emph{patches} $\mathcal{M}_i$, but these are equivalent in terms of numbers so that the above result also holds in our case.
-Finally, we are ready to state the main theorem.
+\end{equation}
+For a proof in the standard case, see \cite{ste08}. In the classical case $\mathcal{\hat M}_i$ consists of the marked \emph{triangles}.
+We consider marked \emph{patches} $\mathcal{M}_i$, but these are equivalent in terms of cardinality --- $\#\mathcal{\hat M}_i \approx \# \mathcal{M}_i$ --- so the above result also holds in our case.
+We are finally ready to state the main theorem.
 \begin{thm}
-  Let the marking parameter $\theta \in (0, \theta_*)$ and suppose that $u \in \A_s$ for some $s > 0$.
+  Take the marking parameter $\theta \in (0, \theta_*)$ and suppose that $u \in \A_s$ for some $s > 0$.
 
   It holds that
   \[
@@ -840,18 +837,34 @@ Finally, we are ready to state the main theorem.
   \]
 \end{thm}
 \begin{proof}
-  See 
+From the previous corollary, bound \eqref{eq:nvbound} and contraction property we deduce,
+\begin{align*}
+  \# \T_k - \# \T_0 &\lesssim \sum_{i = 0}^{k-1} \# \mathcal{M}_i \\
+  &\lesssim \left(1 - \frac{\theta^2}{\theta^2_*}\right)^{-1 / 2s} \abs{u}_{\A_s}^{1/s} \sum_{i=0}^{k-1} \left(\enorm{u - U_i}_\O^2 + \osc^2_{\T_i}(f, \W_i)\right)^{-1/2s}\\
+  &\approx \left(1 - \frac{\theta^2}{\theta^2_*}\right)^{-1 / 2s} \abs{u}_{\A_s}^{1/s} \sum_{i=0}^{k-1} \left(\enorm{u - U_i}_\O^2 + \gamma\osc^2_{\T_i}(f, \W_i)\right)^{-1/2s}\\
+  &\leq \left(1 - \frac{\theta^2}{\theta^2_*}\right)^{-1 / 2s} \abs{u}_{\A_s}^{1/s} \left(\sum_{i=1}^{k} \alpha^{i \over s}\right) \left(\enorm{u - U_k}_\O^2 + \gamma\osc^2_{\T_k}(f, \W_k)\right)^{-1/2s}\\
+  &\lesssim \abs{u}_{\A_s}^{1/s}\left(\enorm{u - U_k}_\O^2 + \gamma\osc^2_{\T_k}(f, \W_k)\right)^{-1/2s},
+\end{align*}
+since $\alpha < 1$. Standard algebra calculations on this inequality provide us with the wanted result.
 \end{proof}
+\textcolor{blue}{Write something about why this shows optimality. Why do these results involve $(1 - \frac{\theta^2}{\theta^2_*})^{-1/2s}$, this is just a non-interesting constant right?}
 
 \textcolor{blue}{
-  Most of the Lemma's in this last part do not differ from the ones for the standard residual estimator. Maybe
-  just refer? The contraction property still needs some work, as in its current case it is broken.  Similarly,
-  the discrete lower and upper bounds need some work. Can we circumvent the equivalence with the standard residual estimator?
-  Considering all of the above proofs, I think the more appropriate definition for refined patches to let 
+  Most of the Lemma's in this last part do not differ from the ones for the standard residual estimator. Can we
+  shorten it? The contraction property still needs work; in its current case it is broken.  Similarly,
+  the discrete lower and upper bounds need some work. 
+  \\
+  Can we circumvent the equivalence with the standard residual estimator?
+  \\
+  Considering all of the above proofs, I think the more appropriate definition for refined patches is to let 
   $\RR_{\T \to \T_\star}$ consist of all patches such that at least one triangle is refined. Feels more natural.
-  The above AFEM works by marking elements according to the total error $\vartheta$.  I think that this is
-  not really needed for the optimality proof.
-
+  \\
+  The above AFEM works by marking elements according to the total error $\vartheta$. Can we achieve
+  optimality as well if we mark only for the estimator $\eta$? I think this is possible, given that we have something like
+  \[
+    \osc_\T^2(f,\w_a) \leq \eta_\T^2(U, \w_a).
+  \]
+  \\
   This is more or less the optimally proof. My biggest objection with everything is that this AFEM method assumes
   we mark the elements according tot $\norm{\sigma_a}_{\w_a}$. Whereas the constant-free
   estimator is given by $\norm{\sum \sigma_a}_{K}$ for triangles $K \in \T$.
@@ -860,35 +873,36 @@ Is the above easily adaptable to use with the second estimator instead?
 
 
 \section{Ern and Volharik}
-\textcolor{blue}Explain construction Ern an Volharik. Allows for easier implementation}
-
+\textcolor{blue}{Explain construction Ern an Volharik. Allows for easier implementation}
+The equilibration method is based on constructing the difference flux $\sigma^\triangle = \sum_{a \in \V} \sigma_a =  \sigma - \nabla U$,
+with $\sigma^\triangle$ from the broken Raviart-Thomas space $\RT_p^{-1}$. 
 An equivalent equilibration method is introduced by Ern and Volharik in \cite{ernequil}. They
 propose constructing the actual flux $\sigma$, instead of the difference $\sigma - \nabla U$. 
-%This implies that $\sigma
-%This time $\sigma$
-An equivalent construction 
-\section{Construction}
+\textcolor{Actually, I think there is a minus sign missing somewhere, shouldn't we have $\sigma^\triangle = \nabla U - \sigma$?}
 
-
-
+In notation of \cite{ernequil} we define $\zeta_a := \sigma_a - \psi_a \nabla u_h$. By partition of unity we see that 
+$\sum_{a \in \V} \zeta_a = \sigma^\triangle - $
 
 \section{Auxiliary results}
+\textcolor{blue}{I need references for this: does the constant only depend on shape regularity in case of a star patch?}
 \label{sec:aux}
-Let $a \in V_h^{int}$, for $v \in H_\star^1(\w_a)$ we have $v_{\w_a} = 0$, so by Poincare we have a constant $C_P(\w_a)$ such that 
+Let $a \in V_h^{int}$, for $v \in H_\star^1(\w_a)$ we have $v_{\w_a} = 0$, and by Poincare we have a constant $C_P(\w_a)$ only dependent
+on the shape regularity, such that 
 \[
-  \norm{v}_{\w_a} = \norm{v - v_T}_{\w_a} \leq C_P(\w_a) \norm{\nabla v}_{\w_a}
+  \norm{v}_{\w_a} = \norm{v - v_T}_{\w_a} \leq C_P(\w_a) h_{\w_a} \norm{\nabla v}_{\w_a}
 \]
-For $a \in V_h^{bdr}$, then for $v \in H_\star^1(\w_a)$ we know that $v = 0$ on $\partial \O \cap \partial \w_a$, so by Friedrichs inequality
-(cf Finite and Boundary Element Tearing and Interconnecting Solvers) we
-have a constant $C_F(\w_a, \partial \O \cap \partial \w_a)$ such that
+For $a \in V_h^{bdr}$, then for $v \in H_\star^1(\w_a)$ we know that $v = 0$ on $\partial \O \cap \partial \w_a$, by Friedrichs inequality
+ we
+have a constant $C_F(\w_a, \partial \O \cap \partial \w_a)$ only dependent on the shape regularity, such that
 \[
-  \norm{v}_{\w_a} \leq C_F(\w_a, \partial \O \cap \partial \w_a) \norm{\nabla v}_{\w_a} \quad \forall v \in H_\star^1(\w_a).
+  \norm{v}_{\w_a} \leq C_F(\w_a, \partial \O \cap \partial \w_a) h_{\w_a} \norm{\nabla v}_{\w_a} \quad \forall v \in H_\star^1(\w_a).
 \]
 
 \begin{proof}
 \end{proof}
+(cf Finite and Boundary Element Tearing and Interconnecting Solvers)
 
-
+\iffalse
 \section{Dump}
 
   \textcolor{red}{
@@ -913,4 +927,5 @@ have a constant $C_F(\w_a, \partial \O \cap \partial \w_a)$ such that
     still depends on $\w_a$. How can we overcome this problem? Replacing the inner products using substition?
     Given that the equivalence holds, we are directly done with the proof. We do not need the second part.
   }
+\fi
 \end{document}
