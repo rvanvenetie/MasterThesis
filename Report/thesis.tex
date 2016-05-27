@@ -1,7 +1,7 @@
 \documentclass{uvamath}
 \graphicspath{{Images/}}
+\input{classicthesis-config}
 \usepackage[english]{babel}
-
 \usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{amsfonts}
@@ -9,11 +9,20 @@
 \usepackage{stmaryrd}
 \usepackage{commath}
 \usepackage{graphicx}
+\usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
+%\usepackage{lmodern}
+%\usepackage{newtxmath}
+\usepackage{classicthesis}
+%\usepackage[bitstream-charter]{mathdesign}
+%\usepackage{charter}
+%\usepackage{mathpazo} % add possibly `sc` and `osf` options
+%\usepackage{eulervm}
 \usepackage{subfiles}
 \usepackage{enumitem}
 \usepackage{todonotes}
 \usepackage[pdfborder={0 0 0}]{hyperref}
+%\usepackage{glossaries}
 
 %\usepackage{titlesec}
 %\titleformat{\chapter}[hang] {\normalfont\bfseries\raggedright\huge}
@@ -49,6 +58,7 @@
 \newcommand{\Z}{\mathbb{Z}}
 \newcommand{\C}{\mathbb{C}}
 \newcommand{\Q}{\mathbb{Q}}
+\newcommand{\QQ}{\mathcal{Q}}
 \newcommand{\F}{\mathbb{F}}
 \newcommand{\V}{\mathcal{V}}
 \newcommand{\VV}{\mathbb{V}}
@@ -61,6 +71,7 @@
 \renewcommand{\O}{\Omega}
 \renewcommand{\P}{\mathcal{P}}
 \newcommand{\OO}{\overline{\Omega}}
+\renewcommand{\v}[1]{\underline{#1}}
 
 \DeclareMathOperator{\osc}{osc}
 %undefine div
@@ -110,8 +121,8 @@
 %\dailysupervisorTitle{PhD Student (CWI)} % This is the list of daily supervisors for the title page, seperate with \newline
 %\dailysupervisor{PhD Student (CWI)} % This is the list of daily supervisors for the title page, seperate with comma
 
-\secondexaminer{dr.\ Karl Weierstrass} %This is the name of the second examiner, for the second page
-\date{January 1, 2016} %This is the examination date, i.e. the date of your thesis presentation
+\secondexaminer{} %This is the name of the second examiner, for the second page
+\date{\today} %This is the examination date, i.e. the date of your thesis presentation
 
 %%If you do an internship or a research project and another insitute, uncomment and add the name logo and adresss of the other institute here
 %\secondinstitute{Centrum voor Wiskunde en Informatica}
@@ -120,6 +131,8 @@
 %Science Park 123, 1098 XG Amsterdam \\
 %\url{http://www.cwi.nl}} %Adress of second institute, for the second page
 
+% Generate glosseries
+%\makeglosseries
 
 \begin{document}
 \maketitle

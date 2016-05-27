@@ -14,34 +14,33 @@ per simplex. For \emph{hp}-AFEM one would like an estimator with a constant inde
 used in the finite element space.
 
 Luckily, there are error estimators that suffer less from these constants problems. Recently quite
-some research interesting has been shown for such constant-free estimators. One of these estimators is the
+some research interested has been shown for such constant-free estimators. One of these estimators is the
 \emph{equilibrated residual error estimator} also called the \emph{Braess-Sch\"oberl estimator} \cite{braessequil, braessequilrobust,ernequil}.
 In this chapter we will introduce this estimator alongside some results, and prove that AFEM driven 
 by this estimator is optimal.
 
 For simplicity we (again) restrict ourself to the Poisson problem \eqref{eq:poisson} on a two-dimensional domain $\O \subset \R^2$,
 and for some conforming triangulation $\T_h$ we consider $\VV(\T_h)$: the (Lagrange) finite element space of degree $p$. \todo{p of p+1}
-The Galerkin approximation (discrete solution) is denoted by $U_h \in \VV(\T_h)$. If we do not need to stress dependence on the triangulation, we 
-also write $V$ for this finite element space.
+The Galerkin approximation (discrete solution) is denoted by $U_h \in \VV(\T_h)$.
+If we do not need to stress dependence on the triangulation, we also write $\VV$ for this finite element space.
 \section{Prager and Synge}
 The so-called equilibrated residual estimators are based on the fundamental theorem of Prager and Synge \cite{prager}. 
-For this we require the space $H(div; \Omega)$ as defined in \ref{def:hdiv}.
+For this we require the space $H(\div; \Omega)$ as defined in \ref{def:hdiv}.
 \begin{thm}[Prager and Synge]
-  Let $u \in H_0^1(\O)$ be the exact solution of the Poisson problem. 
-  For a {flux} $\sigma \in H(\div; \O)$ satisfying the  equilibrium condition $\div \sigma + f = 0$ pointwise\todo{Is distributional also correct?},
-it holds
+  Let $u \in H_0^1(\O)$ be the exact solution of the Poisson problem with a $f \in L^2(\O)$. 
+  For a flux $\sigma \in H(\div; \O)$ satisfying the equilibrium condition $\div \sigma + f = 0$ in $L^2$-sense, it holds
 \[
   \norm{\nabla u - \nabla v}^2_{L^2(\O)} + \norm{\nabla u - \sigma}^2_{L^2(\O)} = \norm{\nabla v - \sigma}^2_{L^2(\O)} \quad \forall v \in H_0^1(\O).
 \]
 \end{thm}
 \begin{proof}
-   Applying the divergence theorem yields,
+  Applying the divergence theorem \eqref{thm:divergence} yields,
   \begin{align*}
     &\int_\O  \left(\nabla u - \sigma\right) \cdot \nabla \left( u -  v\right)  \, \dif x \\ 
     =  - &\int_\O \left(u - v\right) \,  \nabla \cdot \left (\nabla u - \sigma\right) \dif x + \int_{\partial \O} (u - v) \left( \nabla u \cdot n - \sigma \cdot n\right) \dif s  = 0
   \end{align*}
   since from the assumptions  $\Delta u = -f = \div \sigma$ in $\O$, and $u - v = 0$ on $\partial \O$.
-  From this orthogonality relation and Pythagoras we may conclude that
+  From this orthogonality relation and Pythagoras' identity we may conclude that
   \[
     \norm{\nabla(u-v)}^2_{L^2(\O)} + \norm{\nabla u - \sigma}^2_{L^2(\O)} = \norm{ -\nabla (u-v) + \nabla u - \sigma}^2_{L^2(\O)},
   \]
@@ -107,14 +106,16 @@ For $a \in V_h$ we define the local residual by
   \ip{r_a,v} := \ip{r,\psi_a v} = a(u - U_h, \psi_a v)_{\w_a}.
 \]
 The local flux $\sigma_a$ is taken from the broken Raviart-Thomas space $\RT_{p}^{-1}(\omega_a)$ such that
-\[
+\begin{equation}
+  \label{eq:defsigma}
 \div \sigma_a = r_a,
-\]
+\end{equation}
 holds in distributional sense. Since we consider the \emph{weak} derivative, the latter
 statement is equivalent to
-\[
+\begin{equation}
+  \label{eq:defsigma}
   \ip{r_a, v} = \ip{\div \sigma_a, v}_{\w_a} = - \ip{\sigma_a, \nabla v}_{\w_a} \quad \forall v \in H^1(\w_a) \cap H_0^1(\O).
-\]
+\end{equation}
 The residual can be expressed in triangle and edge related terms by applying the divergence theorem.
 This leads to the following decomposition for the local residual:
 \begin{equation}
@@ -125,15 +126,26 @@ where
 \[
   r^T_a := \psi_a \left[ f + \Delta U_h \right], \quad r^e_a := \psi_a \llbracket \nabla U_h \rrbracket.
 \]
-Similarly we can rewrite $\ip{\sigma_a, \nabla v}_{\w_a}$ in triangle and edge related terms using the divergence theorem.
-After expanding, we see that $\div \sigma_a = r_a$ holds if and only if,
-\begin{alignat}{3}
-  \div \sigma_a &= \psi_a \left (f + \Delta U_h\right) && \quad\text{in }  K\subset \w_a \label{eq:sigmacons}\\
-  \llbracket \sigma_a \rrbracket &= \psi_a \llbracket \nabla U_h \rrbracket && \quad \text{on } e \subset \gamma_a\nonumber\\
-  \sigma_a \cdot n &= 0 &&\quad \text{on } \partial \w_a\nonumber
-\end{alignat}
-Since there is no unique solution for the above system, a solution $\sigma_a \in \RT_p^{-1}(\T_h)$
-with \emph{minimal} $L_2$-norm is chosen as the equilibrated local flux.
+Similarly we can rewrite $\ip{\sigma_a, \nabla v}_{\w_a}$ in triangle and edge related terms using the divergence theorem,
+\[
+  -\ip{\sigma_a, \nabla v}_{\w_a} = \sum_{K \in \T_h : K \subset \w_a} \ip{\div \sigma_a, v}_K + \sum_{e \in \E_h : e\subset \gamma_a} \ip{\llbracket \sigma_a\rrbracket, v} + \int_{\partial \w_a} v \sigma_a \cdot n.
+\]
+After expanding, we see that \eqref{eq:defsigma} holds if and only if,
+\begin{equation}
+  \label{eq:sigmacons}
+  \begin{alignedat}{3}
+    \div \sigma_a &= \psi_a \left [f + \Delta U_h\right] && \quad\text{in }  K\subset \w_a ,\\
+    \llbracket \sigma_a \rrbracket &= \psi_a \llbracket \nabla U_h \rrbracket && \quad \text{on } e \subset \gamma_a,\\
+    \sigma_a \cdot n &= 0 &&\quad \text{on } \partial \w_a \setminus \partial \O.
+  \end{alignedat}
+\end{equation}
+Since there is no unique solution for the above system, a solution $\sigma_a \in \RT_p^{-1}(\sigma_a)$
+with \emph{minimal} $L_2$-norm is chosen as the equilibrated local flux. Actually, by the last
+property we can equivalently restrict ourself to finding a $\sigma_a$ in the subspace
+\[
+  \RT_{p,0}^{-1}(\w_a) = \set{ \sigma \in \RT_p^{-1}(\w_a) : \sigma \cdot n_e = 0 \quad \text{ for } e \in \partial \w_a \setminus \partial \O}.
+\]
+
 
 Per construction and by the partition of unity we have for $v \in H_0^1(\O)$,
 \[
@@ -239,14 +251,14 @@ With these definitions we are able to proof local efficiency and global reliabil
   there tighter bounds, preferably without constants?}
 \end{proof}
 
-These bounds become relevant if they can be related to the (local) estimators~$\sigma_a$. Recall
-that $\sigma_a$ was found as minimal norm function from $\RT_p^{-1}(\omega_a)$ satisfying $\div~\sigma_a~=~r_a$.
+These bounds become relevant if they can be related to the (local) estimators~$\sigma_a$. Recall \eqref{eq:defsigma}, i.e.
+that $\sigma_a$ was found as minimal norm function from $\RT_{p,0}^{-1}(\omega_a)$ satisfying $\div~\sigma_a~=~r_a$.
 The fact that this vector function is of minimum norm enabled Braess et al. \cite{braessequilrobust} to prove the following powerful theorem.
 \begin{thm}
   \label{thm:locresequiv}
   For $a \in \V_h$, let $\sigma_a$ be found as described above. 
   We have the bound $\norm{r_a}_{H_\star^1(\omega_a)'} \leq \norm{\sigma_a}_{\omega_a}$. But more importantly,
-  a reverse bound also holds for a constant {not} depending on the polynomial-degree $p$ used in the finite element space $\VV(\T)$:
+  a reverse bound also holds for a constant {not} depending on the polynomial-degree $p$ used in the finite element space $V_h$:
   \[
     \norm{\sigma_a}_{\omega_a} \lesssim \norm{r_a}_{H_\star^1(\omega)'}.
   \]
@@ -284,7 +296,7 @@ The fact that this vector function is of minimum norm enabled Braess et al. \cit
   \]
 \end{lem}
 \begin{proof}
-  We start with the $\gtrsim$ relation.  Applying the previous Theorem \ref{thm:locresequiv} and using orthogonality on constants yields  
+  We start with the $\gtrsim$ relation.  Consider $a \in \V_h^{int}$, applying the previous Theorem \ref{thm:locresequiv} and using orthogonality on constants yields  
   \begin{align*}
     \norm{\sigma_a}_{\w_a} &\geq \norm{r_a}_{H^1_\star(\w_a)'} \\
     &\geq \sup_{v \in H^1_\star(\w_a) : v \ne 0} { \ip{r_a, v} \over \norm{\nabla v}_{\w_a}} \\
@@ -328,7 +340,7 @@ The fact that this vector function is of minimum norm enabled Braess et al. \cit
     \norm{r_a}_{H_\star^1(\w_a)'} &\gtrsim \sum_{K \subset \w_a} h_K \|{r^T_a}\|_K + \sum_{e \subset \gamma_a} h_e^{1/2} \norm{r^e_a}_e\\
     &\gtrsim h_{\w_a} \norm{\psi_a \left[ f + \Delta U_h \right]}_{\w_a} + h_{\w_a}^{1/2} \norm{ \psi_a \llbracket \nabla U_h \rrbracket}_{\gamma_a}.
   \end{align*}
-  With the last equality following since the number of triangles in a patch is uniformly bounded.
+  With the last equality following since the number of triangles in a patch is uniformly bounded. The proof is similar for $a \in \V_h^{bdr}$.
 
   \textcolor{blue}{How can we get rid of $\psi_a$? Away from the boundary $\partial \w_a$ we know that $\psi_a > \epsilon$ so we can bound this term. Not sure how to find a bound on boundary `strip'.}
 
@@ -374,18 +386,25 @@ Dont we need to assume that $U$ is found solving the discrete solution for $f_{p
 Thus far we have assumed the right hand side $f$ to be a piecewise constant function. In practice, one 
 has a more general $f \in L^2(\O)$, and thus we should use alter the above method to replace $f$ with a computable function.
 The general approach is replace the exact $f$ with a polynomial approximation. 
-Denote $Q_K$ for the $L^2(K)$-orthogonal projector onto polynomials of degree $p$ on $K$. We will replace the (exact) local residuals~$r_a$ by  (cf. \cite[Thm~3.17]{ernequil})
-\[
-  \ip{\tilde r_a, v} := \sum_{K \subset \w_a} \ip{Q_K \left(\psi_a \left[f + \Delta U_h\right]\right), v}_K 
+Denote $Q_K$ for the $L^2(K)$-orthogonal projector onto polynomials of degree $p$ on $K$.
+Simlarly, notate $Q_a$ for the $L^2(\w_a)$-orthogonal projection on the broken polynomial space $\P_p^{-1}(\w_a)$.
+We will replace the (exact) local residuals~$r_a$ by  (cf. \cite[Thm~3.17]{ernequil})
+\begin{align*}
+  \ip{\tilde r_a, v} &:= \ip{Q_a(\psi_af),v}_{\w_a} - \ip{\nabla U_h, \nabla \left(\psi_a v\right)}_{\w_a} \\
+   &= \sum_{K \subset \w_a} \ip{Q_K \left(\psi_a \left[f + \Delta U_h\right]\right), v}_K 
   +\sum_{e \subset \gamma_a} \ip{\psi_a \llbracket \nabla U_h\rrbracket, v}_e.
-\]
-Notice that there indeed exist $\sigma_a \in \RT_p^{-1}(\w_a)$ such that $\div \sigma_a = \tilde r_a(v)$.
+\end{align*}
+Notice that there indeed exists $\sigma_a \in \RT_{p,0}^{-1}(\w_a)$ such that $\div \sigma_a = \tilde r_a(v)$.
 
-Of course, this discretization comes at a price. For $a \in \V_h$ let  $\sigma_a\in\RT_p^{-1}(\w_a)$ be the minimal $L^2$-norm
-flux satisfying $\div \sigma_a = \tilde r_a$. 
-Then Lemma's \ref{lem:loceff}, \ref{lem:globrel} and Theorem \ref{thm:locresequiv} have
-the following discretized counterpart. Here we notate $Q_a$ for the $L^2(\w_a)$-orthogonal projection on the
-broken polynomial space $\P_p^{-1}(\w_a)$.
+In the following $\sigma_a$ will be constructed using the discretized local residual. That is, 
+for $a \in \V_h$ we let  $\sigma_a\in\RT_{p,0}^{-1}(\w_a)$ be the minimal $L^2$-norm
+flux satisfying
+\begin{equation}
+  \label{eq:sigmadefdisc}
+  \div \sigma_a = \tilde r_a.
+\end{equation}
+Of course, this discretization comes at a price; Lemma's \ref{lem:loceff}, \ref{lem:globrel} and Theorem \ref{thm:locresequiv} have
+the following discretized counterpart. 
 \begin{thm}
   \label{thm:discbounds}
   For $a \in \V_h$ with $\sigma_a$ found as described above we have
@@ -403,12 +422,11 @@ broken polynomial space $\P_p^{-1}(\w_a)$.
   \textcolor{blue}{Can we get rid of the $\psi_a$ in the oscilation term?}
 
 
-  Recall the decomposition of $r_a(v)$ in terms of its triangle and edge terms. 
-  Subtracting $r_a - \tilde r_a$, we directly see that the edge terms cancel. Moreover $Q_K(\psi_a \Delta U_h) = \psi_a \Delta U_h$,
-  since the latter is a $p-1$ degree polynomial. We are left with the $\psi_a f$ term, i.e.
+  Recall the decomposition of $r_a(v)$ in terms of its triangle and edge terms \eqref{eq:locdecomp}. 
+  Taking the difference  $r_a - \tilde r_a$, we directly see that most terms cancel.
+   We are left with the $\psi_a f$ term, i.e.
   \begin{align*}
     \norm{r_a - \tilde r_a}_{H^1_\star(\w_a)'} &= \sup_{v \in H_\star^1(\w_a) : v \ne 0} \frac{\ip{r_a,v} - \ip{\tilde r_a, v}}{\norm{\nabla v}_{\w_a}} \\
-    &= \sup_{v \in H_\star^1(\w_a) : v \ne 0} \frac{ \sum_{K \subset \w_a} \ip{ \psi_a f - Q_K (\psi_a f), v}_K}{\norm{\nabla v}_{\w_a}}\\
     &= \sup_{v \in H_\star^1(\w_a) : v \ne 0} \frac{ \ip{(I - Q_a)(\psi_a f), v}_{\w_a}}{\norm{\nabla v}_{\w_a}}\\
     &\leq \sup_{v \in H_\star^1(\w_a) : v \ne 0} \frac{\norm{v}_{\w_a} \norm{(I - Q_a)(\psi_a f)}_{\w_a}}{\norm{\nabla v}_{\w_a}}\\
     &\lesssim h_{\w_a} \norm{(I - Q_a)(\psi_a f)}_{\w_a},
@@ -427,7 +445,6 @@ broken polynomial space $\P_p^{-1}(\w_a)$.
   The proof of Theorem~\ref{thm:locresequiv} holds for any functional $r \in H_\star^1(\w_a)'$ that can be decomposed in triangle and edge terms.
   In particular it holds for $\tilde r_a$, providing us with the second part of the theorem.
 \end{proof}
-
 The oscillation terms will also appear in the local equivalence the standard residual estimator. 
 The effects are summarized in the following lemma. The proof follows easily by mimicking the proof of Lemma \ref{lem:starequiv}
 using the relations found in the previous Theorem.
@@ -506,7 +523,7 @@ Logically, all the triangles in this set should be refined. This module calculat
   \T_\star = \texttt{REFINE}(\T, \mathcal{M}),
 \]
 where $T_\star$ is the smallest conforming refinement of $\T$ such that the triangles of
-all patches in the marked set are bisected.
+all patches in the marked set $\M$ are bisected.
 \todo{Weird refine method in cascon en nochetto}
 \\\\
 We can now formulate the AFEM algorithm and its produced sequences. For this we use the
@@ -874,14 +891,161 @@ Is the above easily adaptable to use with the second estimator instead?
 
 \section{Ern and Volharik}
 \textcolor{blue}{Explain construction Ern an Volharik. Allows for easier implementation}
-The equilibration method is based on constructing the difference flux $\sigma^\triangle = \sum_{a \in \V} \sigma_a =  \sigma - \nabla U$,
+
+The equilibration method is based on constructing the difference flux $\sigma^\triangle = \sum_{a \in \V} \sigma_a =  \sigma - \nabla U_h$,
 with $\sigma^\triangle$ from the broken Raviart-Thomas space $\RT_p^{-1}$. 
 An equivalent equilibration method is introduced by Ern and Volharik in \cite{ernequil}. They
-propose constructing the actual flux $\sigma$, instead of the difference $\sigma - \nabla U$. 
-\textcolor{Actually, I think there is a minus sign missing somewhere, shouldn't we have $\sigma^\triangle = \nabla U - \sigma$?}
+propose constructing the actual flux $\sigma$, instead of the difference $\sigma - \nabla U_h$. Here
+they take the flux $\sigma$ from the (non-broken) Raviart-Thomas space $\RT_p(\O)$.
+\textcolor{blue}{Actually, I think there is a minus sign missing somewhere, shouldn't we have $\sigma^\triangle = \nabla U_h - \sigma$?}
 
-In notation of \cite{ernequil} we define $\zeta_a := \sigma_a - \psi_a \nabla u_h$. By partition of unity we see that 
-$\sum_{a \in \V} \zeta_a = \sigma^\triangle - $
+In notation of \cite{ernequil}, we define $\zeta_a := \sigma_a - \psi_a \nabla U_h$, so that by the partition of unity we have 
+$\sum_{a \in \V} \zeta_a = \sigma^\triangle - \nabla U_h$. Rewriting the defining property \eqref{eq:sigmadefdisc} of flux $\sigma_a$ yields,
+\begin{align*}
+  -\ip{\sigma_a, \nabla v}_{\w_a}  = \ip{\tilde r_a, v} &=  \ip{Q_a(\psi_a f), v}_{\w_a} - \ip{\nabla U_h, \nabla \left(\psi_a v\right)}_{\w_a},
+\end{align*}
+invoking the product rule on $\nabla \left(\psi_a v\right)$ and collecting the terms gives,
+\[
+  =  \ip{Q_a(\psi_a f) - \nabla \psi_a \cdot \nabla U_h, v}_{\w_a} - \ip{\psi_a \nabla U_h, \nabla v}_{\w_a}.
+\]
+Obviously, this holds if and only if  we have for all $v \in H_\star^1(\w_a)$ that
+\begin{equation}
+  \label{eq:defzeta}
+  \ip{Q_a(\psi_a f) - \nabla \psi_a \cdot \nabla U_h, v}_{\w_a} = - \ip{\sigma_a - \psi_a \nabla U_h, \nabla v}_{\w_a} = - \ip{\zeta_a, \nabla v}_{\w_a} 
+\end{equation}
+Notice\footnote{
+For $a\in \V_h^{bdr}$ it is clear that $C_c^{\infty}(\w_a) \subset H_\star^1(\w_a)$. For $a \in \V_h^{int}$, take $v \in C_c^{\infty}(\w_a)$ and consider $v - v_{\w_a} \in H_\star^1(\w_a)$. Plugging $v - v_{\w_a}$ into the equation \eqref{eq:defzeta} and using orthogonality relations shows that actually $ - \ip{\zeta_a, \nabla v} = \ip{Q_a(\psi_a f) - \nabla \psi_a \cdot \nabla U_h, v}_{\w_a}$ for $v \in C_c^{\infty}(\w_a)$.}
+that by this relation the weak divergence  of $\zeta_a$ should satisfy $\div \zeta_a = Q_a(\psi_a f) - \nabla \psi_a\cdot \nabla U_h$.
+The latter is a $L^2(\w_a)$ function, and since\footnote{We know that $\sigma_a\in \RT_{p,0}^{-1}(\w_a)$. Moreover $\nabla U_h \in \RT_p^{-1}(\w_a)$ and since $\psi_a$ vanishes on $\partial \w_a \setminus \partial \O$ we can conclude that $\psi_a\nabla U_h \in \RT_{p,0}^{-1}(\w_a)$.
+} $\zeta_a = \sigma_a - \psi_a\nabla U_h \in \RT_{p,0}^{-1}(\w_a)$ we conclude
+\[
+  \zeta_a \in H(\div; \w_a) \cap \RT_{p,0}^{-1}(\w_a) = \RT_{p,0}(\w_a).
+\]
+
+Constructing $\sigma_a - \psi_a\nabla U_h$ is therefore equivalent to finding $\zeta_a \in \RT_p(\w_a)$ with
+$\div \zeta_a = Q_a(\psi_af) - \nabla \psi_a \cdot \nabla U_h$ and minimal $\norm{\zeta_a + \psi_a \nabla U_h}_{\w_a}$.
+This latter problem can be turned into a system of equations. 
+\begin{thm}
+  For each vertex $a \in \V_h$ the vector function $\zeta_a$ can be found by solving
+  \begin{alignat}{3}
+    \ip{\zeta_a, \tau}_{\w_a} - \ip{\div \tau, \lambda_a}_{\w_a} &= - \ip{\psi_a \nabla U_h, \tau}_{\w_a} && \quad \forall \tau \in \RT_{p,0}(\w_a),\label{eq:systemzeta1}\\
+    \ip{\div \zeta_a, q_a}_{\w_a} &= \ip{\psi_a f - \nabla \psi_a \cdot \nabla U_h, q_a}_{\w_a} && \quad \forall q_a \in \QQ(\w_a), \label{eq:systemzeta2}
+  \end{alignat}
+  for the pair $(\zeta_a, \lambda_a) \in \RT_{p,0}(\w_a) \times \QQ(\w_a)$.
+  Here $\QQ(\w_a)$ is a polynomial subspace given by, \todo{Why is this not a subspace of $H_\star^1(\w_a)$}
+  \[
+    \QQ(\w_a) := \left[\begin{aligned}
+        &\set{q \in \P_p^{-1}(\w_a) : q_{\w_a} = 0}  &\quad a \in \V_h^{int},\\
+        &\set{q \in\P_p^{-1}(\w_a)}&\quad a \in \V_h^{bdr}.
+      \end{aligned}
+      \right.
+  \]
+\end{thm}
+\begin{proof}
+  We will start by showing that the defining property of $\zeta_a$ in \eqref{eq:defzeta} is equivalent to \eqref{eq:systemzeta1}.
+  Here we will use that $Q_a$ is the $L_2$-orthogonal projector on $\P_p^{-1}(\w_a)$.  Fix $v \in H_\star^1(\w_a)$, 
+  since $\zeta_a \in \RT_{p,0}(\w_a)$ we know that $\div \zeta_a \in \P_p^{-1}(\w_a)$ --- and thus $Q_a( \div \zeta_a )= \div \zeta_a$.
+  Combining this with orthogonality of the projector gives us,
+  \[
+    \ip{\div \zeta_a, v}_{\w_a} = \ip{ Q_a(\div \zeta_a), v}_{\w_a} = \ip{\div \zeta_a, Q_a(v)}_{\w_a}.
+  \]
+  Something similar for the left hand side of \eqref{eq:defzeta} holds. The expression $\nabla \psi_a \cdot \nabla U_h$ is constant
+  on each triangle, and thus certainly part of $\P_p^{-1}(\w_a)$. Doing a similar trick as before gives, 
+  \begin{align*}
+    \ip{Q_a(\psi_a f) - \nabla \psi_a \cdot \nabla U_h, v}_{\w_a} &= \ip{Q_a(\psi_a f) - Q_a\left(\nabla \psi_a \cdot \nabla U_h\right),v}_{\w_a}\\
+    &= \ip{Q_a\left(\psi_a f - \nabla \psi_a \cdot \nabla U_h\right), v}_{\w_a}\\
+    &= \ip{\psi_a f - \nabla \psi_a \cdot \nabla U_h, Q_a(v)}_{\w_a}.
+  \end{align*}
+  From this we conclude that \eqref{eq:defzeta} is equivalent to
+  \[
+    \ip{\div \zeta_a, q_a}_{\w_a} = \ip{\psi_a f - \nabla \psi_a \cdot \nabla U_h, q_a} \quad \forall q \in Q_a\left(H_\star^1(\w_a)\right)
+  \]
+  The equivalence is completed by  noting that $Q_a\left(H_\star^1(\w_a)\right) \subseteq \QQ(\w_a)$ for both interior and boundary vertices $a$.
+
+  \textcolor{blue}{
+    I think we actually have $Q_a\left(H_\star^1(\w_a)\right) = \QQ(\w_a)$.
+  For $a \in \V_h^{int}$ this is obvious, 
+  since $\ip{Q_a(v), 1}_{\w_a} = \ip{v,Q_a(1)}_{\w_a} = v_{\w_a} = 0$ for $v \in H_\star^1(\w_a)$.
+  On the other hand, for $a \in \V_h^{bdr}$ pick $q_a \in \P_p^{-1}(\w_a)$.
+  Can we find a sequence $v_\epsilon \in H_\star^1(\w_a)$ such that $\norm{Q_a(v_\epsilon) - q_a}_{\w_a} \to 0$ 
+  and $v_\epsilon \to v \in H_\star^1(\w_a)$. If so, we have $Q_a(v) = q_a$ for a $v \in H_\star^1(\w_a)$ and thus we may conclude
+  that $Q_a\left(H_\star^1(\w_a)\right) = \QQ(\w_a)$. Probably possible using some mollifier.  }
+
+  Next we tackle rewrite the minimizing problem. Invoking the polarization identity gives
+  \[
+    \norm{\zeta_a + \psi_a \nabla U_h}_{\w_a}^2 = \norm{\zeta_a}_{\w_a}^2 + \norm{\psi_a \nabla U_h}^2_{\w_a} + 2 \ip{\zeta_a, \psi_a \nabla 
+    U_h}_{\w_a}.
+  \]
+  From this it is clear that minimizing $\norm{\zeta_a + \psi_a \nabla U_h}_{\w_a}$ for some $\zeta_a$ is equivalent to minimizing
+  \[
+    \frac{1}{2} \norm{\zeta_a}^2_{\w_a} + \ip{\zeta_a, \psi_a \nabla U_h}_{\w_a}.
+  \]
+
+  By the previous paragraphs solving $\zeta_a \in \RT_{p,0}(\w_a)$ is equivalent to the problem of finding $\zeta_a~\in~\RT_{p,0}(\w_a)$ that minimizes
+  \[
+    J(\tau) := \frac{1}{2} \norm{\tau}^2_{\w_a} + \ip{\tau, \psi_a \nabla U_h}_{\w_a} = \frac{1}{2} \ip{\tau, \tau}_{\w_a} + \ip{\tau, \psi_a \nabla U_h}_{\w_a},
+  \]
+  over all $\tau \in \RT_{p,0}(\w_a)$ satisfying,
+  \[
+    \ip{\div \tau, q_a}_{\w_a} - \ip{\psi_a f - \nabla \psi_a \cdot \nabla U_h, q_a}_{\w_a}=0  \quad \forall q_a \in \QQ(\w_a).
+  \]
+  Denote $M = \dim \QQ(\w_a)$, then the above condition is equivalent to $G(\tau) = \vec{0}$, where
+  \[
+    G_k(\tau) = \ip{\div \tau, q_k}_{\w_a} - \ip{\psi_a f - \nabla \psi_a \cdot \nabla U_h, q_k}_{\w_a}  \quad k \in \set{1, \dots, M},
+  \]
+  for some basis $\set{q_1,\dots, q_M}$ of $\QQ(\w_a)$. This appears like a classical optimisation problem, and we can
+  solve it similarly using the Lagrange multiplier.  Let $\zeta_a$ be a local minimum of $J$ satisfying the optimization constraint. 
+  Under some assumptions\footnote{This is formalised by the Lagrange multiplier theorem, this is covered in most  advanced optimization texts.
+  For a statement of the theorem see for example \cite{botelho2013lagrange}.}, there exists a Lagrange multiplier $\lambda \in \left(\R^{M}\right)^*$ such that $J'(\zeta_a) + \lambda(G'(\zeta_a))=0$.
+  These generalized derivatives are operators on $\RT_{p,0}(\w_a)$, given by
+  \begin{align*}
+    J'(\zeta_a; \tau) &= \lim_{\epsilon \to 0} \frac{J(\zeta_a + \epsilon \tau) - J(\zeta_a)}{\epsilon} = \ip{\zeta_a, \tau}_{\w_a} +\ip{\tau, \psi_a \nabla U_h}_{\w_a},\\
+    G'(\zeta_a; \tau) &= \lim_{\epsilon \to 0} \frac{G(\zeta_a + \epsilon \tau) - G(\zeta_a)}{\epsilon}  = \left[ \ip{\div \tau, q_k}_{\w_a}\right]_{1 \leq k \leq M}.
+  \end{align*}
+  By the dual pairing we have
+  $\lambda(G'(\zeta_a; \tau)) = \ip{G'(\zeta_a;\tau), \lambda}_{\R^M} = \ip{\div \tau, \sum \lamba_k \lambda_k q_k}$.
+  Writing $\lambda_a = \sum_k \lambda_k q_k \in \QQ(\w_a)$, and recalling that $J'(\zeta_a), G'(\zeta_a)$ are operators on $\RT_{p,0}(\w_a)$ 
+  we see that the Lagrange multiplier $\lambda_a$ should satisfy
+  \[
+    0 = J'(\zeta_a; \tau) + \lambda(G'(\zeta_a; \tau)) = \ip{\zeta_a, \tau}_{\w_a} + \ip{\tau, \psi_a\nabla U_h}_{\w_a} + \ip{\div \tau, \lambda_a}\quad \forall \tau \in \RT_{p,0}(\w_a).
+  \]
+  Combined with the minimization constraint for $\zeta_a$ provides the system \eqref{eq:systemzeta1}-\eqref{eq:systemzeta2} in the theorem.
+
+  The approach above does not provide us with uniqueness of $\zeta_a$. For this we require more evolved optimisation theory. 
+  Finding the pair $(\zeta_a, \lambda_a) \in \RT_{p,0}(\w_a) \times \QQ(\w_a)$ that solves the system 
+  \eqref{eq:systemzeta1}-\eqref{eq:systemzeta2} is actually a \emph{saddle point problem} (cf. \cite{brezzimixed, braess2007finite}).
+  That is, it fits in the general framework of finding $(u, \lambda) \in X \times M$ for Hilbert spaces $X$ and~$M$~with
+    \begin{align*}
+      a(u,v) + b(v,\lambda) &= \ip{f,v} \quad \forall v \in X,\\
+      b(u, \mu) &= \ip{g,\mu} \quad \forall \mu \in M,
+    \end{align*}
+    for $f \in X', g \in M'$ and continuous bilinear forms $a: X \times X \to \R, b : X \times M \to \R$.
+    The main result about saddle point problems \cite[Thm~4.3]{braess2007finite} provides sufficient conditions under which there 
+    is a unique solution $(u, \lambda)$ to the saddle point problem such that~$u$ is also the unique minimizer of 
+    $\frac{1}{2} a(u,u) - \ip{f,u}$. First, the bilinear form $a(\cdot, \cdot)$ should be symmetric and coercive on
+    the set of functions $V := \{v \in X : b(v, \cdot) = 0\}$.
+    Secondly, the bilinear form $b(\cdot, \cdot)$ must satisfy the inf-sup condition: 
+    \[
+      \exists \beta > 0, \inf_{\mu \in M} \sup_{v \in X}\frac{b(v,\mu)}{\norm{v}_X \norm{\mu}_M} \geq \beta.
+    \]
+
+    Fit the general framework on our system \eqref{eq:systemzeta1}-\eqref{eq:systemzeta2}; so that in particular we 
+    have $a(\zeta_a,\tau) = \ip{\zeta_a,\tau}_{\w_a}$ and $b(\zeta_a,q_a) = \ip{\div \zeta_a,q_a}_{\w_a}$ for $\zeta_a, \tau \in \RT_{p,0}(\w_a), q_a \in \QQ(\w_a)$. For $\tau \in V$ we have $\ip{\div \tau, q_a}_{\w_a} = 0$ for all $q_a \in \QQ(\w_a)$, which implies that $\div \tau = 0$ since $\div \tau \in \QQ(\w_a)$. Coercivity of  $a(\cdot, \cdot)$ on $V$ therefore follows easily,
+    \[
+      a(\tau,\tau) = \ip{\tau,\tau}_{\w_a} = \norm{\tau}^2_{\w_a} = \norm{\tau}^2_{\w_a} + \norm{\div \tau}^2_{\w_a} = \norm{\tau}^2_{H(\div; \w_a)}.
+    \]
+    For the inf-sup condition we notice that given $q_a \in \QQ(\w_a)$ there is a $ \tau_a \in \RT_{p,0}(\w_a)$
+    such that $\div  \tau_a = q_a$, and therefore
+    \[
+      \sup_{\tau \in \RT_{p,0}(\w_a)} \frac{\ip{\div \tau, q_a}}{\norm{\tau}\norm{q_a}} \geq \frac{\norm{q_a}^2}{\norm{ \tau_a}\norm{q_a}} \geq 1.
+    \]
+    All in all, we satisfy the necessary conditions and hence we may conclude that there is a unique pair $(\zeta_a, \lambda) \in \RT_{p,0}(\w_a) \times \QQ(\w_a)$ that solves the system \eqref{eq:systemzeta1}-\eqref{eq:systemzeta2}, with $\zeta_a$ the
+    unique minimizer of $\norm{\zeta + \psi_a \nabla U_h}_{\w_a}$ satisfying $\div \zeta_a = Q_a(\psi_a f) - \nabla \psi_a \cdot \nabla U_h$.
+\end{proof}
+
+
+
+
 
 \section{Auxiliary results}
 \textcolor{blue}{I need references for this: does the constant only depend on shape regularity in case of a star patch?}
