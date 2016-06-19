@@ -1,5 +1,7 @@
-function test
-  close all; 
+function  [N,equilError, resError, errH1] = test(method)
+  savedir = 'figures';
+  %clear all;
+  %close all; 
   profile on;
   %% Parameters
   theta = 0.5;    uh =0;
@@ -8,60 +10,66 @@ function test
   refinemethod = @uniformrefine;
 
   maxN =  10000;
-  maxIt = 20;
+  maxIt = 3;
   %%  Generate an initial mesh
-  %[node, elem, bdFlag, pde, Du] = squaresin();
+  
+  switch method
+  case 'square_sin'
+    [node, elem, bdFlag, pde, Du] = squaresin();
+  case 'square_ana'
+    [node, elem, bdFlag, pde, Du] = squareana(10);
+  case 'square_peak'
+    [node, elem, bdFlag, pde, Du] = squarepeak(10, 0.51, 0.117);
+  case 'square_one'
+    [node, elem, bdFlag, pde, Du] = squareone();
+  end
   %[node, elem, bdFlag, pde, Du] = lshapeone();
   %[node, elem, bdFlag, pde, Du] = lshapecorner();
-  [node, elem, bdFlag, pde, Du] = squareana(10);
-  %[node, elem, bdFlag, pde, Du] = squarepeak(10, 0.51, 0.117);
-  errH1 = zeros(maxIt,1);
-  equilError = zeros(maxIt,1);
-  resError = zeros(maxIt,1);
-  N = zeros(maxIt, 1);
-  N(1) = size(node, 1);
+  %Generate Uh plots uniform
+  %plotuh
+  plotapproxh1(method,node, elem,pde, bdFlag,Du, 9);
+  return;
+  errH1 = [];
+  approxH1 = [];
+  equilError = [];
+  resError = [];
+  N = [];
+  %N(1) = size(node, 1);
   % Uniform refinement
   t = 1;
-  while  (t <= maxIt) && (N(t) < maxN) 
-    N(t) = size(node,1);
-    uh = Poisson(node, elem, pde, bdFlag);
-    figure(1);  showresult(node,elem,uh,[-50,12]);    
-    [Duh,~] = gradu(node, elem, uh);
-    if isreal(Du)
-      if Du == 0
-        errH1(t) = 0;
-      else
-        % Du should hold \|Nabla u\|^2_{Omega}
-        errH1(t) = Du - intdomain(node, elem, uh);
-      end
-    else
-      errH1(t) = getH1error(node,elem,Du,uh)^2;
-    end
-    sig = flux(node,elem, uh, Duh, pde.f);
-    [equilError(t), eta] =  equilresidualestimate(node, elem, Duh, sig, pde.f);
-    [resError(t), ~] = residualesimate(node, elem, Duh, pde.f);
-    markedElem = mark(elem,eta,theta);
-    [node,elem,bdFlag] = bisect(node,elem,markedElem,bdFlag);
-    %[node,elem, bdFlag] = refinemethod(node, elem, bdFlag);
+  while  (t <= maxIt) %&& (N(t) < maxN) 
     t = t+1;
+    [node, elem, bdFlag] = uniformbisect(node, elem, bdFlag);
+    N(end+1) = size(node,1);
+    uh = Poisson(node, elem, pde, bdFlag);
+    %figure(1);  showresult(node,elem,uh,[-50,12]);    
+    [Duh,~] = gradu(node, elem, uh);
+
+    % Calculate real error
+    errH1(end+1) = getH1error(node,elem,Du,uh)
+
+
+    continue;
+    % Calculate the flux
+    sig = flux(node,elem,  Duh, pde.f);
+
+    %Calculate the error esimate
+    [equilError(end+1), ~, ~] =  equilresidualestimate(node, elem, Duh, sig, pde.f);
+
+    %Calculate the residual eror
+    %[eta, ~] = residualesimate(node, elem, Duh, pde.f);
+    %resError(end+1) = sqrt(eta);
+    eta = estimateresidual(node, elem, uh, pde);
+    resError(end+1) = sqrt(sum(eta.^2));
+    %[resError(t), ~] = residualesimate(node, elem, Duh, pde.f);
+
+    %markedElem = mark(elem,eta,theta);
+    %[node,elem,bdFlag] = bisect(node,elem,markedElem,bdFlag);
+    %[node,elem, bdFlag] = refinemethod(node, elem, bdFlag);
+    ploterror(method,node, elem, uh, N,equilError, resError, errH1);
   end
-  t = t-1;
-  equilError
-  resError
-  errH1
-  figure(2);
-  N = N(1:t); errH1 = errH1(1:t); equilError = equilError(1:t); resError = resError(1:t);
-  x = (1:t) - 1;
-  loglog(N, errH1, 'r-',N, resError, 'g-', N, equilError, 'b-')
-  legend({'$\|\nabla{(u - u_h)}\|^2$','res($uh$)', 'equil($u_h, \sigma_h$)'}, 'interpreter', 'latex');
-  title('Comparison equilibrated error estimator');
-  xlabel('Number of degrees of freedom');
-  ylabel('Error');
-  figure(3);
-  loglog(N, sqrt(equilError) ./ sqrt(errH1));
-  title('Efficiency index');
-  legend({'$C_{eff}$'}, 'interpreter', 'latex');
   profile viewer
+
   return;
 
   %figure(1);  showresult(node,elem,uh,[-50,12]);    
@@ -154,6 +162,98 @@ function test
   end
 end
 
+function plotuh
+  for j =1:9
+    uh = Poisson(node, elem, pde, bdFlag);
+    %f1 = figure(1); showmesh(node,elem);
+    f2 = figure(2); %showsolution(node, elem, uh,2); colorbar;
+    colormap('jet')
+    trisurf(elem, node(:,1), node(:,2), uh', 'FaceColor', 'interp', 'EdgeColor', 'interp');
+    caxis([-1,1])
+    h = colorbar;
+    view(2)
+    saveas(f2, sprintf('%s/result%d.png', savedir, j));
+    [node,elem, bdFlag] = uniformbisect(node, elem);
+  end
+  f2 = figure(2);
+  showsolution(node,elem,uh,3)
+  saveas(f2, 'figures/result.png');
+end
+
+function plotapproxh1(method,node, elem, pde, bdFlag,Du, maxIt)
+  savedir = 'figures';
+  mkdir(sprintf('%s/%s', savedir, method));
+  errH1 = [];
+  approx1H1 = [];
+  approx2H1 = [];
+  approx3H1 = [];
+  N = [];
+  t = 1;
+  while  (t <= maxIt) 
+    [node, elem, bdFlag] = uniformbisect(node, elem, bdFlag);
+    N(end+1) = size(node,1);
+    uh = Poisson(node, elem, pde, bdFlag);
+    %figure(1);  showresult(node,elem,uh,[-50,12]);    
+    [Duh,~] = gradu(node, elem, uh);
+
+    % Calculate real error
+    errH1(end+1) = getH1error(node,elem,Du,uh)
+    if (t <= maxIt - 1)
+      approx1H1(end+1) = approxH1error(node, elem, bdFlag, pde, uh,1)
+    end
+    if (t <= maxIt - 2)
+      approx2H1(end+1) = approxH1error(node, elem, bdFlag, pde, uh,2)
+    end
+    if (t <= maxIt - 3)
+      approx3H1(end+1) = approxH1error(node, elem, bdFlag, pde, uh,3)
+    end
+    % Draw figuress!
+    f2 = figure(2);
+    len1 = size(approx1H1,2);
+    len2 = size(approx2H1,2);
+    len3 = size(approx3H1,2);
+
+    loglog(N(1:len1),  approx1H1 ./ errH1(1:len1), 'r-x',N(1:len2),  approx2H1 ./ errH1(1:len2), 'k-s', N(1:len3), approx3H1 ./ errH1(1:len3), 'm-d');
+    xlabel('Number of vertices');
+    ylabel('Relative error: $\|nabla{U_{k+i}} - \nabla{ U_k}\| / \|\nabla{u} - \nabla{U_k}\|$', 'interpreter', 'latex');
+    legend({'$i=1$',' $i=2$', '$i=3$'}, 'interpreter', 'latex');
+
+    f3 = figure(3);
+    loglog(N,  errH1, 'b-o',N(1:len1), approx1H1, 'r-x', N(1:len2), approx2H1, 'k-s', N(1:len3), approx3H1, 'm-d'); 
+    legend({'$\|\nabla{u} - \nabla {U_k}\|$','$\|\nabla{U_{k+1}} - \nabla{U_k}\|$',' $\|\nabla{U_{k+2}} - \nabla{U_k}\|$', '$\|\nabla{U_{k+3}} - \nabla{U_k}\|$'}, 'interpreter', 'latex');
+    xlabel('Number of vertices');
+    ylabel('Error');
+
+    saveas(f2, sprintf('%s/%s/approx_H1_%d.png',savedir, method, t));
+    saveas(f3, sprintf('%s/%s/approx_H1_%d.png',savedir, method, t));
+
+    t = t+1;
+  end
+
+
+end
+
+% Approximate H1 error by two times bisecting
+function err = approxH1error(node, elem, bdFlag, pde, uh, it);
+  % Refine the grid it times; interpolate uh to this new grid
+  for i=1:it
+    [node, elem, bdFlag, HB] = uniformbisect(node, elem, bdFlag);
+    uh = nodeinterpolate(uh, HB);
+  end
+    
+  % Calculate the `real' solution for this grid
+  u = Poisson(node, elem, pde, bdFlag);
+
+  % uh - u lives on the same triangulation,  and Duh is constant on each triangle
+  [Derr,area] = gradu(node, elem, uh - u);
+
+  % error elementwise
+  err = sqrt(sum( area.*sum(Derr.^2,2)));
+
+  % Calculate the error
+  %err = getH1error(node, elem, @(p) 0*p, uh - u)
+end
+
 %  Returns global information about the edges of a triange
 %    [edges, signs, patchedge] = elem2edge(t, patchvert, T)
 %      Given element t, auxstructure T and the global index
@@ -175,8 +275,7 @@ function [edges,signs,patchedge] = elem2edge(t, patchvert, T)
   patchedge = any(tmp' == patchvert);
 end
 
-function int = quadmid(nodes, f) % apply midpoint quadrature on triangle with nodes
-  area = polyarea(nodes(:, 1), nodes(:,2));
+function int = quadmid(nodes, area, f) % apply midpoint quadrature on triangle with nodes
   midpoints = 0.5 * [nodes(3,:) + nodes(2,:); nodes(1,:) + nodes(3,:); nodes(1,:) + nodes(2,:)];
   int = area / 3.0 * (f(midpoints(1,:)) + f(midpoints(2,:)) + f(midpoints(3,:)));
 end
@@ -205,9 +304,8 @@ function lengths = edgelengths(coords)
 end
 
 % Returns the three RT basis functions on a given triangle
-function basis = basisRT(coords, signs)
+function basis = basisRT(coords, area, signs)
   lengths = edgelengths(coords);
-  area = polyarea(coords(:,1), coords(:,2));
   % Construct the three basis functions
   basis = {@(x) signs(1) * lengths(1) / ( 2 * area) * (x - coords(1,:)),
           @(x) signs(2) * lengths(2) / ( 2 * area) * (x - coords(2,:)),
@@ -216,14 +314,23 @@ end
 
 % Calculates the inner products of the three local raviart
 % thomas basis functions with signs on a given triangle
-function M = localMassRT(coords, signs)
-  basis = basisRT(coords, signs);
-  M = zeros(3,3);
+function M = localMassRT(coords, area, signs)
+  basis = basisRT(coords, area, signs);
+  % eveluate each basis function in the midpoints
+  midpoints = 0.5 * [coords(3,:) + coords(2,:); coords(1,:) + coords(3,:); coords(1,:) + coords(2,:)];
+  M = zeros(3,6);
   for i = 1:3
-    for j = 1:3
-      M(i,j) = quadmid(coords, @(x) dot( basis{i}(x) , basis{j}(x)));
-    end
+     M(i, :) = [basis{i}(midpoints(1,:)), basis{i}(midpoints(2,:)), basis{i}(midpoints(3,:))];
   end
+  % calculate the final interactions
+  M = area/ 3.0 * M * M';
+%  M = zeros(3,3);
+%  for i = 1:3
+%    for j = 1:3
+%      M(i,j) = quadmid(coords, @(x) dot( basis{i}(x) , basis{j}(x)));
+%    end
+%  end
+
 end
 
 % Calculates the inner products between Qh basis functions
@@ -231,9 +338,8 @@ end
 %
 % Basis for Qh is given by the functions with |T_n| on x \in T_i
 % and -|T_i| on x \in T_N
-function B = localQhVh(volScale, coords, signs) 
+function B = localQhVh(volScale, coords, area, signs) 
   lengths = edgelengths(coords);
-  area = polyarea(coords(:,1), coords(:,2));
   B = volScale  * [signs(1) * lengths(1); signs(2) * lengths(2); signs(3) * lengths(3)];
 end
 
@@ -243,12 +349,11 @@ end
 % Coordinates, signs of the edge, and patchedge which
 % indicates which (LOCAL!) edges of the triangle arae
 % connected to the patch vertex
-function B = localRHS1(Duh, coords, signs, patchedge) 
-  area = polyarea(coords(:,1), coords(:,2));
+function B = localRHS1(Duh, coords, area, signs, patchedge) 
   midpoints = 0.5 * [coords(3,:) + coords(2,:); coords(3,:) + coords(1,:); coords(2,:) + coords(1,:)];
 
   % Construct the three RT basis functions
-  basis = basisRT(coords, signs);
+  basis = basisRT(coords,area, signs);
 
   % Apply midpoint quadrature
   % hat_a dot(grad uh, \phi_j)
@@ -256,11 +361,12 @@ function B = localRHS1(Duh, coords, signs, patchedge)
   % to the patch vertex
   B = zeros(3,1);
   for j=1:3
-    f = @(x) dot(Duh, basis{j}(x));
+    %f = @(x) dot(Duh, basis{j}(x));
+    DuhT = Duh';
     int = area / 3.0 * (...
-           patchedge(1) * 0.5 * f(midpoints(1,:)) + ...
-           patchedge(2) * 0.5 * f(midpoints(2,:)) + ...
-           patchedge(3) * 0.5 * f(midpoints(3,:)));
+           patchedge(1) * 0.5 * basis{j}(midpoints(1,:)) * DuhT + ...
+           patchedge(2) * 0.5 * basis{j}(midpoints(2,:)) * DuhT+ ...
+           patchedge(3) * 0.5 * basis{j}(midpoints(3,:)) * DuhT);
     B(j) = int;
   end
 end
@@ -276,10 +382,9 @@ end
 % patchedge indicates whether the edge is connected to the patchver
 
 
-function int = localRHS2(Duh, Dphi_a, f, coords, volScale, patchedge) 
+function int = localRHS2(Duh, Dphi_a, f, coords, area, volScale, patchedge) 
   edges = [coords(3,:) - coords(2,:); coords(3,:) - coords(1,:); coords(2,:) - coords(1,:)];
   midpoints = 0.5 * [coords(3,:) + coords(2,:); coords(1,:) + coords(3,:); coords(2,:) + coords(1,:)];
-  area = polyarea(coords(:,1), coords(:,2));
   Dprod = dot(Duh, Dphi_a);
   % Apply midpoint quadrature
   % hat_a(midpoint) = 1/2 or 0. Depending on whether the edge is connected
@@ -302,28 +407,13 @@ function A = localStiffRT(coords, signs)
   normals(3,:) = 1.0 /  norm(normals(3,:)) * normals(3,:)
 end
 
-function sig = fluxpatch(node, elem,uh, Duh, f, patchvert)
-  [~, ~, isBdNode] = findboundary(elem);
-  isBdPatch = isBdNode(patchvert);
-  T = auxstructure(elem);
-  N = size(node,1);
-  NT = size(elem, 1);
+function sig = fluxpatch(T, node, elem,area, Dlambda,  Duh, f, patchvert, elemPatch, isBdPatch)
+  % Number of edges (global DOFs)
   NE = size(T.edge,1);
 
-  [elem, ~, area] = fixorder(node, elem);
-  % Calculate gradient of the barycentric basis
-  [Dlambda, ~, ~] = gradbasis(node,elem);
-
-
-  % NT \times N matrix
-  t2v = sparse([1:NT, 1:NT, 1:NT], elem, 1, NT, N);
-  % The indices of triangles inside this patch
-  elemPatch = find(t2v(:,patchvert));
-
   % Substructures of this patch
-  TPatch = auxstructure(elem(elemPatch,:));
   NTP = size(elemPatch,1);
-  NEP = size(TPatch.edge,1);
+
   dofQh = NTP - ~isBdPatch;
 
   % Assemble massmatrix M11 for zeta vs vh
@@ -333,7 +423,7 @@ function sig = fluxpatch(node, elem,uh, Duh, f, patchvert)
     % Find edges and global signs belonging to this edge
     [edges,signs, ~] = elem2edge(t, patchvert, T);
     %Calculate localmass matrix
-    Mt = localMassRT(node(elem(t,:),:),signs);
+    Mt = localMassRT(node(elem(t,:),:),area(t), signs);
     %Add result to big matrix
     M11(edges, edges) = M11(edges, edges) + Mt;
   end
@@ -359,7 +449,7 @@ function sig = fluxpatch(node, elem,uh, Duh, f, patchvert)
 
     % Calculate interactions on triangle t
     [edges,signs,~] = elem2edge(t, patchvert, T);
-    Mt = localQhVh(areaSlave, node(elem(t,:),:), signs);
+    Mt = localQhVh(areaSlave, node(elem(t,:),:), area(t), signs);
 
     % Add in the big matrix
     M12(edges, k) = M12(edges, k) + Mt;
@@ -370,7 +460,7 @@ function sig = fluxpatch(node, elem,uh, Duh, f, patchvert)
     end
 
     % Calculate interactions on slave with basis function t (has value -area(t))
-    Mt = localQhVh(-area(t), coordsSlave, signsSlave);
+    Mt = localQhVh(-area(t), coordsSlave, areaSlave, signsSlave);
     % Add to the big matrix
     M12(edgesSlave, k) = M12(edgesSlave,k) + Mt;
   end
@@ -392,7 +482,7 @@ function sig = fluxpatch(node, elem,uh, Duh, f, patchvert)
     [edges,signs, patchedges] = elem2edge(t, patchvert, T);
 
     % Calculate local in products on this triangle
-    bt = localRHS1(Duh(t,:), node(elem(t,:),:), signs, patchedges);
+    bt = localRHS1(Duh(t,:), node(elem(t,:),:), area(t), signs, patchedges);
 
     % Add to value in the big vector
     b1(edges) = b1(edges) + bt;
@@ -417,7 +507,7 @@ function sig = fluxpatch(node, elem,uh, Duh, f, patchvert)
     locpatchvert = find(elem(t,:) == patchvert);
 
     % Calculate (g^a, x_t)
-    bt = localRHS2(Duh(t,:), Dlambda(t,:, locpatchvert), f, node(elem(t,:),:), areaSlave, patchedges);
+    bt = localRHS2(Duh(t,:), Dlambda(t,:, locpatchvert), f, node(elem(t,:),:),  area(t), areaSlave, patchedges);
 
     % Save
     b2(k) = bt;
@@ -427,7 +517,7 @@ function sig = fluxpatch(node, elem,uh, Duh, f, patchvert)
     end
 
     % Calculate contribution on slavetriangle
-    bt = localRHS2(Duh(slaveElem,:), Dlambda(slaveElem,:, locpatchvertSlave), f, coordsSlave,  -area(t), patchedgeSlave);
+    bt = localRHS2(Duh(slaveElem,:), Dlambda(slaveElem,:, locpatchvertSlave), f, coordsSlave, areaSlave,  -area(t), patchedgeSlave);
 
     b2(k) = b2(k) + bt;
   end
@@ -491,15 +581,37 @@ function sig = fluxpatch(node, elem,uh, Duh, f, patchvert)
 end
 
 % Calculate flux over entire domain
-function sig = flux(node, elem,uh, Duh, f)
+function sig = flux(node, elem, Duh, f)
+  % Calculate auxiliary datastructure
   T = auxstructure(elem);
+
+  % Number of nodes, number of edges, number of triangles
   N = size(node,1);
   NE = size(T.edge,1);
+  NT = size(elem,1);
+
+  % Fix the order of the triangulation
+  [elem, ~, area] = fixorder(node, elem);
+
+  % Calculate the boundary vertices
+  [~, ~, isBdNode] = findboundary(elem);
+
+  % Calculate gradient of basis
+  [Dlambda, ~, ~] = gradbasis(node,elem);
+
+  % NT \times N matrix
+  t2v = sparse([1:NT, 1:NT, 1:NT], elem, 1, NT, N);
+
   % Crate solution
   sig = zeros(NE,1);
   for v=1:N
+    % The indices of triangles inside this patch
+    elemPatch = find(t2v(:,v));
+
     % Find solution for this patch
-    sigPatch = fluxpatch(node, elem, uh, Duh, f, v);
+    isBdPatch = isBdNode(v);
+
+    sigPatch = fluxpatch(T, node, elem, area, Dlambda,  Duh, f, v,elemPatch, isBdPatch);
     sig = sig + sigPatch;
   end
 end
@@ -529,10 +641,12 @@ function sigelem =  fluxelem(node, elem, flux)
   T = auxstructure(elem);
   NT = size(elem,1);
   sigelem = cell(NT,1);
+  area = simplexvolume(node, elem);
+
   for t=1:NT
     coords = node(elem(t,:),:);
     [edges,signs,~] = elem2edge(t, -1, T);
-    basis = basisRT(coords, signs);
+    basis = basisRT(coords, area(t), signs);
 
     % construct the function
     sigelem{t} = @(x) basis{1}(x) * flux(edges(1)) +  ...
@@ -541,31 +655,68 @@ function sigelem =  fluxelem(node, elem, flux)
   end
 end
 
+% Approximate the norm \|zeta + Duh\| using midpoint quadrature
+function e = fluxerror(coords, area, signs, flux, duh)
+    % Gather RT basis for this element
+    basis = basisRT(coords, area, signs);
+    midpoints = 0.5 * [coords(3,:) + coords(2,:); coords(1,:) + coords(3,:); coords(1,:) + coords(2,:)];
+
+    % Evaluate flux at midpoints given as the linear combination of flux at edges
+    M = zeros(1,6);
+    for i = 1:3
+      M = M + flux(i) * [basis{i}(midpoints(1,:)), basis{i}(midpoints(2,:)), basis{i}(midpoints(3,:))];
+    end
+
+    % Add the Duh
+    M = M + [duh, duh, duh];
+
+    % Result, edge-midpoint quadrature
+    e = sqrt(area / 3.0 * M * M');
+%    % Flux on this triangle is the linear combination, given by value of flux at edges
+%
+%    % construct the function
+%    sigelem = @(x) basis{1}(x) * flux(1) +  ...
+%                   basis{2}(x) * flux(2) +  ...
+%                   basis{3}(x) * flux(3);
+%
+%    % Calculate (Duh + Sigma_h) inner product itself
+%    error_func = @(x) dot(duh + sigelem(x), duh + sigelem(x));
+%
+%    % create norm
+%    e = sqrt(quadmid(coords, area, error_func));
+end
 
 % Returns an upper bound for \|nabla(u - u_h)\|^2
-function [toterr, errelem] = equilresidualestimate(node, elem, duh, flux, f)
+function [toterr, errelem, oscelem] = equilresidualestimate(node, elem, duh, flux, f)
   NT = size(elem,1);
-  sigelem = fluxelem(node, elem, flux);
+  T = auxstructure(elem);
+  area = simplexvolume(node, elem);
+  %sigelem = fluxelem(node, elem, flux);
   divsigelem =  divfluxelem(node, elem, flux);
   errelem = zeros(NT,1);
+  oscelem = zeros(NT,1);
   for t=1:NT
+    % Gather triangle specific information
     coords = node(elem(t,:),:);
+    [edges,signs,~] = elem2edge(t, -1, T);
+
     % Calculate (Duh + Sigma_h) inner product itself
-    error_func = @(x) dot(duh(t,:) + sigelem{t}(x), duh(t,:) + sigelem{t}(x));
+    %error_func = @(x) dot(duh(t,:) + sigelem{t}(x), duh(t,:) + sigelem{t}(x));
 
     % create norm
-    error_1 = sqrt(quadmid(coords, error_func));
+    %error_1 = sqrt(quadmid(coords, area(t), error_func))
+    error_1 = fluxerror(coords, area(t), signs, flux(edges), duh(t,:));
     % error_t holds \|nabla uh + sigma_h\|_K
 
     % calculate h_K/ Pi \|f - div sigma\|_K
     h_K = max(edgelengths(coords));
 
-    error_2 = h_K/pi*sqrt(quadmid(coords,@(x) (f(x)-divsigelem(t))^2));
+    error_2 = h_K/pi*sqrt(quadmid(coords,area(t), @(x) (f(x)-divsigelem(t))^2));
 
     % add contribution of this triangle to the total
     errelem(t) = (error_1 + error_2)^2;
   end
-  toterr = sum(errelem);
+  toterr = sqrt( sum(errelem));
 end
 
 % The (squared) error indicator for every triangle (eta)
@@ -599,7 +750,7 @@ function etaellem =etaestimate(node, elem, duh, f)
     % Calculate erros
     %h_t = diameter = max length
     h = max(lengths);
-    err_a = h^2 * quadmid(node(elem(t,:),:), @(x) f(x)^2);
+    err_a = h^2 * quadmid(node(elem(t,:),:), area(t), @(x) f(x)^2);
     err_j = h* sum(jump);
 
     etaellem(t) = err_a + err_j;
@@ -615,11 +766,11 @@ function oscelem = oscestimate(node, elem, f)
   for t =1:NT
     coords = node(elem(t,:),:);
     % Calculate the projection of f onto the constants (is just average)
-    int_f = quadmid(coords, f);
+    int_f = quadmid(coords, area(t), f);
     c = 1.0  / area(t) * int_f;
 
     % Calculate the oscilation term
-    oscelem(t) = max(edgelengths(coords)) * quadmid(coords, @(x) (f(x) - c)^2);
+    oscelem(t) = max(edgelengths(coords)) * quadmid(coords, area(t), @(x) (f(x) - c)^2);
   end
 end
 
@@ -725,6 +876,7 @@ end
 % u = 2^{4a} x^a(1-x)^a y^a (1-y)^a.
 function [node, elem, bdFlag, pde, Du] = squareana(a)
   [node, elem] = squaremesh([0,1,0,1],0.5);
+  [node, elem] = squaremesh([0,1,0,1],1);
   bdFlag = setboundary(node, elem, 'Dirichlet');
   elem = fixorientation(node,elem);   % counter-clockwise oritentation
   % Symbolic symbls
@@ -747,6 +899,7 @@ end
 %   Peak centered at (x_c, y_c) with intensity a
 function [node, elem, bdFlag, pde, Du] = squarepeak(a,x_c, y_c)
   [node, elem] = squaremesh([0,1,0,1],0.5);
+  [node, elem] = squaremesh([0,1,0,1],1);
   bdFlag = setboundary(node, elem, 'Dirichlet');
   elem = fixorientation(node,elem);   % counter-clockwise oritentation
   % Symbolic symbls
@@ -769,16 +922,38 @@ function [node, elem, bdFlag, pde, Du] = squaresin()
   % Exact derivative on squaremesh
   function z = DuSquare(p)
     x = p(:,1); y = p(:,2);
-    z(:,1) = pi*cos(pi*x).*sin(pi*y);
-    z(:,2) = pi*sin(pi*x).*cos(pi*y);
+    z(:,1) = 2*pi*cos(2*pi*x).*sin(2*pi*y);
+    z(:,2) = 2*pi*sin(2*pi*x).*cos(2*pi*y);
   end
   %%  Generate an initial mesh
   node = [[0,0]; [0.5, 0.5]; [1,0];[1,1];[0,1]];
   elem = [[1,2,3]; [3,2,4]; [4,2,5]; [2,1,5]];
+  [node, elem] = squaremesh([0,1,0,1],1);
   [elem, ~, ~] = fixorder(node, elem);
   bdFlag = setboundary(node,elem,'Dirichlet');
   %pde.f = @(p) 2*p(:,1) + p(:,2);
-  pde.f = @(p) 2*pi^2*sin(pi*p(:,1)).*sin(pi*p(:,2));
+  pde.f = @(p) 8*pi^2*sin(2*pi*p(:,1)).*sin(2*pi*p(:,2));
+  %pde.f = @(p) 2*pi^2*sin(pi*p(:,1)).*sin(pi*p(:,2));
+  pde.g_D = 0;
+  Du = @DuSquare;
+end
+
+function [node, elem, bdFlag, pde, Du] = squareone() 
+  % Exact derivative on squaremesh
+  function z = DuSquare(p)
+    x = p(:,1); y = p(:,2);
+    z(:,1) = 2*pi*cos(2*pi*x).*sin(2*pi*y);
+    z(:,2) = 2*pi*sin(2*pi*x).*cos(2*pi*y);
+  end
+  %%  Generate an initial mesh
+  node = [[0,0]; [0.5, 0.5]; [1,0];[1,1];[0,1]];
+  elem = [[1,2,3]; [3,2,4]; [4,2,5]; [2,1,5]];
+  [node, elem] = squaremesh([0,1,0,1],1);
+  [elem, ~, ~] = fixorder(node, elem);
+  bdFlag = setboundary(node,elem,'Dirichlet');
+  %pde.f = @(p) 2*p(:,1) + p(:,2);
+  pde.f = @(p) 8*pi^2*sin(2*pi*p(:,1)).*sin(2*pi*p(:,2));
+  %pde.f = @(p) 2*pi^2*sin(pi*p(:,1)).*sin(pi*p(:,2));
   pde.g_D = 0;
   Du = @DuSquare;
 end
