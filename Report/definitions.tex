@@ -1,22 +1,114 @@
 \documentclass[thesis.tex]{subfiles}
 \begin{document}
-Definitions and notational issues are described in this section. Unless otherwise noted $\Omega$ is a polyhedral domain in $\R^n$.
-For notational ease we write $a \lesssim b$ if we have $a \leq C_{st} b$ for some constant $C_{st}$, similarly $a \gtrsim b$ means $b \lesssim a$. Finally $a \approx b$ means that $a \lesssim b$ and $b \lesssim a$.
-
+\section{Sobolev spaces}
+A proof of the following theorems can be found in most standard works, e.g. \cite{gaticasimple}.
+\begin{thm}
+  \label{thm:green}
+  Let $\O$ be a bounded domain with Lipschitz boundary, then for all $v,w \in H^1(\O)$  there holds
+  \[
+    \int_{\O} v \pd{w}{x_i} = - \int_{\O} w \pd{v}{x_i} +   \int_{\partial \O} vw n_i \quad i \in {1,\dots, n},
+  \]
+  so that for  $u \in H^2(\O)$ we have
+  \[
+    \int_{\O} v\Delta u = - \int_{\O} \nabla u \cdot \nabla v + \int_{\partial \O} v \nabla u \cdot \v{n}.
+  \]
+  Here the functions on the boundary are to be interpreted using the trace operator.
+\end{thm}
 \begin{defn}
   \label{def:hdiv}
-The divergent Sobolev spac is defined by
+The weak divergent Sobolev space is defined by
 \[
-  H(\div; \O) := \set{ \sigma \in [L^2(\O)]^2 : \div \sigma \in L^2(\O)}.
+  H(\div; \O) := \set{ \v{\sigma} \in [L^2(\O)]^2 : \div \v{\sigma} \in L^2(\O)}.
+  \]
+  Where $\div \v{\sigma} \in L^2(\O)$ is interpreted in distributional sense, i.e. there exists a $v\in L^2(\O)$ such that
+  \[
+    - \int_{\O} \nabla \f \cdot \v{\sigma} = \int_{\O} v\f\quad \forall \f \in D(\O).
+  \]
+  This turns $H(\div; \O)$ into a Hilbert space with inner product
+  \[
+    \ip{\v{\sigma}, \v{\tau}}_{\div,\O} :=  \ip{\v{\sigma}, \v{\tau}}_{\O} + \ip{\div \v{\sigma}, \div \v{\tau}}_{\O}\quad \text{ for } \v{\sigma}, \v{\tau} \in H(\div; \O).
   \]
 \end{defn}
-
 \begin{thm}
   \label{thm:divergence}
-The divergence theorem
+  Let $\O$ be a bounded domain with Lipschitz boundary, then for all $\sigma \in H(\div; \O)$ and $v \in H^1(\O)$ we  have
+  \[
+    \int_\O \v{\sigma} \cdot \nabla v + \int_\O  v \div \v{\sigma} = \int_{\partial \O} v \v{\sigma}\cdot \v{n}
+  \]
 \end{thm}
-\begin{thm}
-  \label{thm:poincare}
-  Poincare-Friedrich inequality.
+Actually the right hand side is an abuse of notation, formally one has that $\v{\sigma}\cdot\v{n}$ is an operator working on the
+trace of $v$ on $\partial \O$. 
+\section{Poincar\'e-Friedrichs inequality}
+\label{sec:poincfried}
+For some $H^1$ functions it is possible to (universally) bound the $L^2$-norm by its $H^1$-seminorm.
+Both Poincar\'e and Friedrichs' inequality provide such bounds. Due to their similarity these type 
+of inequalities are named \emph{Poincar\'e-Friedrichs inequality}.
+\begin{thm}[Friedrichs' inequality]
+  Suppose that $\O \subset \R^n$ is a  bounded Lipschitz domain, then for $h_\O$ the diameter of $\O$ we have
+  \[
+    \norm{v}_{\O} \leq h_\O  \norm{\nabla v}_{\O} \quad \forall v \in H^1_{0}(\O).
+  \]
+  For $\Gamma \subset \partial \O$ with positive $(n-1)$-dimensional measure there exists
+  a constant $C_F(\O, \Gamma)$ such that
+  \[
+    \norm{v}_{\O} \leq C_{F} h_\O \norm{\nabla v}_{\O} \quad \forall v \in H^1(\O), v|_{\Gamma} = 0.
+  \]
 \end{thm}
+\begin{thm}[Poincar\'e inequality]
+  Again suppose that $\O \subset \R^n$ is a bounded Lipschitz domain, then there exists a constant $C_P(\O)$ such that
+  \[
+    \norm{v - v_{\O}}_{\O} \leq C_Ph_\O \norm{\nabla v}_{\O} \quad \forall v \in H^1(\O).
+  \]
+\end{thm}
+Here $C_F$ and $C_P$ --- combined $C_{FP}$ in short --- are actually taken as the smallest constant such that the bound holds.
+It is not directly clear how $C_{FP}$ depends on the shape of the domain. For some domain types explicit
+upper bounds can be given. All \emph{convex} domains $\O$  satisfy $C_{P}(\O) \leq \frac{1}{\pi}$.
+Constant bounds for Friedrichs' inequality in terms of geometry can be found in Literature,
+e.g. \cite{zheng2005friedrichs, veeser2011poincare}. In particular, for stars $\w_a$  --- the elements touching
+a vertex $a$ in some triangulation --- a constant bound can be given that only depends on the shape regularity of 
+the associated triangulation: $C_{F}(\w_a) \leq C(\sup_{K \in \T} h_K / p_K)$.
+
+\section{Raviart-Thomas elements}
+
+
+Raviart-Thomas functions can be (partially) determined by their divergence and surface normal, as formalised by the folowing lemma.
+\begin{lem}
+  \label{lem:rtexists}
+  Consider an element $K$ with Raviart-Thomas space $\RT_p(K)$.
+  There exists a function $\vsig \in \RT_p(K)$ that  solves
+  \begin{equation}
+    \label{eq:rtexists}
+  \begin{aligned}
+    \div\vsig &= p_K\\
+    \vsig \cdot n &= p_e,
+  \end{aligned}
+\end{equation}
+  for polynomials $p_K \in \P_p(K)$ and $p_{e} \in \P_p(\partial K)$ satisfying
+  the compatibility constraint
+  \[
+    \int_K p_K = \int_{\partial K} p_e.
+  \]
+\end{lem}
+\begin{proof}
+  Counting degrees of freedom shows that the system \eqref{eq:rtexists} is overdetermined by maximally one degree of freedom. Imposing
+  the compatibility constraint takes away this extra freedom. Existence of a solution then follows from showing that the system is consistent.
+
+  Another --- perhaps more elegant --- derivation is as follows. Consider the Neumann problem
+  \[
+    \Delta u = p_K \quad \text{in } K, \quad \nabla u\cdot n = p_e \quad \text{in } \partial K,
+  \]
+  or in weak formulation,
+  \[
+    \int_K \nabla u \cdot \nabla v = \int_{\partial K} v p_e - \int_K vp_K \quad \forall v \in H^1(K).
+  \]
+  This has a unique solution $u$ under the assumption that the right hand side has mean zero, which is exactly the compatibility constraint.
+  Notice that $\nabla u$ satisfies the wanted properties \eqref{eq:rtexists}:
+  \[
+    \div \nabla u = \Delta = p_K, \quad \nabla u \cdot n = p_e.
+  \]
+  We thus simply set $\vsig = \Pi^{RT} u$, for $\Pi^{RT}$ the interpolation projector on the space $\RT_p(K)$,
+  formally defined in \cite[\S3.4]{brezzimixed}. From the properties of this projector \cite[Lem~3.7]{brezzimixed} we
+  deduce that $\vsig$ is a function in $\RT_p(K)$ that satisfies \eqref{eq:rtexists}.
+\end{proof}
+
 \end{document}

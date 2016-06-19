@@ -1,28 +1,29 @@
 \documentclass{uvamath}
 \graphicspath{{Images/}}
-\input{classicthesis-config}
 \usepackage[english]{babel}
 \usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{amsfonts}
 \usepackage{amssymb}
+\usepackage{dsfont}
 \usepackage{stmaryrd}
 \usepackage{commath}
 \usepackage{graphicx}
+
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-%\usepackage{lmodern}
-%\usepackage{newtxmath}
-\usepackage{classicthesis}
-%\usepackage[bitstream-charter]{mathdesign}
-%\usepackage{charter}
-%\usepackage{mathpazo} % add possibly `sc` and `osf` options
-%\usepackage{eulervm}
+\usepackage{lmodern}
+\usepackage[toc,page]{appendix}
+\usepackage{showlabels}
+
+\usepackage{subcaption}
 \usepackage{subfiles}
 \usepackage{enumitem}
 \usepackage{todonotes}
 \usepackage[pdfborder={0 0 0}]{hyperref}
-%\usepackage{glossaries}
+\usepackage{nomencl}
+\usepackage{etoolbox}
+\patchcmd{\thenomenclature}{\chapter*}{\chapter}{}{}
 
 %\usepackage{titlesec}
 %\titleformat{\chapter}[hang] {\normalfont\bfseries\raggedright\huge}
@@ -65,18 +66,31 @@
 \newcommand{\f}{\varphi}
 \newcommand{\e}{\varepsilon}
 \newcommand{\w}{\omega}
-\newcommand{\W}{\mathcal{K}}
-\newcommand{\ip}[1]{\left \langle #1 \right \rangle}
+\newcommand{\wt}{\widetilde}
+\newcommand{\W}{\mathcal{S}}
+\newcommand{\1}{\mathds{1}}
+\newcommand{\ip}[1]{ \langle #1  \rangle}
+\newcommand{\aip}[1]{\left \langle #1 \right \rangle}
+\newcommand{\uanorm}[1]{\| #1 \|}
 \newcommand{\enorm}[1]{\left\vvvert #1 \right \vvvert}
+\newcommand{\uaenorm}[1]{\vvvert #1 \vvvert}
 \renewcommand{\O}{\Omega}
 \renewcommand{\P}{\mathcal{P}}
 \newcommand{\OO}{\overline{\Omega}}
 \renewcommand{\v}[1]{\underline{#1}}
 
+\newcommand{\vsig}{\v{\sigma}}
+\newcommand{\vsiga}{\v{\sigma_a}}
+\newcommand{\vzeta}{\v{\zeta_a}}
+\newcommand{\vzet}{\v{\zeta}}
+\newcommand{\vtau}{\v{\tau}}
+
 \DeclareMathOperator{\osc}{osc}
 %undefine div
 \let\div\relax
 \DeclareMathOperator{\div}{div}
+\DeclareMathOperator{\vol}{vol}
+\DeclareMathOperator{\curl}{curl}
 \DeclareMathOperator{\supp}{supp}
 % Pretty leq/geq
 \renewcommand{\leq}{\leqslant}
@@ -132,7 +146,7 @@
 %\url{http://www.cwi.nl}} %Adress of second institute, for the second page
 
 % Generate glosseries
-%\makeglosseries
+\makenomenclature
 
 \begin{document}
 \maketitle
@@ -155,9 +169,14 @@
 \chapter{Numerical results}
 \subfile{num_results.tex}
 
-\appendix
-\chapter{Definitions, notation and reference theorems}
+\begin{appendices}
+%\chapter{Notation}, magic package nomencl takes care of this
+\subfile{notation.tex}
+\chapter{Definitions}
 \subfile{definitions.tex}
+\chapter{Reference theorems}
+\subfile{background.tex}
+\end{appendices}
 
 
 %\chapter*{Popular summary}

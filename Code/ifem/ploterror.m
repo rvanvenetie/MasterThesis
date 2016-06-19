@@ -1,11 +1,11 @@
-function ploterror(method,node, elem, uh,N,equilError, resError, errH1)    
+function ploterror(method,node, elem, uh,N,equilError, resError, errH1,theorate)    
   savedir = 'figures';
   mkdir(sprintf('%s/%s', savedir, method));
-  len = max(size(N));
+  len = max(size(N))
 
   N
-  N.^(-0.5)
-  2.^(- (1:len))
+  %N.^(-0.5)
+  %2.^(- (1:len))
   errH1
   resError
   equilError
@@ -20,11 +20,12 @@ function ploterror(method,node, elem, uh,N,equilError, resError, errH1)
   saveas(f2, sprintf('%s/%s/norm_%d.png',savedir, method, len));
   saveas(f2, sprintf('%s/%s/norm_%d.fig',savedir, method, len));
   if (len > 2)
-    x1 = N(end-2)
-    x2 = N(end-1)
+    log(errH1(end) - errH1(end -1))/ log(N(end) - N(end-1))
+    x1 = N(end-2);
+    x2 = N(end-1);
 
     y12 = errH1(end-1);
-    y11 = exp(log(y12) - 1.0/2.0);
+    y11 = exp(log(y12) - theorate);
 
     loglog([x1 x1 x2 x1], [y12 y11 y11 y12], 'color', [0,0,0]);
   end

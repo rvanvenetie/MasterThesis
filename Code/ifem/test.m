@@ -15,13 +15,13 @@ function  [N,equilError, resError, errH1] = test(method)
   
   switch method
   case 'square_sin'
-    [node, elem, bdFlag, pde, Du] = squaresin();
+    [node, elem, bdFlag, pde, Du, theorate] = squaresin();
   case 'square_ana'
-    [node, elem, bdFlag, pde, Du] = squareana(10);
+    [node, elem, bdFlag, pde, Du, theorate] = squareana(10);
   case 'square_peak'
-    [node, elem, bdFlag, pde, Du] = squarepeak(10, 0.51, 0.117);
+    [node, elem, bdFlag, pde, Du, theorate] = squarepeak(10, 0.51, 0.117);
   case 'square_one'
-    [node, elem, bdFlag, pde, Du] = squareone();
+    [node, elem, bdFlag, pde, Du, theorate] = squareone();
   end
   %[node, elem, bdFlag, pde, Du] = lshapeone();
   %[node, elem, bdFlag, pde, Du] = lshapecorner();
@@ -66,7 +66,7 @@ function  [N,equilError, resError, errH1] = test(method)
     %markedElem = mark(elem,eta,theta);
     %[node,elem,bdFlag] = bisect(node,elem,markedElem,bdFlag);
     %[node,elem, bdFlag] = refinemethod(node, elem, bdFlag);
-    ploterror(method,node, elem, uh, N,equilError, resError, errH1);
+    ploterror(method,node, elem, uh, N,equilError, resError, errH1, theorate);
   end
   profile viewer
 
@@ -874,7 +874,7 @@ function [node, elem, bdFlag, pde, Du] = lshapecorner()
 end
 
 % u = 2^{4a} x^a(1-x)^a y^a (1-y)^a.
-function [node, elem, bdFlag, pde, Du] = squareana(a)
+function [node, elem, bdFlag, pde, Du, theorate] = squareana(a)
   [node, elem] = squaremesh([0,1,0,1],0.5);
   [node, elem] = squaremesh([0,1,0,1],1);
   bdFlag = setboundary(node, elem, 'Dirichlet');
@@ -893,6 +893,7 @@ function [node, elem, bdFlag, pde, Du] = squareana(a)
   Du = matlabFunction(grad(p(1), p(2)), 'vars' , {p});
 
   pde.g_D = 0;
+  theorate = 0.5;
 end
 
 % u = x(x-1)y(y-1)exp(-a((x-x_c)^2 + (y-y_c)^2))
@@ -918,7 +919,7 @@ function [node, elem, bdFlag, pde, Du] = squarepeak(a,x_c, y_c)
   pde.g_D = 0;
 end
 
-function [node, elem, bdFlag, pde, Du] = squaresin() 
+function [node, elem, bdFlag, pde, Du, theorate] = squaresin() 
   % Exact derivative on squaremesh
   function z = DuSquare(p)
     x = p(:,1); y = p(:,2);
@@ -936,6 +937,7 @@ function [node, elem, bdFlag, pde, Du] = squaresin()
   %pde.f = @(p) 2*pi^2*sin(pi*p(:,1)).*sin(pi*p(:,2));
   pde.g_D = 0;
   Du = @DuSquare;
+  theorate = 0.5;
 end
 
 function [node, elem, bdFlag, pde, Du] = squareone() 
