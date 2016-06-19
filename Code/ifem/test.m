@@ -10,7 +10,7 @@ function  [N,equilError, resError, errH1] = test(method)
   refinemethod = @uniformrefine;
 
   maxN =  10000;
-  maxIt = 3;
+  maxIt = 12;
   %%  Generate an initial mesh
   
   switch method
@@ -27,8 +27,8 @@ function  [N,equilError, resError, errH1] = test(method)
   %[node, elem, bdFlag, pde, Du] = lshapecorner();
   %Generate Uh plots uniform
   %plotuh
-  plotapproxh1(method,node, elem,pde, bdFlag,Du, 9);
-  return;
+  %plotapproxh1(method,node, elem,pde, bdFlag,Du, 9);
+  %return;
   errH1 = [];
   approxH1 = [];
   equilError = [];
@@ -48,13 +48,17 @@ function  [N,equilError, resError, errH1] = test(method)
     % Calculate real error
     errH1(end+1) = getH1error(node,elem,Du,uh)
 
-
-    continue;
     % Calculate the flux
+    disp('Calculating flux')
+    tic
     sig = flux(node,elem,  Duh, pde.f);
+    toc
 
     %Calculate the error esimate
+    disp('Calculating equil residual estimate')
+    tic
     [equilError(end+1), ~, ~] =  equilresidualestimate(node, elem, Duh, sig, pde.f);
+    toc
 
     %Calculate the residual eror
     %[eta, ~] = residualesimate(node, elem, Duh, pde.f);

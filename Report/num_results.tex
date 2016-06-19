@@ -453,12 +453,13 @@ Start with an interior vertex $a \in \V$ we must solve $(\vzeta, \lambda_a) \in 
   \todo{impl iFEM}
   \subsection{Unit square}
   Take $\O = (0,1)\times(0,1)$ with exact solution $u(x,y) = \sin(2\pi x)\sin(2\pi y)$, and thus
-  \[
+  \begin{equation}
+    \label{eq:squaresin}
     \begin{alignedat}{2}
       -\Delta u &= 8\pi^2\sin(2\pi x)\sin(2\pi y)  \quad &&\text {in } \Omega, \\
       u &= 0 \quad &&\text{on } \partial\O.
     \end{alignedat}
-  \]
+  \end{equation}
   The exact solution has two peaks and is very smooth. We let iFEM calculate the discrete solutions $(U_k)_{k \geq 0}$ for 
   a sequence of uniformly bisected triangulations, i.e. every triangle is bisected into four subtriangles. It uses third order quadrature to approximate the integrals containing $f$. The produced result is illustrated in Figure~\ref{fig:squareuh}.
 
@@ -467,7 +468,7 @@ Start with an interior vertex $a \in \V$ we must solve $(\vzeta, \lambda_a) \in 
         \includegraphics[width=.32\linewidth]{mesh_square_1.png}
         \includegraphics[width=.32\linewidth]{mesh_square_3.png}
         \includegraphics[width=.32\linewidth]{square_result_8.png}
-    \caption{The finite element solutions $U_k$ for uniformly bisected triangulations, from left to right we have diameters $h = 2^{-1}, 2^{-3}, 2^{-8}$.}
+        \caption{The finite element solutions $U_k$ for \eqref{eq:squaresin} with  uniformly bisected triangulations, from left to right we have diameters $h = 2^{-1}, 2^{-3}, 2^{-8}$.}
     \label{fig:squareuh}
 \end{figure}
 The images clearly indicate convergence of the FEM solution. 
@@ -482,13 +483,13 @@ We compare these against the equilibrated upper bound from \eqref{eq:zetaupper},
 \]
 We also calculate their efficiency indices as $\enorm{u - U_k} / \eta$. In the equilibrated case we would like this value to be close to one, as this
 shows tightness of the estimator. In the residual case we have an extra constant in the reliability bound, and thus tightness depends also depends on this (unknown) constant.
-The results are given in Figure~\ref{fig:squareerror};
+The results are given in Figure~\ref{fig:squareerror}. The experimental convergence rate is in line with the theoretical convergence rate.
 \begin{figure}
   \centering
   \includegraphics[width=.45\linewidth]{square_norm_slope_7.png}
   \includegraphics[width=.45\linewidth]{square_efficiency_7.png}
-  \caption{ The left compares the exact error in the energy norm with the standard residual estimator, and the equilibrated residual estimator.
-    These are calculated for discrete solutions $U_k$ given on a sequence of uniformly refined triangulations. 
+  \caption{The left compares the exact error in the energy norm with the standard residual estimator, and the equilibrated residual estimator.
+    These are calculated for discrete solutions $U_k$ of \eqref{eq:squaresin} for a sequence of uniformly refined triangulations. 
     The triangle has a slope of $-1/2$.  
   The right figure plots $\enorm{u - U_k} / \eta$; an estimation of the efficiency index.}
 \end{figure}
@@ -497,16 +498,22 @@ Even though we calculated the equilibrated estimator for $p=0$, it still proves 
 seems to rise, which could be explained by a reduction  in the influence of quadrature errors for smaller diameters. We have the exact solution
 $u$ for this system, and thus we can empirically verify the claim that $\enorm{u - U_k}_{\O}$ is more or less equal to $\enorm{U_{k+i} - U_k}_{\O}$ for $i\geq 1$. The results for this problem with $i=1,2,3$ are given in Figure~\ref{fig:squareapprox}. The quality
 of the error approximation increases with $i$ as expected. For practical purposes --- the linear systems rapidly grow in size --- we
-pick $i=2$, which should be enough for a `true error' indication. We write $\tilde U_k$ for the discrete solution found on the twice uniformly refined triangulation of $\T_k$.
+pick $i=2$, which should be enough for a `true error' indication. We will write $\tilde U_k$ for the discrete solution found on the twice uniformly refined triangulation of $\T_k$.
 
 \begin{figure}
   \centering
   \includegraphics[width=.45\linewidth]{square_approx_H1_11.png}
   \includegraphics[width=.45\linewidth]{square_approx_H1_rel_11.png}
-  \caption{ The exact error is compared to the approximation $\enorm{U_{k+i} - U_k}_{\O}$ for $i=1,2,3$. The
+  \caption{ The exact error $\enorm{u - U_k}_{\O}$ is compared to the approximation $\enorm{U_{k+i} - U_k}_{\O}$ for $i=1,2,3$. The
     left image all of these terms are separately visualised, which results in a cluttered image as expected. The right image
   displays the relative terms, i.e. $\enorm{U_{k+i} - U_k}_{\O} / \enorm{u - U_k}_{\O}$.}
 \end{figure}
+
+
+Another Poisson problem for the unit square domain is given by $u(x,y) = 2^{40}x^{10}(1-x)^{10}y^{10}(1-y)^{10}$.
+The corresponding right hand side $f$ is a high order polynomial; we let Matlab derivate  it using symbolic calculations. The
+solution $u$ has a peak of value $1$ centered around $(\frac{1}{2}, \frac{1}{2})$ and is again very smooth. 
+
 
 
 

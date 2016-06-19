@@ -20,7 +20,7 @@ function ploterror(method,node, elem, uh,N,equilError, resError, errH1,theorate)
   saveas(f2, sprintf('%s/%s/norm_%d.png',savedir, method, len));
   saveas(f2, sprintf('%s/%s/norm_%d.fig',savedir, method, len));
   if (len > 2)
-    log(errH1(end) - errH1(end -1))/ log(N(end) - N(end-1))
+    (log(errH1(end)) - log(errH1(end -1)))/ (log(N(end)) - log(N(end-1)))
     x1 = N(end-2);
     x2 = N(end-1);
 
@@ -32,7 +32,7 @@ function ploterror(method,node, elem, uh,N,equilError, resError, errH1,theorate)
   saveas(f2, sprintf('%s/%s/norm_slope_%d.png',savedir, method, len));
   saveas(f2, sprintf('%s/%s/norm_slope_%d.fig',savedir, method, len));
 
-  f3 = figure(3);
+  f3 = figure(3); clf;
   semilogx(N, errH1 ./ resError, 'r-o'); hold on;
   semilogx(N,  errH1 ./ equilError, '-o', 'color', [0 0.5 0]);
   title('Efficiency index');
@@ -40,9 +40,9 @@ function ploterror(method,node, elem, uh,N,equilError, resError, errH1,theorate)
   legend({'residual($U_k$)', 'equilibrated($U_k, \zeta$)'}, 'interpreter', 'latex', 'location', 'northwest');
 
 
-  f4 = figure(4); colormap('jet');
+  f4 = figure(4); clf; colormap('jet');
   showsolution(node,elem,uh,3)
-  f5 = figure(5); colormap('jet'); 
+  f5 = figure(5); clf; colormap('jet'); 
   showsolution(node,elem,uh,2)
 
   saveas(f3, sprintf('%s/%s/efficiency_%d.png',savedir, method, len));
