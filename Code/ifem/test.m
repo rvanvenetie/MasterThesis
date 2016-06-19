@@ -859,7 +859,8 @@ function [node, elem, bdFlag, pde, Du, theorate] = lshapeone()
   elem = fixorientation(node,elem);   % counter-clockwise oritentation
   %[node, elem, bdFlag ] = refinemethod(node, elem, bdFlag);
   %% Set up PDE data
-  pde.f = @(x) 1;
+  pde.f = @(p)  ones(size(p,1),1);
+  Du = 0.2140758036240825;
   pde.g_D = 0;
   theorate = 1.0/3.0;
   Du = [];
@@ -868,17 +869,16 @@ end
 function [node, elem, bdFlag, pde, Du, theorate] = lshapezero() 
   global refinemethod;
   %%  Generate an initial mesh
-  node = [-1,0;-1,1;0,1; 1,1;1,0;1,-1;0,-1; 0,0];
-  elem = [1,2,8; 3,8,2; 8,3,5; 4,5,3; 7,8,6; 5,6,8];    % elements
+node = [1,0; 0,1; -1,0; 0,-1; 0,0; 1,0];        % nodes
+elem = [5,1,2; 5,2,3; 5,3,4; 5,4,6];            % elements
+elem = label(node,elem);                        % label the mesh
+bdFlag = setboundary(node,elem,'Dirichlet');    % Dirichlet boundary condition
 
-  [node,elem] = squaremesh([-1,1,-1,1],1);
-  [node,elem] = delmesh(node,elem,'x<0 & y<0');
-  bdFlag = setboundary(node,elem,'Dirichlet');
   elem = fixorientation(node,elem);   % counter-clockwise oritentation
 
   %[node, elem, bdFlag ] = refinemethod(node, elem, bdFlag);
   %% Set up PDE data
-  pde.f = @(p) 0;
+  pde.f = @(p)  ones(size(p,1),1);
   pde.g_D = 0;
   theorate = 1.0/3.0;
   Du = [];
