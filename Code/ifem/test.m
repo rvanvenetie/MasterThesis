@@ -224,8 +224,8 @@ function plotapproxh1(method,node, elem, pde, bdFlag,Du, maxIt)
     xlabel('Number of vertices');
     ylabel('Error');
 
-    saveas(f2, sprintf('%s/%s/approx_H1_%d.png',savedir, method, t));
     saveas(f3, sprintf('%s/%s/approx_H1_%d.png',savedir, method, t));
+    saveas(f2, sprintf('%s/%s/approx_H1_rel_%d.png',savedir, method, t));
 
     t = t+1;
   end
