@@ -22,6 +22,10 @@ function  [N,equilError, resError, errH1] = test(method)
     [node, elem, bdFlag, pde, Du, theorate] = squarepeak(10, 0.51, 0.117);
   case 'square_one'
     [node, elem, bdFlag, pde, Du, theorate] = squareone();
+  case 'lshape_zero'
+    [node, elem, bdFlag, pde, Du, theorate] = lshapezero();
+  case 'lshape_one'
+    [node, elem, bdFlag, pde, Du, theorate] = lshapeone();
   end
   %[node, elem, bdFlag, pde, Du] = lshapeone();
   %[node, elem, bdFlag, pde, Du] = lshapecorner();
@@ -46,7 +50,11 @@ function  [N,equilError, resError, errH1] = test(method)
     [Duh,~] = gradu(node, elem, uh);
 
     % Calculate real error
-    errH1(end+1) = getH1error(node,elem,Du,uh)
+    if isempty(Du)
+      errH1(end+1) = approxH1error(node, elem, bdFlag, pde, uh,3)
+    else
+      errH1(end+1) = getH1error(node,elem,Du,uh)
+    end
 
     % Calculate the flux
     disp('Calculating flux')
@@ -839,18 +847,41 @@ function vismesh(node, elem)
   findelem(node, elem);
 end
 
-function [node, elem, bdFlag, pde, Du] = lshapeone() 
+function [node, elem, bdFlag, pde, Du, theorate] = lshapeone() 
+  global refinemethod;
+  %%  Generate an initial mesh
+  [node,elem] = squaremesh([-1,1,-1,1],1);
+  [node,elem] = delmesh(node,elem,'x<0 & y<0');
+  bdFlag = setboundary(node,elem,'Dirichlet');
+  %node = [-1,0;-1,1;0,1; 1,1;1,0;1,-1;0,-1; 0,0];
+  %elem = [1,2,8; 3,8,2; 8,3,5; 4,5,3; 7,8,6; 5,6,8];    % elements
+  %bdFlag = setboundary(node,elem,'Dirichlet');
+  elem = fixorientation(node,elem);   % counter-clockwise oritentation
+  %[node, elem, bdFlag ] = refinemethod(node, elem, bdFlag);
+  %% Set up PDE data
+  pde.f = @(x) 1;
+  pde.g_D = 0;
+  theorate = 1.0/3.0;
+  Du = [];
+end
+
+function [node, elem, bdFlag, pde, Du, theorate] = lshapezero() 
   global refinemethod;
   %%  Generate an initial mesh
   node = [-1,0;-1,1;0,1; 1,1;1,0;1,-1;0,-1; 0,0];
   elem = [1,2,8; 3,8,2; 8,3,5; 4,5,3; 7,8,6; 5,6,8];    % elements
+
+  [node,elem] = squaremesh([-1,1,-1,1],1);
+  [node,elem] = delmesh(node,elem,'x<0 & y<0');
   bdFlag = setboundary(node,elem,'Dirichlet');
   elem = fixorientation(node,elem);   % counter-clockwise oritentation
+
   %[node, elem, bdFlag ] = refinemethod(node, elem, bdFlag);
   %% Set up PDE data
-  pde.f = @(p) 1;
+  pde.f = @(p) 0;
   pde.g_D = 0;
-  Du = 0.2140758036240825;
+  theorate = 1.0/3.0;
+  Du = [];
 end
 
 function [node, elem, bdFlag, pde, Du] = lshapecorner() 
