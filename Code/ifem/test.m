@@ -994,7 +994,7 @@ function [node, elem, bdFlag, pde, Du, theorate] = crackone()
   %% Set up PDE data
   pde.f = @(p)  ones(size(p,1),1);
   pde.g_D = 0;
-  theorate = 1.0/3.0;
+  theorate = 1.0/4.0;
   Du = [];
 
 end
