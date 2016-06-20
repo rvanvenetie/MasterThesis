@@ -173,7 +173,7 @@ function CompareAfem(method, nodeOri, elemOri, pde, bdFlagOri, theta,maxN)
   end
   erru
   f1 = figure(1);clf; showmesh(node,elem);
-  saveas(f1, sprintf('%s/%s/mesh_uni_%d.png',savedir, method,maxN));
+  saveas(f1, sprintf('%s/%s/mesh_uni_%d_%g.png',savedir, method,maxN, theta));
 
   % Residual refinements
   node = nodeOri; elem = elemOri; bdFlag = bdFlagOri;
@@ -191,7 +191,7 @@ function CompareAfem(method, nodeOri, elemOri, pde, bdFlagOri, theta,maxN)
   end
   errr
   f1 = figure(1);clf; showmesh(node,elem);
-  saveas(f1, sprintf('%s/%s/mesh_res_%d.png',savedir, method, maxN));
+  saveas(f1, sprintf('%s/%s/mesh_res_%d_%g.png',savedir, method, maxN, theta));
 
   % Equilibrated refinements
   node = nodeOri; elem = elemOri; bdFlag = bdFlagOri;
@@ -211,7 +211,7 @@ function CompareAfem(method, nodeOri, elemOri, pde, bdFlagOri, theta,maxN)
   end
   erre
   f1 = figure(1);clf; showmesh(node,elem);
-  saveas(f1, sprintf('%s/%s/mesh_equil_%d.png',savedir, method, maxN));
+  saveas(f1, sprintf('%s/%s/mesh_equil_%d_%g.png',savedir, method, maxN, theta));
 
   f2 = figure(2);clf;
   loglog(Nu,  erru, 'b-o',Nr, errr, 'r-x'); hold on;
