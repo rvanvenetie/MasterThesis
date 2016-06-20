@@ -1,4 +1,4 @@
-function  [N,equilError, resError, errH1] = test(method)
+function  [N,equilError, resError, errH1] = test(method, afem)
   savedir = 'figures';
   %clear all;
   %close all; 
@@ -29,6 +29,11 @@ function  [N,equilError, resError, errH1] = test(method)
   case 'crack_one'
     [node, elem, bdFlag, pde, Du, theorate] = crackone();
   end
+  if afem
+    method =sprintf('%s_afem', method);
+  end
+
+  [node, elem, bdFlag] = uniformbisect(node, elem, bdFlag);
   mkdir(sprintf('%s/%s', savedir, method));
   clf;
   showmesh(node, elem);
@@ -50,7 +55,6 @@ function  [N,equilError, resError, errH1] = test(method)
   t = 1;
   while  (t <= maxIt) %&& (N(t) < maxN) 
     t = t+1;
-    [node, elem, bdFlag] = uniformbisect(node, elem, bdFlag);
     N(end+1) = size(node,1);
     uh = Poisson(node, elem, pde, bdFlag);
     %figure(1);  showresult(node,elem,uh,[-50,12]);    
@@ -72,14 +76,23 @@ function  [N,equilError, resError, errH1] = test(method)
     %Calculate the error esimate
     disp('Calculating equil residual estimate')
     tic
-    [equilError(end+1), ~, ~] =  equilresidualestimate(node, elem, Duh, sig, pde.f);
+    [equilError(end+1), equilElem, ~] =  equilresidualestimate(node, elem, Duh, sig, pde.f);
     toc
 
     %Calculate the residual eror
-    %[eta, ~] = residualesimate(node, elem, Duh, pde.f);
-    %resError(end+1) = sqrt(eta);
     eta = estimateresidual(node, elem, uh, pde);
     resError(end+1) = sqrt(sum(eta.^2));
+
+    if afem
+      markedElem = mark(elem, equilElem, theta)
+      [node, elem, bdFlag] = bisect(node, elem, markedElem, bdFlag);
+    else
+      [node, elem, bdFlag] = uniformbisect(node, elem, bdFlag);
+    end
+
+    %[eta, ~] = residualesimate(node, elem, Duh, pde.f);
+    %resError(end+1) = sqrt(eta);
+
     %[resError(t), ~] = residualesimate(node, elem, Duh, pde.f);
 
     %markedElem = mark(elem,eta,theta);
@@ -674,7 +687,7 @@ function sigelem =  fluxelem(node, elem, flux)
   end
 end
 
-% Approximate the norm \|zeta + Duh\| using midpoint quadrature
+% Approximate the norm \|zeta + Duh\|^2 using midpoint quadrature
 function e = fluxerror(coords, area, signs, flux, duh)
     % Gather RT basis for this element
     basis = basisRT(coords, area, signs);
@@ -714,6 +727,7 @@ function [toterr, errelem, oscelem] = equilresidualestimate(node, elem, duh, flu
   divsigelem =  divfluxelem(node, elem, flux);
   errelem = zeros(NT,1);
   oscelem = zeros(NT,1);
+  toterr = 0;
   for t=1:NT
     % Gather triangle specific information
     coords = node(elem(t,:),:);
@@ -730,12 +744,15 @@ function [toterr, errelem, oscelem] = equilresidualestimate(node, elem, duh, flu
     % calculate h_K/ Pi \|f - div sigma\|_K
     h_K = max(edgelengths(coords));
 
-    error_2 = h_K/pi*sqrt(quadmid(coords,area(t), @(x) (f(x)-divsigelem(t))^2));
+    error_2 = sqrt(quadmid(coords,area(t), @(x) (f(x)-divsigelem(t))^2));
 
     % add contribution of this triangle to the total
-    errelem(t) = (error_1 + error_2)^2;
+    errelem(t) = error_1;
+    oscelem(t) = error_2;
+
+    toterr = toterr + (error_1 + h_K/pi * error_2)^2;
   end
-  toterr = sqrt( sum(errelem));
+  toterr = sqrt(toterr);
 end
 
 % The (squared) error indicator for every triangle (eta)

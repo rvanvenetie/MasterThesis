@@ -9,7 +9,7 @@ function ploterror(method,node, elem, uh,N,equilError, resError, errH1,theorate)
   resError
   equilError
 
-  if (len < 5)
+  if (N(end) < 1e3)
     f1 = figure(1);clf; showmesh(node,elem);
     saveas(f1, sprintf('%s/%s/mesh_%d.png',savedir, method, len));
   end

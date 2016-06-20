@@ -532,10 +532,11 @@ pick $i=3$, which should be enough for a `true error' indication. We will write 
 \end{figure}
 
 \subsection{Re-entrant corner}
-Here $\O = (-1,1)^2\setminus[-1,0]^2$ with right hand side $f = 1$. The solution $u$ of this problem has a singularity at the origin so
+Here $\O = (-1,1)^2\setminus[-1,0]^2$ with right hand side $f = \1$. The solution $u$ of this problem has a singularity at the origin so
 that $u \not \in H^2(\O)$. The theoretical
 convergence on uniform refined triangulations is of order $h^{2/3}$. We calculate  discrete solutions $U_k$ for uniform refinements, and use $\uaenorm{\wt U_k - U_k}_\O$ to approximate the true error. The results are given in Figure~\ref{fig:lshapeone}. The experimental
-convergence of the fem solution appears to match the theoretical convergence.  The equilibrated residual
+convergence of the fem solution appears to match the theoretical convergence. There is a drop
+in terms of efficiency compare to the previous problems. But the equilibrated residual
 estimator once again outperforms the residual estimator in terms of the efficiency index.
 
 \begin{figure}
@@ -546,6 +547,39 @@ estimator once again outperforms the residual estimator in terms of the efficien
 \end{figure}
 
 \subsection{Crack domain}
+A problem with a line singularity is given by the crack domain: take $f = \1$ and
+\[
+  \O=\{(x,y) \in \R^2 : |x|+|y|<1\}\setminus ([0,1] \times \set{0}).
+\]
+The exact solution $u$ can be given in polar coordinates, $u(r, \phi) = r^{1/2}\sin(\phi/2) - 1/2 r^2 \sin^2 (\phi)$.
+The theoretical convergence rate of uniformly refined triangulations is of order $h^{1/2}$, due to its line singularity. This
+domain is implemented by adding the vertex $(1,0)$ twice.  The results are given in Figure~\ref{fig:crackone}.
+There is again a drop in the efficiency index compare to the re-entrant corner; this could
+be explained by the fact that $u$ is less regular.
+Interestingly, the efficiency index of the equilibrated estimators seems to decrease, whereas the efficiency
+of the standard estimator is somewhat increasing.
+\begin{figure}
+  \includegraphics[width=.49\linewidth]{crackone_norm_8.png}
+  \includegraphics[width=.49\linewidth]{crackone_efficiency_8.png}
+  \caption{Error estimators and their efficiency for the crack domain problem. The triangle has a slope of $-1/4$.}
+  \label{fig:crackone}
+\end{figure}
+
+\subsection{Adaptive finite element method}
+Due to singularities the convergence rate in these last two examples is not optimal. 
+These rates can be increased using the adaptive finite element method. The iFEM package contains
+an implementation of newest vertex bisection refinement and D\"orfler marking, making it easy
+to implement the adaptive method. We will restrict ourself to a constant right hand side $f$. This
+avoid the effects of data oscillation, and thus makes the total error indicator $\vartheta$ equal to 
+simply the estimator $\eta$ (cf. \S\ref{sec:afemequil}). For the equilibrated error estimator we will
+take
+\[
+  \eta^2(U, K) = \uanorm{ \v{\zeta} + \nabla U}^2_{\K} = \uanorm{\sum_{a \in \V_K} \v{\zeta_a} + \psi_a \nabla U}^2_{K} \quad \forall K \in \T.
+\]
+Notice that this estimator difference from the patch estimator used in the optimality proof, i.e. $\uanorm{\v{\zeta_a} + \psi_a \nabla U}^2_K$.
+Since these are closely related, it is reasonable to expect some sort of optimality from the above version as well. We will use
+the above version as this allows for marking elements instead of patches --- allowing us to use iFEM directly.
+We compare this error estimator the residual one, denoted by $\hat \eta^2(U,K)$.
 
 
 \end{document}
