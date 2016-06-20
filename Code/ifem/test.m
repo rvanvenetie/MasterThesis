@@ -22,11 +22,18 @@ function  [N,equilError, resError, errH1] = test(method)
     [node, elem, bdFlag, pde, Du, theorate] = squarepeak(10, 0.51, 0.117);
   case 'square_one'
     [node, elem, bdFlag, pde, Du, theorate] = squareone();
-  case 'lshape_zero'
-    [node, elem, bdFlag, pde, Du, theorate] = lshapezero();
+  case 'lshape_corner'
+    [node, elem, bdFlag, pde, Du, theorate] = lshapecorner();
   case 'lshape_one'
     [node, elem, bdFlag, pde, Du, theorate] = lshapeone();
+  case 'crack_one'
+    [node, elem, bdFlag, pde, Du, theorate] = crackone();
   end
+  mkdir(sprintf('%s/%s', savedir, method));
+  clf;
+  showmesh(node, elem);
+  saveas(gca, sprintf('%s/%s/mesh_initial.png',savedir, method));
+
   %[node, elem, bdFlag, pde, Du] = lshapeone();
   %[node, elem, bdFlag, pde, Du] = lshapecorner();
   %Generate Uh plots uniform
@@ -860,25 +867,6 @@ function [node, elem, bdFlag, pde, Du, theorate] = lshapeone()
   %[node, elem, bdFlag ] = refinemethod(node, elem, bdFlag);
   %% Set up PDE data
   pde.f = @(p)  ones(size(p,1),1);
-  Du = 0.2140758036240825;
-  pde.g_D = 0;
-  theorate = 1.0/3.0;
-  Du = [];
-end
-
-function [node, elem, bdFlag, pde, Du, theorate] = lshapezero() 
-  global refinemethod;
-  %%  Generate an initial mesh
-node = [1,0; 0,1; -1,0; 0,-1; 0,0; 1,0];        % nodes
-elem = [5,1,2; 5,2,3; 5,3,4; 5,4,6];            % elements
-elem = label(node,elem);                        % label the mesh
-bdFlag = setboundary(node,elem,'Dirichlet');    % Dirichlet boundary condition
-
-  elem = fixorientation(node,elem);   % counter-clockwise oritentation
-
-  %[node, elem, bdFlag ] = refinemethod(node, elem, bdFlag);
-  %% Set up PDE data
-  pde.f = @(p)  ones(size(p,1),1);
   pde.g_D = 0;
   theorate = 1.0/3.0;
   Du = [];
@@ -993,4 +981,20 @@ function [node, elem, bdFlag, pde, Du] = squareone()
   %pde.f = @(p) 2*pi^2*sin(pi*p(:,1)).*sin(pi*p(:,2));
   pde.g_D = 0;
   Du = @DuSquare;
+end
+
+function [node, elem, bdFlag, pde, Du, theorate] = crackone() 
+  %%  Generate an initial mesh
+  node = [1,0; 0,1; -1,0; 0,-1; 0,0; 1,0];        % nodes
+  elem = [5,1,2; 5,2,3; 5,3,4; 5,4,6];            % elements
+  % Node 6 == Node 5, to ensure the crack property
+  elem = fixorientation(node, elem);
+  bdFlag = setboundary(node,elem,'Dirichlet');    % Dirichlet boundary condition
+  %[node, elem, bdFlag ] = refinemethod(node, elem, bdFlag);
+  %% Set up PDE data
+  pde.f = @(p)  ones(size(p,1),1);
+  pde.g_D = 0;
+  theorate = 1.0/3.0;
+  Du = [];
+
 end

@@ -1,6 +1,5 @@
 function ploterror(method,node, elem, uh,N,equilError, resError, errH1,theorate)    
   savedir = 'figures';
-  mkdir(sprintf('%s/%s', savedir, method));
   len = max(size(N))
 
   N
@@ -18,7 +17,7 @@ function ploterror(method,node, elem, uh,N,equilError, resError, errH1,theorate)
   f2 = figure(2);clf;
   loglog(N,  errH1, 'b-o',N, resError, 'r-o'); hold on;
   loglog(N, equilError, '-o', 'color', [0 0.5 0]); 
-  legend({'$\|\nabla{u} - \nabla {U_k}\|$','residual($U_k$)', 'equilibrated($U_k, \zeta$)'}, 'interpreter', 'latex');
+  legend({'$\|\nabla{\tilde U_k} - \nabla {U_k}\|$','residual($U_k$)', 'equilibrated($U_k, \zeta$)'}, 'interpreter', 'latex');
   title('Comparison error estimators');
   xlabel('Number of vertices');
   ylabel('Error');

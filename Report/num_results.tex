@@ -520,7 +520,7 @@ but it still outperforms the classical residual estimator.
 
 The behaviour of $\enorm{U_{k+i} - U_k}_\O$ is very similar to that of the previous problem, it appears to be a good estimation of $\enorm{u - U_k}_{\O}$. We will therefore use this in the following problems, due to the absence of an exact solution. 
 For practical purposes --- the linear systems rapidly grow in size --- we
-pick $i=2$, which should be enough for a `true error' indication. We will write $\wt U_k$ for the discrete solution found on the twice uniformly refined triangulation of $\T_k$.
+pick $i=3$, which should be enough for a `true error' indication. We will write $\wt U_k$ for the discrete solution found on the twice uniformly refined triangulation of $\T_k$.
 
 \begin{figure}
   \centering
@@ -531,9 +531,21 @@ pick $i=2$, which should be enough for a `true error' indication. We will write 
   \label{fig:squareana}
 \end{figure}
 
-\subsection{re-entrant corner}
-Here $\O = (-1,1)^2\setminus[-1,0]^2$ with right hand side $f = 1$. It has been shown that 
+\subsection{Re-entrant corner}
+Here $\O = (-1,1)^2\setminus[-1,0]^2$ with right hand side $f = 1$. The solution $u$ of this problem has a singularity at the origin so
+that $u \not \in H^2(\O)$. The theoretical
+convergence on uniform refined triangulations is of order $h^{2/3}$. We calculate  discrete solutions $U_k$ for uniform refinements, and use $\uaenorm{\wt U_k - U_k}_\O$ to approximate the true error. The results are given in Figure~\ref{fig:lshapeone}. The experimental
+convergence of the fem solution appears to match the theoretical convergence.  The equilibrated residual
+estimator once again outperforms the residual estimator in terms of the efficiency index.
 
+\begin{figure}
+  \includegraphics[width=.49\linewidth]{lshapeone_norm_8.png}
+  \includegraphics[width=.49\linewidth]{lshapeone_efficiency_8.png}
+  \caption{Error estimators and their efficiency for the re-entrant corner problem. The triangle has a slope of $-1/3$.}
+  \label{fig:lshapeone}
+\end{figure}
+
+\subsection{Crack domain}
 
 
 \end{document}
