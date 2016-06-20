@@ -9,7 +9,7 @@ function  [N,equilError, resError, errH1] = test(method, afem)
   global refinemethod;
   refinemethod = @uniformrefine;
 
-  maxN =  1e2;
+  maxN =  1e4;
   maxIt = 12;
   %%  Generate an initial mesh
   
@@ -149,7 +149,19 @@ function err = exactH1error(node, elem, bdFlag, pde, uh)
 end
 
 
-function CompareAfem(method, nodeOri, elemOri, pde, bdFlagOri, theta,maxN)
+function CompareAfem(method, nodeOri, elemOri, pde, bdFlagOri, theta,maxN) 
+  function plot
+    f2 = figure(2);clf;
+    loglog(Nu,  erru, 'b-o',Nr, errr, 'r-x'); hold on;
+    loglog(Ne,  erre, '-s', 'color', [0 0.5 0]); 
+    legend({'uniform($U_k$)','residual($U_k$)', 'equilibrated($U_k, \zeta$)'}, 'interpreter', 'latex');
+    title('Comparison AFEM performance')
+    xlabel('Number of vertices');
+    ylabel('Exact error');
+    saveas(f2, sprintf('%s/%s/norm_%d.png',savedir, method, maxN));
+    saveas(f2, sprintf('%s/%s/norm_%d.fig',savedir, method, maxN));
+  end
+
   savedir = 'figures/';
   % Uniform refinements
   Nu = [];
@@ -171,9 +183,8 @@ function CompareAfem(method, nodeOri, elemOri, pde, bdFlagOri, theta,maxN)
 
     [node, elem, bdFlag] = uniformbisect(node, elem, bdFlag);
   end
+  plot
   erru
-  f1 = figure(1);clf; showmesh(node,elem);
-  saveas(f1, sprintf('%s/%s/mesh_uni_%d_%g.png',savedir, method,maxN, theta));
 
   % Residual refinements
   node = nodeOri; elem = elemOri; bdFlag = bdFlagOri;
@@ -189,13 +200,13 @@ function CompareAfem(method, nodeOri, elemOri, pde, bdFlagOri, theta,maxN)
     markedElem = mark(elem,eta,theta);
     [node,elem,bdFlag] = bisect(node,elem,markedElem,bdFlag);
   end
+  plot
   errr
-  f1 = figure(1);clf; showmesh(node,elem);
-  saveas(f1, sprintf('%s/%s/mesh_res_%d_%g.png',savedir, method, maxN, theta));
 
   % Equilibrated refinements
   node = nodeOri; elem = elemOri; bdFlag = bdFlagOri;
   while (size(node, 1) < maxN)
+    plot
     uh = Poisson(node, elem, pde, bdFlag);
     [Duh,~] = gradu(node, elem, uh);
 
@@ -210,18 +221,7 @@ function CompareAfem(method, nodeOri, elemOri, pde, bdFlagOri, theta,maxN)
     [node,elem,bdFlag] = bisect(node,elem,markedElem,bdFlag);
   end
   erre
-  f1 = figure(1);clf; showmesh(node,elem);
-  saveas(f1, sprintf('%s/%s/mesh_equil_%d_%g.png',savedir, method, maxN, theta));
-
-  f2 = figure(2);clf;
-  loglog(Nu,  erru, 'b-o',Nr, errr, 'r-x'); hold on;
-  loglog(Ne,  erre, '-s', 'color', [0 0.5 0]); 
-  legend({'uniform($U_k$)','residual($U_k$)', 'equilibrated($U_k, \zeta$)'}, 'interpreter', 'latex');
-  title('Comparison AFEM performance')
-  xlabel('Number of vertices');
-  ylabel('Exact error');
-  saveas(f2, sprintf('%s/%s/norm_%d.png',savedir, method, maxN));
-  saveas(f2, sprintf('%s/%s/norm_%d.fig',savedir, method, maxN));
+  plot
 end
 
 function CompareUniform(method, node, elem, pde, bdFlag, maxN)
