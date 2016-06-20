@@ -9,96 +9,42 @@ function  [N,equilError, resError, errH1] = test(method, afem)
   global refinemethod;
   refinemethod = @uniformrefine;
 
-  maxN =  10000;
+  maxN =  1e2;
   maxIt = 12;
   %%  Generate an initial mesh
   
   switch method
   case 'square_sin'
-    [node, elem, bdFlag, pde, Du, theorate] = squaresin();
+    [node, elem, bdFlag, pde] = squaresin();
   case 'square_ana'
-    [node, elem, bdFlag, pde, Du, theorate] = squareana(10);
+    [node, elem, bdFlag, pde] = squareana(10);
   case 'square_peak'
-    [node, elem, bdFlag, pde, Du, theorate] = squarepeak(10, 0.51, 0.117);
+    [node, elem, bdFlag, pde] = squarepeak(10, 0.51, 0.117);
   case 'square_one'
-    [node, elem, bdFlag, pde, Du, theorate] = squareone();
+    [node, elem, bdFlag, pde] = squareone();
   case 'lshape_corner'
-    [node, elem, bdFlag, pde, Du, theorate] = lshapecorner();
+    [node, elem, bdFlag, pde] = lshapecorner();
   case 'lshape_one'
-    [node, elem, bdFlag, pde, Du, theorate] = lshapeone();
+    [node, elem, bdFlag, pde] = lshapeone();
   case 'crack_one'
-    [node, elem, bdFlag, pde, Du, theorate] = crackone();
+    [node, elem, bdFlag, pde] = crackone();
   end
+
+  % AFEM suffix
   if afem
     method =sprintf('%s_afem', method);
   end
+  mkdir(sprintf('%s/%s', savedir, method)); clf;
 
-  [node, elem, bdFlag] = uniformbisect(node, elem, bdFlag);
-  mkdir(sprintf('%s/%s', savedir, method));
-  clf;
   showmesh(node, elem);
   saveas(gca, sprintf('%s/%s/mesh_initial.png',savedir, method));
 
-  %[node, elem, bdFlag, pde, Du] = lshapeone();
-  %[node, elem, bdFlag, pde, Du] = lshapecorner();
-  %Generate Uh plots uniform
-  %plotuh
-  %plotapproxh1(method,node, elem,pde, bdFlag,Du, 9);
-  %return;
-  errH1 = [];
-  approxH1 = [];
-  equilError = [];
-  resError = [];
-  N = [];
-  %N(1) = size(node, 1);
-  % Uniform refinement
-  t = 1;
-  while  (t <= maxIt) %&& (N(t) < maxN) 
-    t = t+1;
-    N(end+1) = size(node,1);
-    uh = Poisson(node, elem, pde, bdFlag);
-    %figure(1);  showresult(node,elem,uh,[-50,12]);    
-    [Duh,~] = gradu(node, elem, uh);
-
-    % Calculate real error
-    if isempty(Du)
-      errH1(end+1) = approxH1error(node, elem, bdFlag, pde, uh,3)
-    else
-      errH1(end+1) = getH1error(node,elem,Du,uh)
-    end
-
-    % Calculate the flux
-    disp('Calculating flux')
-    tic
-    sig = flux(node,elem,  Duh, pde.f);
-    toc
-
-    %Calculate the error esimate
-    disp('Calculating equil residual estimate')
-    tic
-    [equilError(end+1), equilElem, ~] =  equilresidualestimate(node, elem, Duh, sig, pde.f);
-    toc
-
-    %Calculate the residual eror
-    eta = estimateresidual(node, elem, uh, pde);
-    resError(end+1) = sqrt(sum(eta.^2));
-
-    if afem
-      markedElem = mark(elem, equilElem, theta)
-      [node, elem, bdFlag] = bisect(node, elem, markedElem, bdFlag);
-    else
-      [node, elem, bdFlag] = uniformbisect(node, elem, bdFlag);
-    end
-
-    %[eta, ~] = residualesimate(node, elem, Duh, pde.f);
-    %resError(end+1) = sqrt(eta);
-
-    %[resError(t), ~] = residualesimate(node, elem, Duh, pde.f);
-
-    %markedElem = mark(elem,eta,theta);
-    %[node,elem,bdFlag] = bisect(node,elem,markedElem,bdFlag);
-    %[node,elem, bdFlag] = refinemethod(node, elem, bdFlag);
-    ploterror(method,node, elem, uh, N,equilError, resError, errH1, theorate);
+  % one uniform refinement
+  [node, elem, bdFlag] = uniformbisect(node, elem, bdFlag);
+  if afem
+    CompareAfem(method, node, elem, pde, bdFlag, theta,maxN)
+  else
+    CompareUniform(method, node, elem, bdFlag);
   end
   profile viewer
 
@@ -194,6 +140,126 @@ function  [N,equilError, resError, errH1] = test(method, afem)
   end
 end
 
+function err = exactH1error(node, elem, bdFlag, pde, uh)
+  if isempty(pde.Du)
+    err = approxH1error(node, elem, bdFlag, pde, uh,3);
+  else
+    err = getH1error(node,elem,pde.Du,uh);
+  end
+end
+
+
+function CompareAfem(method, nodeOri, elemOri, pde, bdFlagOri, theta,maxN)
+  savedir = 'figures/';
+  % Uniform refinements
+  Nu = [];
+  erru = [];
+  % AFEM residual estimator
+  Nr = [];
+  errr = [];
+  % AFEM equil estimator
+  Ne = [];
+  erre = [];
+
+  % Uniform refinement
+  node = nodeOri; elem = elemOri; bdFlag = bdFlagOri;
+  while (isempty(Nu) | Nu(end) < maxN)
+    uh = Poisson(node, elem, pde, bdFlag);
+    % Calculate real error
+    Nu(end+1) = size(node, 1);
+    erru(end+1) = exactH1error(node, elem, bdFlag, pde, uh);
+
+    [node, elem, bdFlag] = uniformbisect(node, elem, bdFlag);
+  end
+  erru
+  f1 = figure(1);clf; showmesh(node,elem);
+  saveas(f1, sprintf('%s/%s/mesh_uni_%d.png',savedir, method,maxN));
+
+  % Residual refinements
+  node = nodeOri; elem = elemOri; bdFlag = bdFlagOri;
+  while (isempty(Nr) | Nr(end) < maxN)
+    uh = Poisson(node, elem, pde, bdFlag);
+
+    % Calculate the real error
+    Nr(end+1) = size(node, 1);
+    errr(end+1) = exactH1error(node, elem, bdFlag, pde,uh);
+
+    % Perform afem step
+    eta = estimateresidual(node, elem, uh, pde);
+    markedElem = mark(elem,eta,theta);
+    [node,elem,bdFlag] = bisect(node,elem,markedElem,bdFlag);
+  end
+  errr
+  f1 = figure(1);clf; showmesh(node,elem);
+  saveas(f1, sprintf('%s/%s/mesh_res_%d.png',savedir, method, maxN));
+
+  % Equilibrated refinements
+  node = nodeOri; elem = elemOri; bdFlag = bdFlagOri;
+  while (isempty(Ne) | Ne(end) < maxN)
+    uh = Poisson(node, elem, pde, bdFlag);
+    [Duh,~] = gradu(node, elem, uh);
+
+    % Calculate the real error
+    Ne(end+1) = size(node, 1);
+    erre(end+1) = exactH1error(node, elem, bdFlag, pde,uh);
+
+    % Perform afem step
+    sig = flux(node,elem,  Duh, pde.f);
+    [~, eta, ~] =  equilresidualestimate(node, elem, Duh, sig, pde.f);
+    markedElem = mark(elem,eta,theta);
+    [node,elem,bdFlag] = bisect(node,elem,markedElem,bdFlag);
+  end
+  erre
+  f1 = figure(1);clf; showmesh(node,elem);
+  saveas(f1, sprintf('%s/%s/mesh_equil_%d.png',savedir, method, maxN));
+
+  f2 = figure(2);clf;
+  loglog(Nu,  erru, 'b-o',Nr, errr, 'r-x'); hold on;
+  loglog(Ne,  erre, '-s', 'color', [0 0.5 0]); 
+  legend({'uniform($U_k$)','residual($U_k$)', 'equilibrated($U_k, \zeta$)'}, 'interpreter', 'latex');
+  title('Comparison AFEM performance')
+  xlabel('Number of vertices');
+  ylabel('Exact error');
+  saveas(f2, sprintf('%s/%s/norm_%d.png',savedir, method, maxN));
+  saveas(f2, sprintf('%s/%s/norm_%d.fig',savedir, method, maxN));
+end
+
+function CompareUniform(method, node, elem, pde, bdFlag, maxN)
+  errH1 = [];
+  equilError = [];
+  resError = [];
+  N = [];
+  % Uniform refinement
+  t = 1;
+  while  (t ==1 | N(end) < maxN)
+    [node, elem, bdFlag] = uniformbisect(node, elem, bdFlag);
+    t = t+1;
+    N(end+1) = size(node,1);
+
+    % Solve the poisson problem
+    uh = Poisson(node, elem, pde, bdFlag);
+    [Duh,~] = gradu(node, elem, uh);
+
+    % Calculate real error
+    if isempty(pde.Du)
+      errH1(end+1) = approxH1error(node, elem, bdFlag, pde, uh,3)
+    else
+      errH1(end+1) = getH1error(node,elem,pde.Du,uh)
+    end
+
+    % Calculate the flux
+    sig = flux(node,elem,  Duh, pde.f);
+
+    %Calculate the error esimate
+    [equilError(end+1), ~, ~] =  equilresidualestimate(node, elem, Duh, sig, pde.f);
+
+    %Calculate the residual eror
+    eta = estimateresidual(node, elem, uh, pde);
+    resError(end+1) = sqrt(sum(eta.^2));
+    ploterror(method,node, elem, uh, N,equilError, resError, errH1, pde.theorate);
+  end
+end
+
 function plotuh
   for j =1:9
     uh = Poisson(node, elem, pde, bdFlag);
@@ -261,8 +327,6 @@ function plotapproxh1(method,node, elem, pde, bdFlag,Du, maxIt)
 
     t = t+1;
   end
-
-
 end
 
 % Approximate H1 error by two times bisecting
@@ -614,6 +678,8 @@ end
 
 % Calculate flux over entire domain
 function sig = flux(node, elem, Duh, f)
+  disp('Calculating flux')
+  tic
   % Calculate auxiliary datastructure
   T = auxstructure(elem);
 
@@ -646,6 +712,7 @@ function sig = flux(node, elem, Duh, f)
     sigPatch = fluxpatch(T, node, elem, area, Dlambda,  Duh, f, v,elemPatch, isBdPatch);
     sig = sig + sigPatch;
   end
+  toc
 end
 
 % Calculate the divergence of the flux on each element 
@@ -720,6 +787,8 @@ end
 
 % Returns an upper bound for \|nabla(u - u_h)\|^2
 function [toterr, errelem, oscelem] = equilresidualestimate(node, elem, duh, flux, f)
+  tic
+  disp('Equilibrated residual estimate')
   NT = size(elem,1);
   T = auxstructure(elem);
   area = simplexvolume(node, elem);
@@ -753,6 +822,7 @@ function [toterr, errelem, oscelem] = equilresidualestimate(node, elem, duh, flu
     toterr = toterr + (error_1 + h_K/pi * error_2)^2;
   end
   toterr = sqrt(toterr);
+  toc
 end
 
 % The (squared) error indicator for every triangle (eta)
@@ -885,11 +955,11 @@ function [node, elem, bdFlag, pde, Du, theorate] = lshapeone()
   %% Set up PDE data
   pde.f = @(p)  ones(size(p,1),1);
   pde.g_D = 0;
-  theorate = 1.0/3.0;
-  Du = [];
+  pde.theorate = 1.0/3.0;
+  pde.Du = [];
 end
 
-function [node, elem, bdFlag, pde, Du] = lshapecorner() 
+function [node, elem, bdFlag, pde] = lshapecorner() 
   [node, elem] = squaremesh([-1,1,-1,1],1);
   [node, elem] = delmesh(node, elem, 'x>0& y<0');
   bdFlag = setboundary(node,elem,'Dirichlet');
@@ -908,13 +978,12 @@ function [node, elem, bdFlag, pde, Du] = lshapecorner()
 
   % Convert to matlab shizzle
   pde.f = matlabFunction(-lap(p(1), p(2)), 'vars', {p});
-  Du = matlabFunction(grad(p(1), p(2)), 'vars' , {p});
-
+  pde.Du = matlabFunction(grad(p(1), p(2)), 'vars' , {p});
   pde.g_D = 0;
 end
 
 % u = 2^{4a} x^a(1-x)^a y^a (1-y)^a.
-function [node, elem, bdFlag, pde, Du, theorate] = squareana(a)
+function [node, elem, bdFlag, pde] = squareana(a)
   [node, elem] = squaremesh([0,1,0,1],0.5);
   [node, elem] = squaremesh([0,1,0,1],1);
   bdFlag = setboundary(node, elem, 'Dirichlet');
@@ -930,15 +999,14 @@ function [node, elem, bdFlag, pde, Du, theorate] = squareana(a)
 
   % Convert to matlab shizzle
   pde.f = matlabFunction(-lap(p(1), p(2)), 'vars', {p});
-  Du = matlabFunction(grad(p(1), p(2)), 'vars' , {p});
-
+  pde.Du = matlabFunction(grad(p(1), p(2)), 'vars' , {p});
   pde.g_D = 0;
-  theorate = 0.5;
+  pde.theorate = 0.5;
 end
 
 % u = x(x-1)y(y-1)exp(-a((x-x_c)^2 + (y-y_c)^2))
 %   Peak centered at (x_c, y_c) with intensity a
-function [node, elem, bdFlag, pde, Du] = squarepeak(a,x_c, y_c)
+function [node, elem, bdFlag, pde] = squarepeak(a,x_c, y_c)
   [node, elem] = squaremesh([0,1,0,1],0.5);
   [node, elem] = squaremesh([0,1,0,1],1);
   bdFlag = setboundary(node, elem, 'Dirichlet');
@@ -954,12 +1022,12 @@ function [node, elem, bdFlag, pde, Du] = squarepeak(a,x_c, y_c)
 
   % Convert to matlab shizzle
   pde.f = matlabFunction(-lap(p(1), p(2)), 'vars', {p});
-  Du = matlabFunction(grad(p(1), p(2)), 'vars' , {p});
+  pde.Du = matlabFunction(grad(p(1), p(2)), 'vars' , {p});
 
   pde.g_D = 0;
 end
 
-function [node, elem, bdFlag, pde, Du, theorate] = squaresin() 
+function [node, elem, bdFlag, pde] = squaresin() 
   % Exact derivative on squaremesh
   function z = DuSquare(p)
     x = p(:,1); y = p(:,2);
@@ -976,11 +1044,11 @@ function [node, elem, bdFlag, pde, Du, theorate] = squaresin()
   pde.f = @(p) 8*pi^2*sin(2*pi*p(:,1)).*sin(2*pi*p(:,2));
   %pde.f = @(p) 2*pi^2*sin(pi*p(:,1)).*sin(pi*p(:,2));
   pde.g_D = 0;
-  Du = @DuSquare;
-  theorate = 0.5;
+  pde.Du = @DuSquare;
+  pde.theorate = 0.5;
 end
 
-function [node, elem, bdFlag, pde, Du] = squareone() 
+function [node, elem, bdFlag, pde] = squareone() 
   % Exact derivative on squaremesh
   function z = DuSquare(p)
     x = p(:,1); y = p(:,2);
@@ -997,10 +1065,10 @@ function [node, elem, bdFlag, pde, Du] = squareone()
   pde.f = @(p) 8*pi^2*sin(2*pi*p(:,1)).*sin(2*pi*p(:,2));
   %pde.f = @(p) 2*pi^2*sin(pi*p(:,1)).*sin(pi*p(:,2));
   pde.g_D = 0;
-  Du = @DuSquare;
+  pde.Du = @DuSquare;
 end
 
-function [node, elem, bdFlag, pde, Du, theorate] = crackone() 
+function [node, elem, bdFlag, pde] = crackone() 
   %%  Generate an initial mesh
   node = [1,0; 0,1; -1,0; 0,-1; 0,0; 1,0];        % nodes
   elem = [5,1,2; 5,2,3; 5,3,4; 5,4,6];            % elements
@@ -1011,7 +1079,6 @@ function [node, elem, bdFlag, pde, Du, theorate] = crackone()
   %% Set up PDE data
   pde.f = @(p)  ones(size(p,1),1);
   pde.g_D = 0;
-  theorate = 1.0/4.0;
-  Du = [];
-
+  pde.theorate = 1.0/4.0;
+  pde.Du = [];
 end

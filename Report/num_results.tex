@@ -572,7 +572,7 @@ an implementation of newest vertex bisection refinement and D\"orfler marking, m
 to implement the adaptive method. We will restrict ourself to a constant right hand side $f$. This
 avoid the effects of data oscillation, and thus makes the total error indicator $\vartheta$ equal to 
 simply the estimator $\eta$ (cf. \S\ref{sec:afemequil}). For the equilibrated error estimator we will
-take
+solve $\v{\zeta}$ for $p=0$ and take
 \[
   \eta^2(U, K) = \uanorm{ \v{\zeta} + \nabla U}^2_{\K} = \uanorm{\sum_{a \in \V_K} \v{\zeta_a} + \psi_a \nabla U}^2_{K} \quad \forall K \in \T.
 \]
