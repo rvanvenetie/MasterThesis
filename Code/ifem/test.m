@@ -163,7 +163,7 @@ function CompareAfem(method, nodeOri, elemOri, pde, bdFlagOri, theta,maxN)
 
   % Uniform refinement
   node = nodeOri; elem = elemOri; bdFlag = bdFlagOri;
-  while (isempty(Nu) | Nu(end) < maxN)
+  while (size(node,1) < maxN)
     uh = Poisson(node, elem, pde, bdFlag);
     % Calculate real error
     Nu(end+1) = size(node, 1);
@@ -177,7 +177,7 @@ function CompareAfem(method, nodeOri, elemOri, pde, bdFlagOri, theta,maxN)
 
   % Residual refinements
   node = nodeOri; elem = elemOri; bdFlag = bdFlagOri;
-  while (isempty(Nr) | Nr(end) < maxN)
+  while (size(node,1) < maxN)
     uh = Poisson(node, elem, pde, bdFlag);
 
     % Calculate the real error
@@ -195,7 +195,7 @@ function CompareAfem(method, nodeOri, elemOri, pde, bdFlagOri, theta,maxN)
 
   % Equilibrated refinements
   node = nodeOri; elem = elemOri; bdFlag = bdFlagOri;
-  while (isempty(Ne) | Ne(end) < maxN)
+  while (size(node, 1) < maxN)
     uh = Poisson(node, elem, pde, bdFlag);
     [Duh,~] = gradu(node, elem, uh);
 
