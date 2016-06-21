@@ -163,6 +163,10 @@ function CompareAfem(method, nodeOri, elemOri, pde, bdFlagOri, theta,maxN)
     ylabel('Exact error');
     saveas(f2, sprintf('%s/%s/norm_%d_%g.png',savedir, method, maxN));
     saveas(f2, sprintf('%s/%s/norm_%d_%g.fig',savedir, method, maxN));
+    loglog(Nm, errm, 'm-d');
+    legend({'uniform($U_k$)','residual($U_k$)', 'equilibrated($U_k, \zeta$)', 'mixed($U_k, \sigma$)'}, 'interpreter', 'latex');
+    saveas(f2, sprintf('%s/%s/norm_mixed_%d_%g.png',savedir, method, maxN));
+    saveas(f2, sprintf('%s/%s/norm_mixed_%d_%g.fig',savedir, method, maxN));
   end
 
   savedir = 'figures/';
@@ -172,9 +176,13 @@ function CompareAfem(method, nodeOri, elemOri, pde, bdFlagOri, theta,maxN)
   % AFEM residual estimator
   Nr = [];
   errr = [];
+  % AFEM mixed estimator
+  Nm = [];
+  errm = [];
   % AFEM equil estimator
   Ne = [];
   erre = [];
+
 
   % Uniform refinement
   node = nodeOri; elem = elemOri; bdFlag = bdFlagOri;
@@ -206,6 +214,26 @@ function CompareAfem(method, nodeOri, elemOri, pde, bdFlagOri, theta,maxN)
   plot
   errr
 
+  % Mixed refinements
+  node = nodeOri; elem = elemOri; bdFlag = bdFlagOri;
+  while (size(node,1) < maxN)
+    uh = Poisson(node, elem, pde, bdFlag);
+
+    % Calculate the real error
+    Nm(end+1) = size(node, 1);
+    errm(end+1) = exactH1error(node, elem, bdFlag, pde,uh);
+
+    % Perform afem step
+    [~,sigma] = PoissonRT0(node, elem, pde, bdFlag);
+    [~, eta]  = getL2errorRT0(node, elem,  Duh, sigma);
+    
+    markedElem = mark(elem,sqrt(eta),theta);
+    [node,elem,bdFlag] = bisect(node,elem,markedElem,bdFlag);
+  end
+  plot
+  errm
+
+
   % Equilibrated refinements
   node = nodeOri; elem = elemOri; bdFlag = bdFlagOri;
   while (size(node, 1) < maxN)
@@ -235,7 +263,7 @@ function CompareUniform(method, node, elem, pde, bdFlag, maxN)
   N = [];
   % Uniform refinement
   t = 1;
-  while  (size(node, 1) < maxN))
+  while  (size(node, 1) < maxN)
     t = t+1;
     N(end+1) = size(node,1);
 
@@ -997,6 +1025,8 @@ function [node, elem, bdFlag, pde] = squareana(a)
   [node, elem] = squaremesh([0,1,0,1],1);
   bdFlag = setboundary(node, elem, 'Dirichlet');
   elem = fixorientation(node,elem);   % counter-clockwise oritentation
+
+  [node, elem, bdFlag] = uniformbisect(node, elem, bdFlag);
   % Symbolic symbls
   syms x y;
   p = sym('p', 1:2);
@@ -1049,6 +1079,8 @@ function [node, elem, bdFlag, pde] = squaresin()
   [node, elem] = squaremesh([0,1,0,1],1);
   [elem, ~, ~] = fixorder(node, elem);
   bdFlag = setboundary(node,elem,'Dirichlet');
+
+  [node, elem, bdFlag] = uniformbisect(node, elem, bdFlag);
   %pde.f = @(p) 2*p(:,1) + p(:,2);
   pde.f = @(p) 8*pi^2*sin(2*pi*p(:,1)).*sin(2*pi*p(:,2));
   %pde.f = @(p) 2*pi^2*sin(pi*p(:,1)).*sin(pi*p(:,2));

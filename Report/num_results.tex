@@ -125,7 +125,7 @@ There exists a basis $\set{\v{\tau_1},\dots, \v{\tau_n}}$ of $\RT_{p,0}(\w_a)$ a
      \frac{\partial J}{\partial c_j} &= \ip{ \sum c_i \v{\tau_i}, \v{\tau_j}}_{\w_a} + \ip{\v{\tau_j}, \psi_a \nabla U_h}_{\w_a},\\
      \frac{\partial G_k}{\partial c_j} &= \ip{\div \v{\tau_j}, q_k}_{\w_a}.
    \end{align*}
-   Plug these derivatives into the Lagrange equation \eqref{eq:lagrange}; then one directly sees that
+   Plug these derivatives into the Lagrange equation \eqref{eq:lagrange}; one directly sees that
    solving $(\v{c}, \v{\lambda})$ from \eqref{eq:lagrange} is equivalent to solving $(\v{\zeta_a}, \v{\lambda_a})$ from
    the system \eqref{eq:systemzeta} by setting $(\v{\zeta_a},{\v{\lambda_a}}) = (\sum c_i \tau_i, \sum \lambda_k q_k)$.
    In other words, every $\v{\zeta_a}$ that attains a local minimum indeed solves the sytem.
@@ -148,7 +148,7 @@ There exists a basis $\set{\v{\tau_1},\dots, \v{\tau_n}}$ of $\RT_{p,0}(\w_a)$ a
       \exists \beta > 0, \inf_{\mu \in M} \sup_{v \in X}\frac{b(v,\mu)}{\norm{v}_X \norm{\mu}_M} \geq \beta.
     \]
 
-    Fit the general framework on our system \eqref{eq:systemzeta}; so we 
+    Fit the general framework on our system \eqref{eq:systemzeta}; we 
     have $a(\v{\zeta_a},\v{\tau}) = \ip{\v{\zeta_a},\v{\tau}}_{\w_a}$ and $b(\v{\zeta_a},q_a) = \ip{\div \v{\zeta_a},q_a}_{\w_a}$ for $\v{\zeta_a}, \v{\tau} \in \RT_{p,0}(\w_a), q_a \in \QQ(\w_a)$. For $\v{\tau} \in V$ we have by definition $\ip{\div \v{\tau}, q_a}_{\w_a} = 0$ for all $q_a \in \QQ(\w_a)$, which implies that $\div \v{\tau} = 0$ since $\div \v{\tau} \in \QQ(\w_a)$. Coercivity of  $a(\cdot, \cdot)$ on $V$ therefore follows easily,
     \[
       a(\v{\tau},\v{\tau}) = \ip{\v{\tau},\v{\tau}}_{\w_a} = \norm{\v{\tau}}^2_{\w_a} = \norm{\v{\tau}}^2_{\w_a} + \norm{\div \v{\tau}}^2_{\w_a} = \norm{\v{\tau}}^2_{H(\div; \w_a)}.
@@ -275,7 +275,7 @@ set of nodal variables. That is, for each edge $e$ let $\set{q_{e,1},\dots, q_{e
     N_{K,j}(\vsig) &= \ip{\vsig, \vtau_j}_K &&\quad 1 \leq j \leq r.
   \end{alignedat}
 \end{equation}
-The set $\mathcal{N}$ containing all of the above functionals forms a basis for $\RT_p(K)'$; and thus
+The set $\mathcal{N}$ containing all of the above functionals forms a basis for $\RT_p(K)'$, and thus
 turns the triplet $(K, \RT_p(K), \mathcal{N})$ into a valid finite element.
 
 \section{Raviart-Thomas basis}
@@ -481,8 +481,7 @@ We compare these against the equilibrated upper bound from \eqref{eq:zetaupper},
 \[
   \enorm{u - U_h}_{\O} \leq \sqrt{\sum_{K \in \T_h} \left[ \uanorm{\vzet + \nabla U_h}_{K} + \frac{h_K}{\pi} \uanorm{ f - \div\v{\zeta}}_{K}\right]^2}.
 \]
-We also calculate their efficiency indices as $\enorm{u - U_k} / \eta$. In the equilibrated case we would like this value to be close to one, as this
-shows tightness of the estimator. In the residual case we have an extra constant in the reliability bound, and thus tightness depends also depends on this (unknown) constant.
+We also calculate their efficiency indices as $\enorm{u - U_k} / \eta$. In the equilibrated case we would like this value to be close to one, as this shows tightness of the estimator. In the residual case we have an extra constant in the reliability bound, and thus tightness depends also depends on this (unknown) constant.
 The results are given in Figure~\ref{fig:squareerror}. The experimental convergence rate is in line with the theoretical convergence rate.
 \begin{figure}
   \centering
@@ -532,12 +531,17 @@ We will write $\wt U_k$ for the discrete solution found on the twice uniformly r
 \end{figure}
 
 \subsection{Re-entrant corner}
-Here $\O = (-1,1)^2\setminus[-1,0]^2$ with right hand side $f = \1$. The solution $u$ of this problem has a singularity at the origin so
+Here $\O = (-1,1)^2\setminus[-1,0]^2$ with right hand side $f = \1$; this is also known as the L-shaped domain. 
+The solution $u$ of this problem has a singularity at the origin so
 that $u \not \in H^2(\O)$. The theoretical
-convergence on uniform refined triangulations is of order $h^{2/3}$. We calculate  discrete solutions $U_k$ for uniform refinements, and use $\uaenorm{\wt U_k - U_k}_\O$ to approximate the true error. The results are given in Figure~\ref{fig:lshapeone}. The experimental
-convergence of the fem solution appears to match the theoretical convergence. There is a drop
-in terms of efficiency compare to the previous problems. But the equilibrated residual
-estimator once again outperforms the residual estimator in terms of the efficiency index.
+convergence on uniform refined triangulations is of order $h^{2/3}$. We calculate  discrete solutions $U_k$ for uniform refinements, and use $\uaenorm{\wt U_k - U_k}_\O$ to approximate the true error. 
+
+The results are given in Figure~\ref{fig:lshapeone}. The experimental
+convergence of the fem solution appears to match the theoretical convergence. 
+The equilibrated residual once again has a better efficiency index than the residual estimator.
+There is a drop in terms of efficiency compared to the previous problems. Interestingly, the efficiency of the equilibrated
+estimator seems to decrease, whereas the efficiency of the standard estimator is somewhat increasing. 
+This might be related to the approximation quality of $\enorm{\tilde U_k - U_k}_{\O}$.
 
 \begin{figure}
   \includegraphics[width=.49\linewidth]{lshapeone_norm_8.png}
@@ -553,11 +557,12 @@ A problem with a line singularity is given by the crack domain: take $f = \1$ an
 \]
 The exact solution $u$ can be given in polar coordinates, $u(r, \phi) = r^{1/2}\sin(\phi/2) - 1/2 r^2 \sin^2 (\phi)$.
 The theoretical convergence rate of uniformly refined triangulations is of order $h^{1/2}$, due to its line singularity. This
-domain is implemented by adding the vertex $(1,0)$ twice.  The results are given in Figure~\ref{fig:crackone}.
-There is again a drop in the efficiency index compare to the re-entrant corner; this could
-be explained by the fact that $u$ is less regular.
-Interestingly, the efficiency index of the equilibrated estimators seems to decrease, whereas the efficiency
-of the standard estimator is somewhat increasing.
+domain is implemented by adding the vertex $(1,0)$ twice.  
+
+The results are given in Figure~\ref{fig:crackone}.
+There is a drop in the efficiency index compared to the re-entrant corner; this could
+be explained by the fact that $u$ is less regular. Again the efficiency of the equilibrated estimator decreases, while the efficiency
+of the residual estimator increases.
 \begin{figure}
   \includegraphics[width=.49\linewidth]{crackone_norm_8.png}
   \includegraphics[width=.49\linewidth]{crackone_efficiency_8.png}
@@ -574,7 +579,7 @@ avoid the effects of data oscillation, and thus makes the total error indicator 
 simply the estimator $\eta$ (cf. \S\ref{sec:afemequil}). For the equilibrated error estimator we will
 solve $\v{\zeta}$ for $p=0$ and take
 \[
-  \eta^2(U, K) = \uanorm{ \v{\zeta} + \nabla U}^2_{\K} = \uanorm{\sum_{a \in \V_K} \v{\zeta_a} + \psi_a \nabla U}^2_{K} \quad \forall K \in \T.
+  \eta^2(U, K) = \uanorm{ \v{\zeta} + \nabla U}^2_{K} = \uanorm{\sum_{a \in \V_K} \v{\zeta_a} + \psi_a \nabla U}^2_{K} \quad \forall K \in \T.
 \]
 Notice that this estimator difference from the patch estimator used in the optimality proof, i.e. $\uanorm{\v{\zeta_a} + \psi_a \nabla U}^2_K$.
 Since these are closely related, it is reasonable to expect some sort of optimality from the above version as well. We will use
@@ -582,13 +587,16 @@ the above version as this allows for marking elements instead of patches --- all
 
 We compare the performance of AFEM driven by the equilibrated estimator against the uniformed refinements and the classical estimator.
 That is, we produce a sequence $(U_k, \T_k)_{k\geq0}$ for  uniform, residual and equilibrated finite element solutions.
-For each solution we measure its approximation error by $\uaenorm{\tilde U_k - U_k}_\O$. In  Figure~\ref{fig:afem} these results
+For each solution we measure its approximation error by $\uaenorm{\tilde U_k - U_k}_\O$.
+
+In  Figure~\ref{fig:afem} these results
 are given for the crack and L-shaped domain with $\theta = 1/2$. One directly sees that the uniform convergence rate is improved 
 by adaptivity as predicted by theory.
 This holds even though we solved $\v{\zeta}$ for $p=0$, instead of $p=1$ that we needed
 to prove optimality of AFEM.  The AFEM solutions produced by the residual estimator and the equilibrated estimator
 are of more or less the same quality. It appears that eventually residual driven AFEM produces solutions with slightly
-smaller approximation error. This might be related to the efficiency decrease of the equilibrated estimator, cf. Figures~\ref{fig:crackone} and \ref{fig:lshapeone}.
+smaller approximation error. This might be related to the decreasing efficiency of the equilibrated estimator,
+cf. Figures~\ref{fig:crackone} and \ref{fig:lshapeone}.
 \begin{figure}
   \includegraphics[width=.49\linewidth]{lshape_afem.png}
   \includegraphics[width=.49\linewidth]{crackone_afem.png}
@@ -606,8 +614,8 @@ Prager and Synge' provided us with the following upper bound:
 The equilibrated method constructs $\v{\zeta} \in \RT_p(\O)$ such that $-\v{\zeta}$ satisfies the equilibrium condition, and thus we find an
 upper bound in terms of $\nabla U_h + \v{\zeta}$. As noted before, the best upper bound with $\vsig \in \RT_p(\O)$ is found by minimizing
 $\norm{\nabla U_h - \vsig}^2_{\O}$ for all fluxes $\vsig$ that are in equilibrium. Since this method is too expensive for an estimator
-calculation the alternative of solving local minimization problems was introduced. The mixed finite element method on the other
-hand provides $\vsig$ that globally minimizes this norm. It is therefore interesting to compare their performance.
+calculation the alternative of solving local minimization problems was introduced. The mixed finite element method provides the $\vsig$ that 
+globally minimizes this norm. It is therefore interesting to compare their performance.
 
 
 
