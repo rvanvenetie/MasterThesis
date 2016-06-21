@@ -1,15 +1,15 @@
-function  [N,equilError, resError, errH1] = test(method, afem)
+function  [N,equilError, resError, errH1] = test(method, afem, mixed)
   savedir = 'figures';
   %clear all;
   %close all; 
-  profile on;
+  %profile on;
   %% Parameters
   theta = 0.5;    uh =0;
 
   global refinemethod;
   refinemethod = @uniformrefine;
 
-  maxN =  1e4;
+  maxN =  2e5;
   maxIt = 12;
   %%  Generate an initial mesh
   
@@ -34,6 +34,9 @@ function  [N,equilError, resError, errH1] = test(method, afem)
   if afem
     method =sprintf('%s_afem', method);
   end
+  if mixed
+    method = sprintf('%s_mixed', method);
+  end
   mkdir(sprintf('%s/%s', savedir, method)); clf;
 
   showmesh(node, elem);
@@ -44,9 +47,9 @@ function  [N,equilError, resError, errH1] = test(method, afem)
   if afem
     CompareAfem(method, node, elem, pde, bdFlag, theta,maxN)
   else
-    CompareUniform(method, node, elem, bdFlag);
+    CompareUniform(method, node, elem, pde, bdFlag, maxN)
   end
-  profile viewer
+  %profile viewer
 
   return;
 
@@ -158,8 +161,8 @@ function CompareAfem(method, nodeOri, elemOri, pde, bdFlagOri, theta,maxN)
     title('Comparison AFEM performance')
     xlabel('Number of vertices');
     ylabel('Exact error');
-    saveas(f2, sprintf('%s/%s/norm_%d.png',savedir, method, maxN));
-    saveas(f2, sprintf('%s/%s/norm_%d.fig',savedir, method, maxN));
+    saveas(f2, sprintf('%s/%s/norm_%d_%g.png',savedir, method, maxN));
+    saveas(f2, sprintf('%s/%s/norm_%d_%g.fig',savedir, method, maxN));
   end
 
   savedir = 'figures/';
@@ -226,6 +229,7 @@ end
 
 function CompareUniform(method, node, elem, pde, bdFlag, maxN)
   errH1 = [];
+  mixedError = [];
   equilError = [];
   resError = [];
   N = [];
@@ -246,6 +250,8 @@ function CompareUniform(method, node, elem, pde, bdFlag, maxN)
     else
       errH1(end+1) = getH1error(node,elem,pde.Du,uh)
     end
+    [~,sigma] = PoissonRT0(node, elem, pde, bdFlag);
+    mixedError(end+1) = getL2errorRT0(node, elem,  Duh, sigma);
 
     % Calculate the flux
     sig = flux(node,elem,  Duh, pde.f);
@@ -256,7 +262,7 @@ function CompareUniform(method, node, elem, pde, bdFlag, maxN)
     %Calculate the residual eror
     eta = estimateresidual(node, elem, uh, pde);
     resError(end+1) = sqrt(sum(eta.^2));
-    ploterror(method,node, elem, uh, N,equilError, resError, errH1, pde.theorate);
+    ploterror(method,node, elem, uh, N,equilError, resError,mixedError, errH1, pde.theorate);
   end
 end
 

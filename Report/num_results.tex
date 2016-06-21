@@ -519,8 +519,8 @@ The efficiency of the equilibrated estimator is less for this problem, which is 
 but it still outperforms the classical residual estimator. 
 
 The behaviour of $\enorm{U_{k+i} - U_k}_\O$ is very similar to that of the previous problem, it appears to be a good estimation of $\enorm{u - U_k}_{\O}$. We will therefore use this in the following problems, due to the absence of an exact solution. 
-For practical purposes --- the linear systems rapidly grow in size --- we
-pick $i=3$, which should be enough for a `true error' indication. We will write $\wt U_k$ for the discrete solution found on the twice uniformly refined triangulation of $\T_k$.
+For practical purposes --- the linear systems rapidly grow in size --- we pick $i=3$, which should be enough for a `true error' indication.
+We will write $\wt U_k$ for the discrete solution found on the twice uniformly refined triangulation of $\T_k$.
 
 \begin{figure}
   \centering
@@ -578,8 +578,37 @@ solve $\v{\zeta}$ for $p=0$ and take
 \]
 Notice that this estimator difference from the patch estimator used in the optimality proof, i.e. $\uanorm{\v{\zeta_a} + \psi_a \nabla U}^2_K$.
 Since these are closely related, it is reasonable to expect some sort of optimality from the above version as well. We will use
-the above version as this allows for marking elements instead of patches --- allowing us to use iFEM directly.
-We compare this error estimator the residual one, denoted by $\hat \eta^2(U,K)$.
+the above version as this allows for marking elements instead of patches --- allowing us to use iFEM directly. 
+
+We compare the performance of AFEM driven by the equilibrated estimator against the uniformed refinements and the classical estimator.
+That is, we produce a sequence $(U_k, \T_k)_{k\geq0}$ for  uniform, residual and equilibrated finite element solutions.
+For each solution we measure its approximation error by $\uaenorm{\tilde U_k - U_k}_\O$. In  Figure~\ref{fig:afem} these results
+are given for the crack and L-shaped domain with $\theta = 1/2$. One directly sees that the uniform convergence rate is improved 
+by adaptivity as predicted by theory.
+This holds even though we solved $\v{\zeta}$ for $p=0$, instead of $p=1$ that we needed
+to prove optimality of AFEM.  The AFEM solutions produced by the residual estimator and the equilibrated estimator
+are of more or less the same quality. It appears that eventually residual driven AFEM produces solutions with slightly
+smaller approximation error. This might be related to the efficiency decrease of the equilibrated estimator, cf. Figures~\ref{fig:crackone} and \ref{fig:lshapeone}.
+\begin{figure}
+  \includegraphics[width=.49\linewidth]{lshape_afem.png}
+  \includegraphics[width=.49\linewidth]{crackone_afem.png}
+  \caption{The left image corresponds to the L-shaped domain, the right corresponds to the cracked domain. Three methods are
+  compared by plotting the approximation error $\uaenorm{\tilde U_k - U_K}_\O$ against the number of vertices. The adaptive methods
+  used D\"orfler marking $\theta = 1/2$.}
+  \label{fig:afem}
+\end{figure}
+
+\subsection{Mixed finite element solution}
+Prager and Synge' provided us with the following upper bound:
+\[
+  \enorm{u - U_h}_{\O}^2  \leq \norm{\nabla U_h - \vsig}^2_{\O} \quad \text{ for } \vsig \in H(\div; \O) \text{ s.t. } \div \v{\sigma} + f = 0
+\]
+The equilibrated method constructs $\v{\zeta} \in \RT_p(\O)$ such that $-\v{\zeta}$ satisfies the equilibrium condition, and thus we find an
+upper bound in terms of $\nabla U_h + \v{\zeta}$. As noted before, the best upper bound with $\vsig \in \RT_p(\O)$ is found by minimizing
+$\norm{\nabla U_h - \vsig}^2_{\O}$ for all fluxes $\vsig$ that are in equilibrium. Since this method is too expensive for an estimator
+calculation the alternative of solving local minimization problems was introduced. The mixed finite element method on the other
+hand provides $\vsig$ that globally minimizes this norm. It is therefore interesting to compare their performance.
+
 
 
 \end{document}

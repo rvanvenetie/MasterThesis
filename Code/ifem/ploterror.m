@@ -1,4 +1,4 @@
-function ploterror(method,node, elem, uh,N,equilError, resError, errH1,theorate)    
+function ploterror(method,node, elem, uh,N,equilError, resError, mixedError,errH1,theorate)    
   savedir = 'figures';
   len = max(size(N))
 
@@ -7,6 +7,7 @@ function ploterror(method,node, elem, uh,N,equilError, resError, errH1,theorate)
   %2.^(- (1:len))
   errH1
   resError
+  mixedError
   equilError
 
   if (N(end) < 1e3)
@@ -16,8 +17,9 @@ function ploterror(method,node, elem, uh,N,equilError, resError, errH1,theorate)
 
   f2 = figure(2);clf;
   loglog(N,  errH1, 'b-o',N, resError, 'r-o'); hold on;
-  loglog(N, equilError, '-o', 'color', [0 0.5 0]); 
-  legend({'$\|\nabla{\tilde U_k} - \nabla {U_k}\|$','residual($U_k$)', 'equilibrated($U_k, \zeta$)'}, 'interpreter', 'latex');
+  loglog(N, equilError, '-o', 'color', [0 0.5 0]);  hold on;
+  loglog(N, mixedError, 'm-o');
+  legend({'$\|\nabla{\tilde U_k} - \nabla {U_k}\|$','residual($U_k$)', 'equilibrated($U_k, \zeta$)', 'mixed($U_k, \sigma$)'}, 'interpreter', 'latex');
   title('Comparison error estimators');
   xlabel('Number of vertices');
   ylabel('Error');
@@ -38,10 +40,11 @@ function ploterror(method,node, elem, uh,N,equilError, resError, errH1,theorate)
 
   f3 = figure(3); clf;
   semilogx(N, errH1 ./ resError, 'r-o'); hold on;
-  semilogx(N,  errH1 ./ equilError, '-o', 'color', [0 0.5 0]);
+  semilogx(N,  errH1 ./ equilError, '-o', 'color', [0 0.5 0]); hold on;
+  semilogx(N, errH1 ./ mixedError, 'm-o'); 
   title('Efficiency index');
   xlabel('Number of vertices');
-  legend({'residual($U_k$)', 'equilibrated($U_k, \zeta$)'}, 'interpreter', 'latex', 'location', 'best');
+  legend({'residual($U_k$)', 'equilibrated($U_k, \zeta$)', 'mixed($U_k, \sigma$)'}, 'interpreter', 'latex', 'location', 'best');
 
 
   f4 = figure(4); clf; colormap('jet');
