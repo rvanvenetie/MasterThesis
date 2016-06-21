@@ -235,8 +235,7 @@ function CompareUniform(method, node, elem, pde, bdFlag, maxN)
   N = [];
   % Uniform refinement
   t = 1;
-  while  (t ==1 | N(end) < maxN)
-    [node, elem, bdFlag] = uniformbisect(node, elem, bdFlag);
+  while  (size(node, 1) < maxN))
     t = t+1;
     N(end+1) = size(node,1);
 
@@ -264,7 +263,9 @@ function CompareUniform(method, node, elem, pde, bdFlag, maxN)
     %Calculate the residual eror
     eta = estimateresidual(node, elem, uh, pde);
     resError(end+1) = sqrt(sum(eta.^2));
-    %ploterror(method,node, elem, uh, N,equilError, resError,mixedError, errH1, pde.theorate);
+    ploterror(method,node, elem, uh, N,equilError, resError,mixedError, errH1, pde.theorate);
+
+    [node, elem, bdFlag] = uniformbisect(node, elem, bdFlag);
   end
 end
 
