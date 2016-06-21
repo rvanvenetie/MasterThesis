@@ -9,7 +9,7 @@ function  [N,equilError, resError, mixedError, errH1] = test(method, afem, mixed
   global refinemethod;
   refinemethod = @uniformrefine;
 
-  maxN =  1e2;
+  maxN =  2e5;
   maxIt = 12;
   
   switch method
