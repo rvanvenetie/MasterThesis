@@ -4,7 +4,7 @@ function  [N,equilError, resError, mixedError, errH1] = test(method, afem, mixed
   %close all; 
   %profile on;
   %% Parameters
-  theta = 0.5;    uh =0;
+  theta = 0.3;    uh =0;
 
   global refinemethod;
   refinemethod = @uniformrefine;
@@ -160,12 +160,12 @@ function CompareAfem(method, nodeOri, elemOri, pde, bdFlagOri, theta,maxN)
     title('Comparison AFEM performance')
     xlabel('Number of vertices');
     ylabel('Exact error');
-    saveas(f2, sprintf('%s/%s/norm_%d_%g.png',savedir, method, maxN));
-    saveas(f2, sprintf('%s/%s/norm_%d_%g.fig',savedir, method, maxN));
+    saveas(f2, sprintf('%s/%s/norm_%d_%g.png',savedir, method, maxN, theta));
+    saveas(f2, sprintf('%s/%s/norm_%d_%g.fig',savedir, method, maxN, theta));
     loglog(Nm, errm, 'm-d');
     legend({'uniform($U_k$)','residual($U_k$)', 'equilibrated($U_k, \zeta$)', 'mixed($U_k, \sigma$)'}, 'interpreter', 'latex');
-    saveas(f2, sprintf('%s/%s/norm_mixed_%d_%g.png',savedir, method, maxN));
-    saveas(f2, sprintf('%s/%s/norm_mixed_%d_%g.fig',savedir, method, maxN));
+    saveas(f2, sprintf('%s/%s/norm_mixed_%d_%g.png',savedir, method, maxN, theta));
+    saveas(f2, sprintf('%s/%s/norm_mixed_%d_%g.fig',savedir, method, maxN, theta));
   end
 
   savedir = 'figures/';
@@ -217,6 +217,7 @@ function CompareAfem(method, nodeOri, elemOri, pde, bdFlagOri, theta,maxN)
   node = nodeOri; elem = elemOri; bdFlag = bdFlagOri;
   while (size(node,1) < maxN)
     uh = Poisson(node, elem, pde, bdFlag);
+    [Duh,~] = gradu(node, elem, uh);
 
     % Calculate the real error
     Nm(end+1) = size(node, 1);
