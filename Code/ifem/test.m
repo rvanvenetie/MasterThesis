@@ -253,6 +253,8 @@ function CompareUniform(method, node, elem, pde, bdFlag, maxN)
     [~,sigma] = PoissonRT0(node, elem, pde, bdFlag);
     mixedError(end+1) = getL2errorRT0(node, elem,  Duh, sigma);
 
+    size(elem)
+
     % Calculate the flux
     sig = flux(node,elem,  Duh, pde.f);
 
@@ -262,7 +264,7 @@ function CompareUniform(method, node, elem, pde, bdFlag, maxN)
     %Calculate the residual eror
     eta = estimateresidual(node, elem, uh, pde);
     resError(end+1) = sqrt(sum(eta.^2));
-    ploterror(method,node, elem, uh, N,equilError, resError,mixedError, errH1, pde.theorate);
+    %ploterror(method,node, elem, uh, N,equilError, resError,mixedError, errH1, pde.theorate);
   end
 end
 
