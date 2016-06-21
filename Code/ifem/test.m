@@ -1,4 +1,4 @@
-function  [N,equilError, resError, errH1] = test(method, afem, mixed)
+function  [N,equilError, resError, mixedError, errH1] = test(method, afem, mixed)
   savedir = 'figures';
   %clear all;
   %close all; 
@@ -9,9 +9,8 @@ function  [N,equilError, resError, errH1] = test(method, afem, mixed)
   global refinemethod;
   refinemethod = @uniformrefine;
 
-  maxN =  2e5;
+  maxN =  1e2;
   maxIt = 12;
-  %%  Generate an initial mesh
   
   switch method
   case 'square_sin'
@@ -47,7 +46,7 @@ function  [N,equilError, resError, errH1] = test(method, afem, mixed)
   if afem
     CompareAfem(method, node, elem, pde, bdFlag, theta,maxN)
   else
-    CompareUniform(method, node, elem, pde, bdFlag, maxN)
+    [N,equilError, resError, mixedError, errH1] = CompareUniform(method, node, elem, pde, bdFlag, maxN)
   end
   %profile viewer
 
@@ -255,7 +254,7 @@ function CompareAfem(method, nodeOri, elemOri, pde, bdFlagOri, theta,maxN)
   plot
 end
 
-function CompareUniform(method, node, elem, pde, bdFlag, maxN)
+function [N,equilError, resError, mixedError, errH1] = CompareUniform(method, node, elem, pde, bdFlag, maxN)
   errH1 = [];
   mixedError = [];
   equilError = [];
@@ -291,7 +290,7 @@ function CompareUniform(method, node, elem, pde, bdFlag, maxN)
     %Calculate the residual eror
     eta = estimateresidual(node, elem, uh, pde);
     resError(end+1) = sqrt(sum(eta.^2));
-    ploterror(method,node, elem, uh, N,equilError, resError,mixedError, errH1, pde.theorate);
+    %ploterror(method,node, elem, uh, N,equilError, resError,mixedError, errH1, pde.theorate);
 
     [node, elem, bdFlag] = uniformbisect(node, elem, bdFlag);
   end
