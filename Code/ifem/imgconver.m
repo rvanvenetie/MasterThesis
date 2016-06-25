@@ -8,6 +8,7 @@ function imconver
     end
     figure('visible' ,'off')
     fig = openfig(file, 'invisible');
-    saveas(fig, strrep(file, '.fig', '.eps'))
+    export_fig(fig, strrep(file, '.fig' ,'_ef'),'-pdf', '-png', '-eps', '-painters');
+    %saveas(fig, strrep(file, '.fig', '.eps'))
   end
 end

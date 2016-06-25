@@ -69,8 +69,8 @@ We also calculate their efficiency indices as $\enorm{u - U_k} / \eta$. In the e
 The results are given in Figure~\ref{fig:squareerror}. The experimental convergence rate is in line with the theoretical convergence rate.
 \begin{figure}
   \centering
-  \includegraphics[width=.49\linewidth]{square_norm_slope_7.png}
-  \includegraphics[width=.49\linewidth]{square_efficiency_7.png}
+  \includegraphics[width=.49\linewidth]{squaresin_norm_slope_9.eps}
+  \includegraphics[width=.49\linewidth]{squaresin_efficiency_9.eps}
   \caption{The left compares the exact error in the energy norm with the standard residual estimator, and the equilibrated residual estimator.
     These are calculated for discrete solutions $U_k$ of \eqref{eq:squaresin} for a sequence of uniformly refined triangulations. 
     The triangle has a slope of $-1/2$.  
@@ -84,8 +84,8 @@ $u$ for this system, and thus we can empirically verify the claim that $\enorm{u
 of the error approximation increases with $i$ as expected. 
 \begin{figure}
   \centering
-  \includegraphics[width=.49\linewidth]{square_approx_H1_11.png}
-  \includegraphics[width=.49\linewidth]{square_approx_H1_rel_11.png}
+  \includegraphics[width=.49\linewidth]{squaresin_approx_H1_10.eps}
+  \includegraphics[width=.49\linewidth]{squaresin_approx_H1_rel_10.eps}
   \caption{ The exact error $\enorm{u - U_k}_{\O}$ is compared to the approximation $\enorm{U_{k+i} - U_k}_{\O}$ for $i=1,2,3$. The
     left image all of these terms are separately visualised, which results in a cluttered image as expected. The right image
   displays the relative terms, i.e. $\enorm{U_{k+i} - U_k}_{\O} / \enorm{u - U_k}_{\O}$.}
@@ -110,8 +110,8 @@ We will write $\wt U_k$ for the discrete solution found on the three time unifor
 
 \begin{figure}
   \centering
-  \includegraphics[width=.49\linewidth]{squareana_efficiency_8.png}
-  \includegraphics[width=.49\linewidth]{squareana_approx_H1_rel_11.png}
+  \includegraphics[width=.49\linewidth]{squareana_efficiency_9.eps}
+  \includegraphics[width=.49\linewidth]{squareana_approx_H1_rel_10.eps}
   \caption{Left image compares the efficiency indices of the standard residual estimator with the equilibrated estimator. Right image
   shows the exact error approximation quality.}
   \label{fig:squareana}
@@ -132,8 +132,8 @@ This might be related to the approximation quality of $\enorm{\tilde U_k - U_k}_
 
 \begin{figure}
   \centering
-  \includegraphics[width=.49\linewidth]{lshapeone_norm_8.png}
-  \includegraphics[width=.49\linewidth]{lshapeone_efficiency_8.png}
+  \includegraphics[width=.49\linewidth]{lshapeone_norm_8.eps}
+  \includegraphics[width=.49\linewidth]{lshapeone_efficiency_8.eps}
   \caption{Error estimators and their efficiency for the re-entrant corner problem. The triangle has a slope of $-1/3$.}
   \label{fig:lshapeone}
 \end{figure}
@@ -153,8 +153,8 @@ be explained by the fact that $u$ is less regular. Again the efficiency of the e
 of the residual estimator increases.
 \begin{figure}
   \centering
-  \includegraphics[width=.49\linewidth]{crackone_norm_8.png}
-  \includegraphics[width=.49\linewidth]{crackone_efficiency_8.png}
+  \includegraphics[width=.49\linewidth]{crackone_norm_8.eps}
+  \includegraphics[width=.49\linewidth]{crackone_efficiency_8.eps}
   \caption{Error estimators and their efficiency for the crack domain problem. The triangle has a slope of $-1/4$.}
   \label{fig:crackone}
 \end{figure}
@@ -188,8 +188,8 @@ smaller approximation error. This might be related to the decreasing efficiency 
 cf. Figures~\ref{fig:crackone} and \ref{fig:lshapeone}. 
 \begin{figure}
   \centering
-  \includegraphics[width=.49\linewidth]{lshape_afem.png}
-  \includegraphics[width=.49\linewidth]{crackone_afem.png}
+  \includegraphics[width=.49\linewidth]{lshape_afem.eps}
+  \includegraphics[width=.49\linewidth]{crackone_afem.eps}
   \caption{The left image corresponds to the L-shaped domain, the right corresponds to the cracked domain. Three methods are
   compared by plotting the approximation error $\uaenorm{\tilde U_k - U_K}_\O$ against the number of vertices. The adaptive methods
   used D\"orfler marking $\theta = 1/2$.}
@@ -215,7 +215,7 @@ local instead of global minimization decreases for large triangulations. For the
 both the efficiency indices seem to decreases for large triangulations. 
 \begin{figure}
   \centering
-  \includegraphics[width=.8\linewidth]{efficiency_mixed.png}
+  \includegraphics[width=.8\linewidth]{efficiency_mixed.eps}
   \caption{
     Compares the efficiency index of the equilibrated estimator (dashed lines) against the mixed estimator (solid lines), for
   four different domains indicated by color and marker styles.}
@@ -227,7 +227,7 @@ can use this estimator to drive AFEM. Figure~\ref{fig:afemmixed} compares this m
 As before all of these methods produce discrete solutions of the same approximation quality. 
 \begin{figure}
   \centering
-  \includegraphics[width=.8\linewidth]{afem_mixed.png}
+  \includegraphics[width=.8\linewidth]{afem_mixed.eps}
   \caption{
     Approximation quality of various (A)FEM solutions for the cracked domain. The adaptive solutions are found using $\theta = 3/10$.
   }
