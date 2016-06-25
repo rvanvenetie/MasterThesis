@@ -41,6 +41,8 @@ function  [N,equilError, resError, mixedError, errH1] = test(method, afem, mixed
   showmesh(node, elem);
   saveas(gca, sprintf('%s/%s/mesh_initial.png',savedir, method));
 
+  plotapproxh1(method,node, elem, pde, bdFlag,pde.Du, 10)
+  return
   % one uniform refinement
   [node, elem, bdFlag] = uniformbisect(node, elem, bdFlag);
   if afem
@@ -333,34 +335,35 @@ function plotapproxh1(method,node, elem, pde, bdFlag,Du, maxIt)
 
     % Calculate real error
     errH1(end+1) = getH1error(node,elem,Du,uh)
-    if (t <= maxIt - 1)
       approx1H1(end+1) = approxH1error(node, elem, bdFlag, pde, uh,1)
-    end
-    if (t <= maxIt - 2)
+    if (t <= maxIt - 1)
       approx2H1(end+1) = approxH1error(node, elem, bdFlag, pde, uh,2)
     end
-    if (t <= maxIt - 3)
+    if (t <= maxIt - 2)
       approx3H1(end+1) = approxH1error(node, elem, bdFlag, pde, uh,3)
     end
     % Draw figuress!
-    f2 = figure(2);
+    f2 = figure(2); clf;
     len1 = size(approx1H1,2);
     len2 = size(approx2H1,2);
     len3 = size(approx3H1,2);
 
     loglog(N(1:len1),  approx1H1 ./ errH1(1:len1), 'r-x',N(1:len2),  approx2H1 ./ errH1(1:len2), 'k-s', N(1:len3), approx3H1 ./ errH1(1:len3), 'm-d');
     xlabel('Number of vertices');
-    ylabel('Relative error: $\|nabla{U_{k+i}} - \nabla{ U_k}\| / \|\nabla{u} - \nabla{U_k}\|$', 'interpreter', 'latex');
+    ylabel('Relative error: $\|\nabla{U_{k+i}} - \nabla{ U_k}\| / \|\nabla{u} - \nabla{U_k}\|$', 'interpreter', 'latex');
     legend({'$i=1$',' $i=2$', '$i=3$'}, 'interpreter', 'latex');
 
-    f3 = figure(3);
+    f3 = figure(3);clf;
     loglog(N,  errH1, 'b-o',N(1:len1), approx1H1, 'r-x', N(1:len2), approx2H1, 'k-s', N(1:len3), approx3H1, 'm-d'); 
     legend({'$\|\nabla{u} - \nabla {U_k}\|$','$\|\nabla{U_{k+1}} - \nabla{U_k}\|$',' $\|\nabla{U_{k+2}} - \nabla{U_k}\|$', '$\|\nabla{U_{k+3}} - \nabla{U_k}\|$'}, 'interpreter', 'latex');
     xlabel('Number of vertices');
     ylabel('Error');
 
-    saveas(f3, sprintf('%s/%s/approx_H1_%d.png',savedir, method, t));
-    saveas(f2, sprintf('%s/%s/approx_H1_rel_%d.png',savedir, method, t));
+    saveas(f3, sprintf('%s/%s/approx_H1_%d.fig',savedir, method, t) );
+    saveas(f2, sprintf('%s/%s/approx_H1_rel_%d.fig',savedir, method, t));
+
+    saveas(f3, sprintf('%s/%s/approx_H1_%d.eps',savedir, method, t), 'epsc');
+    saveas(f2, sprintf('%s/%s/approx_H1_rel_%d.eps',savedir, method, t), 'epsc');
 
     t = t+1;
   end
