@@ -1,11 +1,12 @@
 function efficiencyZZ
-  maxN = 2e3
+  maxN = 1e5
   meths = {'square_sin', 'square_ana', 'lshape_one' , 'crack_one'};
   colors = {'r', 'b', [0 0.5 0], 'm'};
   markers = ['o','x','s','d'];
   handles = [0,0,0,0];
   fig = figure(6); clf;
   for i=1:4
+    disp(meths{i})
     % Retreive the example data
     [node, elem, bdFlag, pde] = examples(meths{i});
 
@@ -18,7 +19,7 @@ function efficiencyZZ
     loglog(N, errH1 ./ errZZ, '-', 'color', colors{i}, 'marker', markers(i)); hold on;
   end
   figure(fig); hold on;
-  title('Efficiency index comparison');
+  title('Efficiency index comparison ZZ-estimator');
   xlabel('Number of vertices');
   legend({'Square (sin)', 'Square (poly)', 'L-shape (one)', 'Crack (one)'}, 'location', 'best');
 
