@@ -80,11 +80,14 @@
 \renewcommand{\v}[1]{\underline{#1}}
 
 \newcommand{\vsig}{\v{\sigma}}
+\newcommand{\vsign}[1]{\v{\sigma_#1}}
 \newcommand{\vsiga}{\v{\sigma_a}}
+\newcommand{\vhsiga}{\v{\hat \sigma_a}}
 \newcommand{\vzeta}{\v{\zeta_a}}
 \newcommand{\vzet}{\v{\zeta}}
 \newcommand{\vtau}{\v{\tau}}
 
+\DeclareMathOperator{\inte}{int}
 \DeclareMathOperator{\osc}{osc}
 %undefine div
 \let\div\relax
@@ -121,7 +124,7 @@
 
 
 
-\title{Equilibrated residual error estimators for the finite element method} % Title of your thesis
+\title{Equilibrated flux estimator for the finite element method} % Title of your thesis
 \author[raymond.van.venetie@gmail.com, 10004627]{Raymond van Veneti\"e} %Your name, email and student number
 
 \documentTitle{Master Thesis}
@@ -163,7 +166,7 @@
 \chapter{Theoretical Background}
 \subfile{theory_afem.tex}
 
-\chapter{Equilibrated residual estimator}
+\chapter{Equilibrated flux estimator}
 \subfile{theory_equil.tex}
 
 \chapter{Practical aspects}
@@ -173,12 +176,12 @@
 \subfile{num_results.tex}
 
 \begin{appendices}
+%  \subfile{deleted.tex}
 %\chapter{Notation}, magic package nomencl takes care of this
 \subfile{notation.tex}
-\chapter{Definitions}
+\chapter{Definitions and Reference theorems}
 \subfile{definitions.tex}
-\chapter{Reference theorems}
-\subfile{background.tex}
+
 \end{appendices}
 
 

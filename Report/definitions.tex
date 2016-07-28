@@ -106,9 +106,87 @@ Raviart-Thomas functions can be (partially) determined by their divergence and s
   \[
     \div \nabla u = \Delta = p_K, \quad \nabla u \cdot n = p_e.
   \]
-  We thus simply set $\vsig = \Pi^{RT} u$, for $\Pi^{RT}$ the interpolation projector on the space $\RT_p(K)$,
+  We then simply set $\vsig = \Pi^{RT} u$, for $\Pi^{RT}$ the interpolation projector on the space $\RT_p(K)$,
   formally defined in \cite[\S3.4]{brezzimixed}. From the properties of this projector \cite[Lem~3.7]{brezzimixed} we
   deduce that $\vsig$ is a function in $\RT_p(K)$ that satisfies \eqref{eq:rtexists}.
 \end{proof}
 
+\section{Auxiliary results}
+\label{sec:aux}
+Here the proof of Lemma \label{lem:clasequivlow} is included for self-completeness.
+\begin{proof}
+  A lower bound for $\uanorm{\vsiga}_{\w_a}$ can be given in terms or $r_a$.
+  By the definition of the local equilibrium property~\eqref{eq:defsigma} we have $\ip{r_a, v} = - \ip{\v{\sigma_a}, \nabla v}_{\w_a}$ for $v \in H_\star^1(\w_a)$,
+  and thus
+  \[
+    \norm{r_a}_{H_\star^1(\omega_a)'} = \sup_{\{v \in H_\star^1(\w_a) : \norm{\nabla v}_{\w_a} = 1\}} {\ip{r_a, v}} = \sup_{\{v \in H_\star^1(\w_a) : \norm{\nabla v}_{\w_a}=1\}} {\ip{\v{\sigma_a}, \nabla v}_{\w_a}} \leq \uanorm{\v{\sigma_a}}_{\w_a}.
+  \]
+
+  Fix an interior vertex  $a \in \V^{int}$. Applying the above and using orthogonality on constant functions reveals  
+  \begin{align*}
+    \uanorm{\v{\sigma_a}}_{\w_a} &\geq \norm{r_a}_{H^1_\star(\w_a)'} \\
+    &= \sup_{\{v \in H^1_\star(\w_a) : v \ne 0\}} { \ip{r_a, v} \over \norm{\nabla v}_{\w_a}} \\
+    &= \sup_{\{v \in H^1(\w_a) : v \not \equiv C_{st}\}} { \ip{r_a, v - v_{\w_a}} \over \norm{\nabla (v - v_{\w_a})}_{\w_a}} \\
+    &= \sup_{\{v \in H^1(\w_a) : v \not \equiv C_{st}\}} { \ip{r_a, v} \over \norm{\nabla v}_{\w_a}}.
+  \end{align*}
+  Similar to the previous proof we decompose $r_a$ in triangle and edge terms
+  \[
+    \ip{r_a,v} = \sum_{K\subset \w_a} \langle{r^T_a, v}\rangle_K + \sum_{e \subset \gamma_a} \ip{r^e_a, v}_e,
+    = \sum_{K\subset \w_a} \langle{\psi_a \left [f+\Delta U \right], v}\rangle_K + \sum_{e \subset \gamma_a} \ip{\psi_a \llbracket \nabla U \rrbracket, v}_e.
+  \]
+  The triangle and edge functions $(r^T_a, r^e_a)$ are actually broken polynomials from the spaces $\P_r^{-1}(\w_a)\times \P_r^{-1}(\gamma_a)$ for some degree $r$.
+
+  Start with an element $K \subset \w_a$, and consider the space $H_0^1(K)$. Since a function $v \in H_0^1(K)$ vanishes on the boundary, 
+  we can naturally extend it to a function $v \in H^1(\w_a)$ by setting $v \equiv 0$ on $\w_a \setminus K$. As $v$
+  vanishes all edges $e \subset \gamma_a$ and all triangles except $K$, we have $\ip{r_a, v} = \langle{r_a^T, v}\rangle_K$ and thus
+  \[
+    \sup_{\{v \in H^1(\w_a) : v \not \equiv C_{st}\}} { \ip{r_a, v} \over \norm{\nabla v}_{\w_a}} 
+    \geq \sup_{\{v \in H_0^1(K) : v \ne 0\}} { \langle{r^T_a, v}\rangle_K \over \norm{\nabla v}_{K}}
+    = \sup_{\{v \in H_0^1(K) :  \norm{\nabla v}=1\}} { \langle\psi_a\left[ f + \Delta U\right],v\rangle_K }
+  \]
+  An estimate for this last term can be found using equivalence of norms (cf. \cite[Ex~9.x.5]{brenner}):
+  
+  That is, we claim that $\norm{q} := \sup_{\{v \in H_0^1(K) : \norm{\nabla v}=1\}} \langle \psi_a q, v\rangle_K$
+  defines a norm for polynomials $q$ of degree $r$ on $K$. The only troublesome axiom to be satisfied
+  is that $\norm{q} = 0$  implies $q=0$. Suppose that $q$ is a non-zero polynomial.
+  Then there exists a point $x \in \inte(K)$ for which we have $q(x) \ne 0$, and without loss of generality we suppose that $q(x) > 0$.
+  Since $q$ is continuous we have $q(y) > q(x) / 2 > 0$ for $y$ in $V(x)$, a small neighborhood of $x$.
+  The hat function satisfies $\psi_a > 0$ in the interior of $K$. Taking $V(x)$ small enough therefore guarantees that $\psi_a q>0$ on $V(x)$.
+  Finally, choose a continuous $v \in H_0^1(K)$  with $v(x) = 1$ and $v = 0$ outside of $V(x)$. For this $v$ we then find
+  \[
+    \norm{q} \geq { \langle  \psi_a q, v\rangle_K \over \norm{\nabla v}_K}  = {\langle \psi_a q, v\rangle_{V(x)} \over \norm{\nabla v}_K} > 0,
+  \]
+  because $\psi_a q \ne 0 \ne v$ in a small non-empty open neighborhood of $x$. Hence $\norm{\cdot}$ is a norm on the space of polynomials with degree $r$.
+  
+  The above also holds for a reference element $\hat K$. Using equivalence of norms, and the usual transformation lemma
+  shows that for all elements $K \subset \w_a$ we have
+  \[
+    \sup_{\{v \in H_0^1(K) :  \norm{\nabla v}=1\}} { \langle\psi_a\left[ f + \Delta U\right],v\rangle_K } \gtrsim h_K \norm{ f + \Delta U }_K,
+  \]
+  for a constant depending on the shape regularity and (unfortunately) on the polynomial-degree $p$ used in $\VV$.  This
+  provides a lower bound for the element related terms.
+  
+  
+  Next, fix an edge $e \subset \gamma_a$ and denote $K_1, K_2$ for the triangles that share this edge. Consider the following space of functions:
+  \[
+  V_e := \set{v \in H_0^1(K_1 \cup K_2) : \ip{v,P}_{K_1}= \ip{v,P}_{K_2} = 0\quad \forall P \in \P_r}.\]
+  Again we can naturally extend these functions to live in $H^1(\w_a)$. Since $v \in V_e$ vanish on all edges except $e$, and
+  is orthogonal to polynomials of degree $r$ on $K_1$ and $K_2$, we have
+  \[
+    \sup_{\{v \in H^1(\w_a) : v \not \equiv C_{st}\}} { \ip{r_a, v} \over \norm{\nabla v}_{\w_a}} 
+    \geq \sup_{\{v \in V_e: v \ne 0\}} { \langle r^e_a, v \rangle_e \over \norm{\nabla v}_{K_1 \cup K_2}}
+    = \sup_{\{v \in V_e: v \ne 0\}} { \langle \psi_a \llbracket \nabla U \rrbracket, v \rangle_e \over \norm{\nabla v}_{K_1 \cup K_2}}
+          \gtrsim h_e^{1/2} \norm{\llbracket \nabla U \rrbracket}_e.
+  \]
+  The last inequality is a variation of a well known result \cite[Ex~9.x.7]{brenner}. It can be proven by using the same
+  technique we used for the element terms. The constant depends on both shape regularity and the polynomial-degree $p$.
+
+  The last step consist of summing the above inequalities over $K \subset \w_a$ and $e \subset \gamma_a$, i.e.
+  \begin{align*}
+    \uanorm{\vsiga}_{\w_a} \geq \norm{r_a}_{H_\star^1(\w_a)'} &\gtrsim \sum_{K \subset \w_a} h_K \|f + \Delta U\|_K + \sum_{e \subset \gamma_a} h_e^{1/2} \norm{\llbracket \nabla U \rrbracket}_e\\
+    &\geq \left(\min_{K \subset \w_a} h_K\right) \sum_{K \subset w_a} \norm{f + \Delta U}_K +  \left(\min_{e \subset \gamma_a}h_e^{1/2} \right) \sum_{e \subset \gamma_a} \norm{\llbracket \nabla U \rrbracket}_e\\
+    &\gtrsim h_{\w_a} \norm{ f + \Delta U}_{\w_a} + h_{\w_a}^{1/2} \norm{ \llbracket \nabla U \rrbracket}_{\gamma_a}.
+  \end{align*}
+  The hidden constants depend the shape regularity and the polynomial-degree $p$. The proof is similar for $a \in \V^{bdr}$.
+\end{proof}
 \end{document}
