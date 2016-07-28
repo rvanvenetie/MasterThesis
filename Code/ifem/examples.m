@@ -15,6 +15,12 @@ function [node, elem, bdFlag,pde] = example(method)
   case 'crack_one'
     [node, elem, bdFlag, pde] = crackone();
   end
+  % show initial mesh on figure 1
+  figure(1);
+  showmesh(node, elem);
+
+  % calculate a uniform bisection; we need more precision!!
+  [node, elem, bdFlag] = uniformbisect(node, elem, bdFlag);
 end
 
 function [node, elem, bdFlag, pde, Du, theorate] = lshapeone() 

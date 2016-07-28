@@ -49,13 +49,14 @@ function   test(method, estimators, afem)
   % Make dir
   mkdir(sprintf('%s/%s', savedir, method)); clf;
 
-  showmesh(node, elem);
+  %showmesh(node, elem);
+  figure(1)
   export_fig(gca, sprintf('%s/%s/mesh_initial.pdf',savedir, method), '-painters');
 
   %plotapproxh1(method,node, elem, pde, bdFlag,pde.Du, 10)
   %return
   % one uniform refinement
-  [node, elem, bdFlag] = uniformbisect(node, elem, bdFlag);
+  %[node, elem, bdFlag] = uniformbisect(node, elem, bdFlag);
   if afem
     CompareAfem(method, node, elem, pde, bdFlag, theta,maxN)
   else
