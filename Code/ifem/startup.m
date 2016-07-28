@@ -1,2 +1,2 @@
-addpath(genpath('~/Dropbox/Raymond/ifem'))
-addpath('~/Dropbox/Raymond/export_fig');
+addpath(genpath('../../../ifem'))
+addpath('../../../export_fig');
