@@ -1,0 +1,415 @@
+\documentclass[thesis.tex]{subfiles}
+\begin{document}
+The (theoretical) results from the previous chapter show the potency of the equilibrated flux estimator. 
+Most results are upper- or lower bounds and some of these still depend on unknown constants.
+To address these uncertainties we would like to measure the performance in practice.
+Unfortunately, constructing $\vsiga$ in its current form is far from trivial, as one can already see from
+the complexity of the lowest order algorithm \cite[Alg~4]{braess2006equilibrated}.
+An equivalent --- and easier to implement --- construction is given by Ern and Volharik in \cite{ernequil}. In this
+chapter we will prove this equivalency and give some other implementational details.
+
+\section{Ern and Volharik's construction}
+The equilibration method presented in the previous chapter is based on constructing the difference flux $\vsig^\triangle 
+= \nabla U - \v{\sigma}$, 
+with $\vsig^\triangle$ from the broken Raviart-Thomas space~$\RT_p^{-1}(\T)$. 
+Ern and Volhralik \cite{ernequil} propose constructing the actual flux $\vsig \in \RT_p(\T)$ instead of the difference.
+
+In notation of \cite{ernequil} we locally define $\v{\zeta_a} := \v{\sigma_a} - \psi_a \nabla U$ and globally write $\vzet := \sum_{a \in \V} \vzeta$.
+By the partition of unity we have 
+$ \v{\zeta} = \vsig^\triangle - \nabla U$, so that one retrieves a reliable and efficient estimator after replacing $\vsig^\triangle$ with $\vzet + \nabla U$ in the previous
+chapter. Rewriting the characteristic property \eqref{eq:sigmadefdisc} of a locally equilibrated flux $\v{\sigma_a}$ reveals
+\begin{align*}
+  -\ip{\v{\sigma_a}, \nabla v}_{\w_a}  = \ip{\tilde r_a, v} &=  \ip{\Pi_{p-1}^a(\psi_a f), v}_{\w_a} - \ip{\nabla U, \nabla \left(\psi_a v\right)}_{\w_a} \\
+  &=  \ip{\Pi_{p-1}^a(\psi_a f) - \nabla \psi_a \cdot \nabla U, v}_{\w_a} - \ip{\psi_a \nabla U, \nabla v}_{\w_a} \quad \forall v \in H_\star^1(\w_a).
+\end{align*}
+This holds if and only if for all $v \in H_\star^1(\w_a)$ we have 
+\begin{equation}
+  \label{eq:defzeta}
+  \ip{\Pi_{p-1}^a(\psi_a f) - \nabla \psi_a \cdot \nabla U, v}_{\w_a} = - \ip{\v{\sigma_a} - \psi_a \nabla U, \nabla v}_{\w_a} = - \ip{\v{\zeta_a}, \nabla v}_{\w_a}.
+\end{equation}
+Notice\footnote{
+For $a\in \V^{bdr}$ it is clear that $C_c^{\infty}(\w_a) \subset H_\star^1(\w_a)$. For $a \in \V^{int}$, take $v \in C_c^{\infty}(\w_a)$ and consider $v - v_{\w_a} \in H_\star^1(\w_a)$. Plugging $v - v_{\w_a}$ into the equation \eqref{eq:defzeta} and using orthogonality relations shows that actually $ - \ip{\v{\zeta_a}, \nabla v} = \ip{\Pi_{p-1}^a(\psi_a f) - \nabla \psi_a \cdot \nabla U, v}_{\w_a}$ for $v \in C_c^{\infty}(\w_a)$.}
+that the weak divergence of $\vzeta$ apparently satisfies  $\div \v{\zeta_a} = \Pi_{p-1}^a(\psi_a f) - \nabla~\psi_a\cdot~\nabla U$.
+The latter is a $L^2(\w_a)$ function, and since
+%\footnote{We know that $\v{\sigma_a}\in \RT_{p,0}^{-1}(\w_a)$. Moreover $\nabla U \in \RT_p^{-1}(\w_a)$ and since $\psi_a$ vanishes on $\partial \w_a \setminus \partial \O$ we can conclude that $\psi_a\nabla U \in \RT_{p,0}^{-1}(\w_a)$.
+ $\v{\sigma_a},\psi_a\nabla U \in \RT_{p,0}^{-1}(\w_a)$ we conclude
+\[
+ \vsiga - \psi_a \nabla U  = \v{\zeta_a} \in H(\div; \w_a) \cap \RT_{p,0}^{-1}(\w_a) = \RT_{p,0}(\w_a).
+\]
+
+Constructing $\v{\sigma_a} - \psi_a\nabla U$ is therefore equivalent to finding $\v{\zeta_a} \in \RT_p(\w_a)$ that satisfies
+$\div \v{\zeta_a} = \Pi_{p-1}^a(\psi_af) - \nabla \psi_a \cdot \nabla U$ with minimal $\uanorm{\v{\zeta_a} + \psi_a \nabla U}_{\w_a}$.
+This latter problem can be turned into a system of equations. 
+\begin{thm}
+  For vertex $a \in \V$ the flux $\v{\zeta_a} \in \RT_{p,0}(\w_a)$ can be found by solving
+  \begin{subequations}
+    \label{eq:systemzeta}
+  \begin{alignat}{3}
+    \ip{\v{\zeta_a}, \v{\tau}}_{\w_a} - \ip{\div \v{\tau}, {\lambda_a}}_{\w_a} &= - \ip{\psi_a \nabla U, \v{\tau}}_{\w_a} && \quad \forall \v{\tau} \in \RT_{p,0}(\w_a),\label{eq:systemzeta1}\\
+    \ip{\div \v{\zeta_a}, q_a}_{\w_a} &= \ip{\psi_a f - \nabla \psi_a \cdot \nabla U, q_a}_{\w_a} && \quad \forall q_a \in \QQ(\w_a), \label{eq:systemzeta2}
+  \end{alignat}
+\end{subequations}
+  for the pair $(\v{\zeta_a}, {\lambda_a}) \in \RT_{p,0}(\w_a) \times \QQ(\w_a)$, with $\QQ(\w_a)$ a polynomial subspace given by
+  \[
+    \QQ(\w_a) := \left[\begin{aligned}
+        &\set{q \in \P_p^{-1}(\w_a) : q_{\w_a} = 0}  &\quad a \in \V^{int},\\
+        &\set{q \in\P_p^{-1}(\w_a)}&\quad a \in \V^{bdr}.
+      \end{aligned}
+      \right.
+  \]
+\end{thm}
+\begin{proof}
+  We will start by showing that the characteristic property \eqref{eq:defzeta}  of $\v{\zeta_a}$ is equivalent to \eqref{eq:systemzeta2}.
+  Here we will use that $\Pi_{p-1}^a$ is the $L_2$-orthogonal projector on the broken polynomial space $\P_p^{-1}(\w_a)$.  Fix $v \in H_\star^1(\w_a)$, 
+  since $\v{\zeta_a} \in \RT_{p,0}(\w_a)$ we know that $\div \v{\zeta_a} \in \P_p^{-1}(\w_a)$, and thus that $\Pi_{p-1}^a( \div \v{\zeta_a} )= \div \v{\zeta_a}$. Combined with orthogonality of the projector the right hand side of \eqref{eq:defzeta} reads
+  \[
+    -\ip{\vzeta, \nabla v}_{\w_a} = \ip{\div \v{\zeta_a}, v}_{\w_a} = \ip{ \Pi_{p-1}^a(\div \v{\zeta_a}), v}_{\w_a} = \ip{\div \v{\zeta_a}, \Pi_{p-1}^a(v)}_{\w_a}.
+  \]
+
+  Something similar for the left hand side of \eqref{eq:defzeta} holds. The expression $\nabla \psi_a \cdot \nabla U$ is part of
+  $\P_p^{-1}(\w_a)$, since $\psi_a \in \P_1(\w_a)$ and $U \in \P_{p}(\w_a)$. Similar steps as before give, 
+  \begin{align*}
+    \ip{\Pi_{p-1}^a(\psi_a f) - \nabla \psi_a \cdot \nabla U, v}_{\w_a} &= \ip{\Pi_{p-1}^a(\psi_a f) - \Pi_{p-1}^a\left(\nabla \psi_a \cdot \nabla U\right),v}_{\w_a}\\
+    &= \ip{\Pi_{p-1}^a\left(\psi_a f - \nabla \psi_a \cdot \nabla U\right), v}_{\w_a}\\
+    &= \ip{\psi_a f - \nabla \psi_a \cdot \nabla U, \Pi_{p-1}^a(v)}_{\w_a}.
+  \end{align*}
+  From this we conclude that \eqref{eq:defzeta} is equivalent to
+  \begin{equation}
+    \label{eq:defzetanoproj}
+    \ip{\div \v{\zeta_a}, q_a}_{\w_a} = \ip{\psi_a f - \nabla \psi_a \cdot \nabla U, q_a} \quad \forall q \in \Pi_{p-1}^a\left(H_\star^1(\w_a)\right).
+  \end{equation}
+  The equivalence is completed by  noting that $\Pi_{p-1}^a\left(H_\star^1(\w_a)\right) = \QQ(\w_a)$ for both interior and boundary vertices $a$.
+
+  \textcolor{blue}{
+  For $a \in \V^{int}$ this is obvious, we have $\QQ(\w_a) \subset \Pi_{p-1}^a\left(H_\star^1(\w_a)\right)$ and reversely for $v \in H_\star^1(\w_a)$
+  we find  $\ip{\Pi_{p-1}^a(v), 1}_{\w_a} = \ip{v,\Pi_{p-1}^a(1)}_{\w_a} = v_{\w_a} = 0$ so that $\Pi_{p-1}^a(v) \in \QQ(\w_a)$.
+  For $a \in \V^{bdr}$ we have $\QQ(\w_a) \subset \Pi_{p-1}^a\left(H_\star^1(\w_a)\right)$. 
+  For the other inclusion let $q_a \in \P_p^{-1}(\w_a)$ be given.
+  Can we find a sequence $v_\epsilon \in H_\star^1(\w_a)$ such that $\norm{\Pi_{p-1}^a(v_\epsilon) - q_a}_{\w_a} \to 0$ 
+  and $v_\epsilon \to v \in H_\star^1(\w_a)$? If so, we have $\Pi_{p-1}^a(v) = q_a$ for a $v \in H_\star^1(\w_a)$ and thus we may conclude
+  that $\Pi_{p-1}^a\left(H_\star^1(\w_a)\right) = \QQ(\w_a)$. The difficulty is that $v \in H_\star^1(\w_a)$ vanish on $\partial \w_a \cap \partial \O$. Probably possible using some mollifier.  }
+
+  Next we tackle rewriting the minimizing property. By the polarization identity
+  \[
+    \uanorm{\v{\zeta_a} + \psi_a \nabla U}_{\w_a}^2 = \uanorm{\v{\zeta_a}}_{\w_a}^2 + \norm{\psi_a \nabla U}^2_{\w_a} + 2 \ip{\v{\zeta_a}, \psi_a \nabla 
+    U}_{\w_a}.
+  \]
+  Now $\psi_a \nabla U$ is fixed,  so minimizing $\uanorm{\v{\zeta_a} + \psi_a \nabla U}_{\w_a}$ for $\vzeta$ is equivalent to minimizing
+  \[
+    \frac{1}{2} \uanorm{\v{\zeta_a}}^2_{\w_a} + \ip{\v{\zeta_a}, \psi_a \nabla U}_{\w_a}.
+  \]
+  Together with the previous paragraph we conclude that $\vzeta$ can be found as a solution of \label{eq:defzetanoproj} with
+  minimal $\frac{1}{2} \uanorm{\v{\zeta_a}}^2_{\w_a} + \ip{\v{\zeta_a}, \psi_a \nabla U}_{\w_a}$.
+
+  The optimality conditions of the above minimisation problem are given by the system \eqref{eq:systemzeta}.
+  To see this we require some evolved optimisation theory. 
+  Finding the pair $(\v{\zeta_a}, {{\lambda_a}}) \in \RT_{p,0}(\w_a) \times \QQ(\w_a)$ that solves the system 
+  \eqref{eq:systemzeta} is actually a \emph{saddle point problem} (cf. \cite{brezzimixed, braess2007finite}).
+  That is, it fits in the general framework of finding $(u, \lambda) \in X \times M$ for Hilbert spaces $X$ and~$M$~with
+    \begin{align*}
+      a(u,v) + b(v,\lambda) &= \ip{f,v} \quad \forall v \in X,\\
+      b(u, \mu) &= \ip{g,\mu} \quad \forall \mu \in M,
+    \end{align*}
+    for $f \in X', g \in M'$ and \emph{continuous} bilinear forms $a: X \times X \to \R, b : X \times M \to \R$.
+    The main result about saddle point problems \cite[Thm~4.2.1]{brezzimixed} provides sufficient conditions under which there 
+    is a unique solution $(u, \lambda)$ to the saddle point problem such that~$u$ is also the unique minimizer of 
+    $\frac{1}{2} a(u,u) - \ip{f,u}$. Define the operator $B: X \to M' : v \mapsto b(v,\cdot)$. The first condition is that the bilinear form $a(\cdot, \cdot)$ is
+    symmetric and coercive on the set of functions $V := \{v \in X : Bv = 0\}$.
+    Secondly, the operator $B$ should be surjective.
+
+    Apply this general framework to our system \eqref{eq:systemzeta}; we 
+    have $X = \RT_{p,0}(\w_a)$ and $M = \QQ(\w_a)$ with bilinear forms
+    \[
+      a(\v{\zeta_a},\v{\tau}) = \ip{\v{\zeta_a},\v{\tau}}_{\w_a} \quad\text{and} \quad b(\v{\zeta_a},q_a) = \ip{\div \v{\zeta_a},q_a}_{\w_a} \quad \text{for }\v{\zeta_a}, \v{\tau} \in \RT_{p,0}(\w_a), q_a \in \QQ(\w_a). 
+    \]
+    The flux space $\RT_{p,0}(\w_a)$ is equipped with the $H^1(\div; \w_a)$-norm: $\norm{\v{\tau}}_{H^1(\div; \w_a)}^2 = \norm{\v{\tau}}_{\w_a}^2 + \norm{\div \v{\tau}}^2_{\w_a}$,
+    cf. Definition~\ref{def:hdiv}. One easily sees that the above bilinear forms are continuous.
+    Let $\v{\tau} \in V$, then by definition $\ip{\div \v{\tau}, q_a}_{\w_a} = 0$ for all $q_a \in \QQ(\w_a)$, which implies that $\div \v{\tau} = 0$ since $\div \v{\tau} \in \QQ(\w_a)$. Coercivity of  $a(\cdot, \cdot)$ on $V$ therefore follows easily,
+    \[
+      a(\v{\tau},\v{\tau}) = \ip{\v{\tau},\v{\tau}}_{\w_a} = \norm{\v{\tau}}^2_{\w_a} = \norm{\v{\tau}}^2_{\w_a} + \norm{\div \v{\tau}}^2_{\w_a} = \norm{\v{\tau}}^2_{H(\div; \w_a)}.
+    \]
+    Given $q_a \in \QQ(\w_a)$ there exists $ \v{\tau_a} \in \RT_{p,0}(\w_a)$  such that 
+    $\div  \v{\tau_a} = q_a$ (cf. proof of Theorem~\ref{thm:sigmasolvable}).
+    By duality of $Q$ this turns $B$ into a surjective map. 
+    All in all, we satisfy the necessary conditions and hence we may conclude from \cite[Thm~4.2.1]{brezzimixed} that there is a unique pair 
+    $(\v{\zeta_a}, \lambda) \in \RT_{p,0}(\w_a) \times \QQ(\w_a)$ 
+    that solves the saddle point system \eqref{eq:systemzeta}. From \cite[Rem~4.2.1]{brezzimixed} we deduce that $\vzeta$ is the
+    unique minimizer of $\frac{1}{2}\uanorm{\vzeta}_{\w_a}^2 + \ip{\vzeta, \psi_a \nabla U}_{\w_a}$ subject to equation \eqref{eq:systemzeta2}. 
+\end{proof}
+Since both function spaces in the system \eqref{eq:systemzeta} are finite dimensional, the
+system can be reduced to a finite set of equations over the bases of $\RT_{p,0}(\w_a)$ and $\QQ(\w_a)$. 
+This provides a straightforward algorithm for constructing $\vzeta$.
+Using the correspondence with $\vsiga$ we directly find an upper bound (cf. Theorem~\ref{thm:discsynge}). What's more, for
+the data oscillation we find $\norm{(I - \Pi_{p})(f)}_K = \uanorm{f - \div\vzet}_K$.
+\begin{thm}
+  \label{thm:zetaupper}
+  Let $\vzeta$ be found by solving \eqref{eq:systemzeta}, then for $\v{\zeta} = \sum_{a \in \V} \vzeta$ we have
+  \begin{align*}
+    \enorm{u - U}_{\O}^2 &\leq \sum_{K \in \T} \left[ \uanorm{\vzet + \nabla U}_{K} + \frac{h_K}{\pi} \uanorm{ (I-\Pi_{p})(f)}_{K}\right]^2,\\
+      &= \sum_{K \in \T} \left[ \uanorm{\vzet + \nabla U}_{K} + \frac{h_K}{\pi} \uanorm{ f - \div \vzet}_{K}\right]^2.
+  \end{align*}
+\end{thm}
+\begin{proof}
+  The upper bound follows from Theorem~\ref{thm:discsynge}, since  $\vsig^\triangle = \vzeta + \nabla U$.
+
+  We will show that $f|_K - \div \vzet|_K$  perpendicular to $\P_p(K)$ on every element $K$.
+  For an interior vertex $a \in \V^{int}$ we find from the Divergence theorem that 
+  \[
+    \ip{\div \vzeta, 1}_{\w_a} =  \ip{\vzeta \cdot n, 1}_{\partial \w_a} - \ip{\vzeta, \nabla 1}_{\w_a} = 0,
+  \]
+  since $\vzeta \in \RT_{p,0}(\w_a)$ ensures that $\vzeta \cdot n = 0$ on $\partial \w_a$.
+  This implies that \eqref{eq:systemzeta2} holds the entire test space $\P_p^{-1}(\w_a)$. Now pick a polynomial $q \in \P_p(K)$,
+  which we implicitly extend to vanish outside $K$.  Since $\P_p^{-1}(\w_a)$ consists of broken polynomials, we see that $q \in \P_p^{-1}(\w_a)$
+  for all patches $\w_a$. Calculating the inner product with $f - \div \vzet$ yields
+  \begin{align*}
+    \ip{f - \div \vzet, q}_K &= \sum_{a \in \V_K} \ip{ \psi_a f - \div \vzeta, q}_{K} = \sum_{a \in \V_K} \ip {\psi_a f - \div \vzeta, q}_{\w_a}\\
+     &=\sum_{a \in \V_K} \ip{\nabla \psi_a \cdot \nabla U, q}_{\w_a}\\
+    &= \ip{\nabla 1, q}_{K} = 0,
+  \end{align*}
+  where third inequality follows from \eqref{eq:systemzeta2}. We conclude that  $f|_K - \div \vzet|_K \perp \P_p(K)$, and because $\div \vzet|_K \in \P_p(K)$
+  we infer that $\div \vzet= \Pi_p f$.
+\end{proof}
+
+
+%\section{Bases for $\RT_{p,0}(\w_a)$ and $\QQ(\w_a)$}
+\section{Raviart-Thomas space}
+The findings in the previous section provide us with the necessary steps for implementation of the equilibrated flux
+estimator. In particular we must find bases for $\RT_{p,0}(\w_a)$ and $\QQ(\w_a)$. We will give a short
+intermezzo deriving some theory for this first space. 
+
+Consider an arbitrary domain $ \O \subset \R^2$ with triangulation $ \T$, vertices $ \V$, et cetera.
+We will start by examining the Raviart-Thomas space $\RT_p( \T)$, without the boundary conditions,
+generated by the Raviart-Thomas element.
+Recall from \S\ref{sec:deffem} that finite elements are formally represented by a triplet $(K, \mathcal{P}, \mathcal{N})$. For
+the construction of the Raviart-Thomas space ~$\RT_p( \T)$
+we obviously have $\mathcal{P} := \RT_p(K)$.
+We are left with the task of finding suitable nodal variables $\mathcal{N}$ that ensure $H(\div;  \O)$ conformity of the entire space.
+For this latter constraint we will use the following characterization of $H(\div;  \O)$.
+\begin{thm}
+  \label{thm:rtjump}
+  The Raviart-Thomas space $\RT_p( \T)$  can be characterized by
+  \[
+    \RT_p( \T) := H(\div;  \O) \cap \RT_p^{-1}( \T)  = \set{\vsig \in \RT_p^{-1}( \T) : \llbracket \vsig \rrbracket = 0 \, \text{ in } L^2(e) \quad \forall e \in \E^{int}}.
+  \]
+\end{thm}
+\begin{proof}
+  We show the inclusion "$\supset$". That is, let $\vsig \in \RT_p^{-1}( \T)$ be given such that $\llbracket \vsig \rrbracket$
+  vanishes on all interior edges. We have to show that $\vsig$ has a weak divergence in $L^2( \O)$.
+  Let $\f \in D( \O)$ be given, from the divergence theorem for $\vsig|_K \in H^1(\div; K)$ we infer that
+  \begin{align*}
+    - \int_{ \O}  \nabla \f \cdot \vsig &= - \sum_{K \in  \T} \int_K \nabla \f \cdot \vsig \\
+    &=  \sum_{K \in  \T} \int_K \f \cdot \div \vsig - \int_{\partial K} \f \vsig \cdot n\\
+    &=  \int_{ \O} \f \cdot \div \vsig - \sum_{e \in  \E^{int}} \int_e \f \llbracket \vsig \rrbracket = \int_{ \O} \f \cdot \div \vsig.
+  \end{align*}
+  Here we used that $\f$ vanishes on the boundary, whilst $\llbracket \vsig \rrbracket$ vanishes on interior edges.
+  The result follows since $\div \vsig \in \P_p^{-1}(\O) \subset  L^2( \O)$, hence we may conclude that $\vsig \in H(\div;  \O)$.
+
+  The other inclusion follows similarly (cf. \cite[Thm~3.2]{gaticasimple}).
+\end{proof}
+
+For a triangle $K \in  \T$ we have $\RT_p(K) := \left[ \P_p(K)\right]^2 + \P_p(K)\v{x}$.
+Let $\wt \P_p(K)$ denote polynomials of \emph{exactly} degree $p$, then one easily proves the decomposition
+$\RT_p(K) = \left [\P_p(K)\right]^2 \oplus \wt \P_p(K) \v{x}$.
+From this decomposition it follows that
+\[
+  \dim{\RT_p(K)} = 2 \dim{\P_p(K)}+ \dim{\wt \P_p(K)} = 2 {2 + p \choose p} + {2 + p - 1 \choose p} = (p+1)(p+3).
+\]
+The Raviart-Thomas space $\RT_p(K)$ has  the following (unisolvent) characterisation.
+\begin{thm}
+  Let $K \in  \T$ and $\vsig \in \RT_p(K)$ be given such that
+  \begin{alignat*}{2}
+    \ip{\vsig \cdot n_e, q}_e &= 0 \quad \forall q \in \P_p(e), &&\quad \forall \text{edge } e \subset \partial K,\\
+    \ip{\vsig, \vtau}_K &= 0 \quad \forall \vtau \in \left[\P_{p-1}(K)\right]^2, &&\quad p \geq 1.
+  \end{alignat*}
+  Then $\vsig \equiv 0$ in $K$.
+\end{thm}
+\begin{proof}
+  Examining the dimensions of the function spaces reveal that the number of equations equals the dimension of $\RT_p(K)$.
+  Since $\vsig \cdot n_e \in \P_p(e)$ the first equation implies that $\vsig \cdot n_e$ vanishes on all edges of $K$.
+
+  Let $p \geq 1$, then for any $q \in \P_p(K)$ we have $\nabla q \in \left[\P_{p-1}(K)\right]^2$, and by the divergence theorem this gives that
+  $\ip{\div \vsig, q}_K = - \ip{\vsig, \nabla q}_K + \ip{\vsig \cdot n, q}_{\partial K} = 0$. Since $\div \vsig \in P_p(K)$, we
+  may conclude that $\div \vsig = 0$.  Decompose $\vsig = \v{q} + q_0\v{x}$ for $\v{q} = [q_1, q_2]^\top$ with $q_1, q_2  \in\P_p(K)$ and $q_0 \in  \wt \P_p(K)$. From the fact that $\div \vsig =0$ we infer that
+  \[
+    0 = \div \vsig = \div \v{q} + \div \left(q_0 \v{x}\right) = \div \v{q} + (2 + p) q_0 \implies (2 + p) q_0 = - \div \v{q} \in \P_{p-1}(K).
+  \]
+  Since $q_0 \in \wt \P_p(K)$ we must have $q_0 \equiv 0$ and thus $\vsig = \v{q} \in \left[\P_{p}(K)\right]^2$.
+
+  Notice that $\vsig \cdot n_e = \v{q} \cdot n_e$ is a polynomial of degree $p$  on the whole of $K$.
+  For any polynomial $g \in \P_{p-1}(K)$ we infer from the second assumption that
+  \[
+    \ip{\v{q} \cdot n_e, g}_K = \int_K g \left(\v{q} \cdot n_e\right) = \int_K \v{q} \cdot \v{\tilde g} = \ip{\vsig, \v{\tilde g}}_K = 0 \quad \text{for } \v{\tilde g} = [g n_e^1, gn_e^2]^\top \in \P_{p-1}(K).
+  \]
+  On the other hand, for some edge $e \in \partial K$ we know that  $\v{q} \cdot n_e$ vanishes.
+  Therefore we can decompose $\v{q}\cdot n_e = Lg$ in a polynomial $g \in \P_{p-1}$ and $L$ the hyperplane of $e$ \cite[Lem~3.1.10]{brenner}. Using this polynomial $g$ in the above identity then shows
+  \[
+    0 = \ip{\v{q}\cdot n_e, g}_K = \ip{Lg, g}_K = \ip{L,g^2}_K.
+  \]
+  Since $L$ does not vanish on $K$ we conclude that $g = 0$, and thus that $\v{q}\cdot n_e$ vanishes
+  on the entire element $K$. This holds for all edge  normals $n_e$,  hence we infer that $\vsig~=~\v{q}~=~0$.
+\end{proof}
+The number of equations in the previous theorem equals $\dim{\RT_p(K)}$, and therefore provides us with a
+set of nodal variables. That is, for each edge $e$ let $\set{q_{e,1},\dots, q_{e,m}}$ be a basis of $\P_p(e)$, and let
+ $\set{\vtau_1, \dots, \vtau_r}$ be a  basis for $\left[\P_{p-1}(K)\right]^2$. 
+ Define linear functionals on $\RT_p(K)$ associated to edges and elements by
+\begin{equation}
+  \label{eq:nodalrt}
+  \begin{alignedat}{2}
+    N_{e,i}(\vsig) &= \ip{\vsig \cdot n_e, q_{e,i}}_e && \quad 1 \leq i \leq m,  e \subset \partial K\\
+    N_{K,j}(\vsig) &= \ip{\vsig, \vtau_j}_K &&\quad 1 \leq j \leq r.
+  \end{alignedat}
+\end{equation}
+The set $\mathcal{N}$ containing all of the above functionals forms a basis for $\RT_p(K)'$, and thus
+turns the triplet $(K, \RT_p(K), \mathcal{N})$ into a valid finite element.
+
+\section{Raviart-Thomas basis}
+We have formally introduced an Raviart-Thomas element $(K, \RT_p(K), \mathcal{N})$. How can we glue these elements
+together to form a basis for the Raviart-Thomas space $\RT_p(\T)$? In particular we must ensure $H(\div; \O)$-conformity.
+
+For simplicity we start with two adjoint Raviart-Thomas elements $K_1, K_2 \in  \T$ having a common edge $e = K_1 \cap K_2$.
+From the characterization in Theorem~\ref{thm:rtjump} we know that
+\[
+\RT_p(K_1 \cup K_2) = \set{\vsig \in \RT_p^{-1}(K_1 \cup K_2) : \llbracket \vsig \rrbracket = 0 \text{ in } L_2(e)}.
+\]
+Pick some $\vsig \in \RT_p^{-1}(K_1 \cup K_2)$ and let $n_e$ be the unit outward normal on $e$ for element $K_1$,
+then the conformity condition can be rewritten as
+\[
+  0 = \llbracket \vsig \rrbracket  = \vsig|_{K_2} \cdot  n_e - \vsig|_{K_1} \cdot n_e.
+\]
+Since $\vsig|_{K_1} \cdot n_{e}, \vsig|_{K_2} \cdot n_{e}$ are both elements in $\P_p(e)$ we see that 
+the  above condition is equivalent to requiring
+\[
+  \ip{\vsig|_{K_2} \cdot n_e, q} = \ip{\vsig|_{K_1} \cdot n_e, q} \quad \forall q \in \P_p(e).
+\]
+This is happens if and only if the edge-related nodal variables of $K_1$ and $K_2$ coincide for~$\vsig$.
+
+The above observation is easily extended to the entire Raviart-Thomas space $\RT_p( \T)$.
+That is, the space consists of those functions from $\RT_p^{-1}( \T)$ for which all the edge-related
+nodal variables of two adjoint elements coincide. For each element $K \in  \T$, denote $\phi^K_{e,i}$ and $\phi^K_{K,j}$
+for the nodal basis with respect to \eqref{eq:nodalrt}. A basis for the entire space is then found by
+glueing together edge related functions. To be precise, a basis for $\RT_p( \T)$ is given by
+\begin{equation}
+  \label{eq:basisrt}
+  \{\phi^K_{K, j} : K \in  \T, 1 \leq j \leq r\} \cup \{\phi^{K^1}_{e,i} + \phi^{K^2}_{e,i}: K_1, K_2 \in  \T, e = K_1 \cap K_2, 1 \leq i \leq m\},
+\end{equation}
+with all basis functions naturally extended from $K$ to $\O$.
+
+Next consider $\RT_{p,0}( \T) = \set{ \vsig \in \RT_{p,0}( \T) : \vsig \cdot n = 0 \text{ on } \partial  \O}$.
+Such a boundary condition is easily incorporated into the basis \eqref{eq:basisrt}; one just has to remove all the basis functions associated
+to boundary edges.
+
+\section{Explicit bases lowest order}
+With this (general) information on the  Raviart-Thomas space in mind we will again look at the
+system of equations \eqref{eq:systemzeta} defining $\vzeta$. For simplicity we start with an
+implementation of this system for $p=0$.
+
+\subsection{Raviart-Thomas}
+For the lowest order Raviart-Thomas space we only have edge related nodal variables.
+Let $K$ be a triangle with vertices $\set{v_1, v_2, v_3}$ and opposite edges given by $\set{e_1, e_2, e_3}$.
+A basis for $\P_0(e_i)$ is simply the constant function~$\1$.
+Consider the nodal basis function $\v{\phi_1} \in \RT_0(K)$ associated with $e_1$.
+By construction this the solution of
+\[
+  \int_{e_1} \v{\phi_1}\cdot n_{e_1} = 1 \quad \text{ and } \int_{e_2} \v{\phi_1} \cdot n_{e_2} = 0 = \int_{e_3} \v{\phi_1} \cdot n_{e_3}.
+\]
+
+This system can be solved geometrically; as vertex $v_i$ lies opposite of $e_i$, we have $(\v{x} - v_1) \perp n_{e_2}$ for $\v{x} \in e_2$ and similarly $(\v{x} - v_1) \perp  n_{e_3}$ for $\v{x} \in e_3$.
+From this we deduce that $\v{\phi_1} = \alpha (\v{x} - v_1)$ for some constant $\alpha$. Pick a  point $\v{x}$ on the hyperplane given by $e_1$ such that
+$(\v{x} - v_1) \perp e_1$, then from vector algebra we see
+\[
+  1 = \alpha(\v{x} - v_1)\cdot n_{e_1} = \alpha \norm{\v{x} - v_1}\norm{n_{e_1}} \cos \theta = \alpha \norm{\v{x} - v_1}.
+\]
+This latter norm is also known as the \emph{height} $h_1$ of $e_1$. From the well known formula $\frac{1}{2} h_1 \vol(e_1) = \vol(K)$
+we observe that $\alpha = \frac{\vol(e_1)}{2\vol(K)}$; a  basis for $\RT_0(K)$ is therefore 
+\[
+  \v{\phi_i} = \frac{1}{2}\frac{\vol(e_1)}{\vol(K)}( \v{x} - v_i).
+\]
+
+Next, we consider the global space $\RT_0(\T)$. For this space all the degrees of freedom are associated
+to edges. For every shared edge $e$ we must fix a \emph{global} orientation of the normal vector $n_e$. After fixing such an orientation we can (uniquely) identify the adjacent elements by $K_+$ and $K_-$; with $K_+$ the element for which $n_e$
+is an outward pointing normal vector. Similarly write $v_+, v_-$ for the vertex opposite of $e$ in $K_+$ resp $K_-$. The
+basis function associated to $e$ is given by
+\[
+  \v{\phi_e}(\v{x}) = \begin{cases}
+    \frac{1}{2}\frac{\vol(e)}{\vol(K_+)}( \v{x} - v_+) & \v{x} \in K_+\\
+    - \frac{1}{2}\frac{\vol(e)}{\vol(K_-)}( \v{x} - v_-) & \v{x} \in K_-.
+\end{cases}
+\]
+The extra boundary constraints needed in \eqref{eq:systemzeta} are easily incorporated; a basis for $\RT_{0,0}(\w_a)$ is simply given
+by removing the basis functions associated to edges $\partial \w_a \setminus \partial \O$.
+\subsection{Polynomial basis}
+\todo{Betere titel?}
+The system \eqref{eq:systemzeta} defines the polynomial space $\QQ(\w_a) \subset \P_0^{-1}(\w_a)$. For boundary
+vertices we can simply take the constant functions $\1$ on each of the elements as basis. For an interior vertex $a \in \V^{int}$
+we have the additional mean zero constraint, i.e.
+\[
+  \QQ(\w_a) = \set{q \in \P_0^{-1}(\w_a) : \ip{q,1}_{\w_a} = 0}.
+\]
+Write $K_1,\dots, K_n$ for the elements in the patch $\w_a$. A function $p \in \P_0^{-1}(\w_a)$ is constant
+with value $p_i$ on $K_i$. The mean zero condition translates into
+\[
+  0 = \ip{p,\1}_{\w_a} = \sum_{i =1}^n \ip{p_i, \1}_{K_i} = \sum_{i=1}^n p_i \vol(K_i).
+\]
+A basis for $\QQ(\w_a)$ is therefore given by $q_1, \dots, q_{n-1}$ with
+\[
+  q_i(x) = \begin{cases}
+    \vol(K_n) & \quad x \in K_i\\
+    -\vol(K_i) & \quad x \in K_n.
+  \end{cases}
+\]
+Unfortunately this is not an orthogonal basis, but for out test purposes it suffices.
+\section{Implementation details}
+Lets consider an implementation that finds $\vzeta$ by solving the system \eqref{eq:systemzeta}. 
+For simplicity of the implementation we let $p=0$, with $f$ piecewise constant and we take $U$ to be the \emph{linear} Lagrange finite element solution on for some triangulation $\T$. 
+Since $U$ is of polynomial degree $1$ we use reliability and efficiency results from \S\ref{sec:lowerorder}. This introduces an extra oscillation term which we simply ignore.
+
+\textcolor{blue}{Do we indeed retrieve the bounds from \S\ref{sec:lowerorder}? Not entirely sure whether solving the system \eqref{eq:systemzeta} is also equivalent to lower 
+order approximations of $\vsiga$. Equivalence shown in beginning of this chapter is in trouble due to the edge projector--- integration by parts does not (directly) work.}
+
+Implementation of the estimator $\vzeta$ for $p=0$ follows now quite easily. 
+Starting with an interior vertex $a \in \V$ we must solve $(\vzeta, \lambda_a) \in \RT_{0,0}(\w_a)\times \QQ(\w_a)$ from the system
+\begin{equation}
+  \label{eq:systemp0}
+  \begin{alignedat}{3}
+    \ip{\v{\zeta_a}, \v{\tau}}_{\w_a} - \ip{\div \v{\tau}, {\lambda_a}}_{\w_a} &= - \ip{\psi_a \nabla U, \v{\tau}}_{\w_a} && \quad \forall \v{\tau} \in \RT_{0,0}(\w_a),\\
+    \ip{\div \v{\zeta_a}, q_a}_{\w_a} &= \ip{\psi_a f - \nabla \psi_a \cdot \nabla U, q_a}_{\w_a} && \quad \forall q_a \in \QQ(\w_a).
+  \end{alignedat}
+\end{equation}
+  Let $n$ be the number of triangles in $\w_a$.
+  For the space $\RT_{0,0}(\w_a)$ we have one degree of freedom associated to every interior edge, and thus $n$ basis functions $\vtau_i$. The space $\QQ(\w_a)$ has $n-1$ basis functions $q_k$.  To solve the above system we must calculate four type of basis interactions:
+  \begin{equation}
+    \label{eq:basinact}
+    \ip{\vtau_i, \vtau_j}_{\w_a}, \, \ip{\div \vtau_i, q_k}_{\w_a}, \, \ip{\psi_a \nabla U, \vtau_i}_{\w_a}, \text{ and } \ip{\psi_a f - \nabla \psi_a \cdot \nabla U, q_k}_{\w_a}.
+  \end{equation}
+  The standard finite element approach is to decompose these inner products over the elements $K$, and then use an affine transformation
+  to reduce the calculations to interactions on one reference triangle $\hat K$. Unfortunately these transformations do no preserve
+  normal components; the result of an affine transformation therefore do not preserve $H(\div)$-conformity. This can be solved 
+  by using the Piola transformation~\cite[\S2.1.3]{brezzimixed}. 
+  
+  We opt not to follow this approach and instead solve the inner products by quadrature. Since  $f$ is piecewise constant, all of the
+  terms in \eqref{eq:basinact} are actually polynomials of degree less or equal 2. 
+  The edge-midpoint quadrature rule is exact for polynomials for quadratic polynomials, and hence provides us with an easy
+  method to calculate the integrals. Denote the edge-midpoints of a triangle $K$ by $m_i$, then this quadrature is given by
+  \[
+    \int_K p = \frac{\vol(K)}{3} \sum_{k=1}^3 p(m_k)\quad \forall p \in \P_2(K).
+  \]
+  Applying this to the first term in \eqref{eq:basinact} gives 
+  \[
+  \ip{\vtau_i, \vtau_j}_{\w_a} = \sum_{K \subset \w_a} \frac{\vol(K)}{3}\sum_{k=1}^3 \vtau_i(m_k) \cdot \vtau_j(m_k).
+  \]
+  The other terms decompose similarly.  
+  
+  Quadrature allow us to calculate all of the interactions in \eqref{eq:basinact}.
+  Recall that one had to chose an global orientation for each of the edge normal vectors. For this orientation we make clever
+  use of the framework provided by iFEM, see \cite{chenifem} for an in-depth overview of this framework. In the next step we collect
+  the computed values from \eqref{eq:basinact} into the matrix analogue of the system \eqref{eq:systemp0}. Solving
+  this system then provides us with the basis coefficients of $\vzeta$. Using a local-to-global mapping of edge coefficients
+  then allows for iterative construction of $\v{\zeta} = \sum_{a \in \V} \vzeta$. 
+
+  The construction of $\vzeta$ for a boundary vertex $a \in \V^{bdr}$ is similar; the interactions
+  are just calculated for a slightly different set of functions. Since $f$ is piecewise constant
+  we do not have data data oscillation; and the upper bounds in Theorem~\ref{thm:zetaupper} are therefore completely given in terms of $\v{\zeta}$ and 
+  $\vzeta$. The last step thus consists in calculating the norms $\norm{\v{\zeta} + \nabla U}_K$ or $\norm{\vzeta + \psi_a \nabla U}_{\w_a}$.
+  Since these terms are linear polynomials, we again use edge-midpoint quadrature to exactly calculate them. 
+
+\end{document}

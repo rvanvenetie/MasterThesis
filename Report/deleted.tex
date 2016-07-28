@@ -1,0 +1,340 @@
+\documentclass[thesis.tex]{subfiles}
+\begin{document}
+  Suppose that we have an interpolant $I_\T$ that for $v \in H_0^1(\O)$ satisfies\footnote{We need a different interpolant here than the one given in the previous section, since this required $v$ to have extra smoothness. The so-call \emph{Scott-Zhang} interpolant does the trick (c.f. \cite[Ch~4.9]{brenner}).}
+  \[
+    \norm{v - I_\tau v}_{K} \leq C h_K \abs{v}_{H^1(\tilde K)}, \quad \norm{v - I_\tau v}_{e}\leq C h_K^{1/2}\abs{v}_{H^1(\tilde K)},
+  \]
+  for all elements $K \in \T$ and edges $e \in \E^{int}$, with $\tilde K$ the union of elements touching $K$\footnote{For $e \in \E^{int}$ let $h_K$ be for a $K \in \T$ such that $e$ is an edge of $K$.}.
+  We will use the shorter notation $\norm{\cdot}_{\w}$ for the $L^2(\w)$-norm; notice that the edges $e$
+  are one-dimensional, whilst elements $K$ are two-dimensional. 
+  Since $I_\T v \in \VV(\T)$ we infer from the Galerkin orthogonality that
+  \begin{align*}
+    a(e, v) = a(e, v - I_\T v) \leq& \sum_{K \in \T} \| f + \Delta U\|_{K} \| v - I_\T v\|_{K} + \sum_{e \in \E^{int}} \|\llbracket \nabla U \rrbracket \|_{e} \|v - I_\T v\|_{e}\\
+    \leq& \sum_{K \in \T} \norm{f + \Delta U}_K C h_K  \abs{v}_{H^1(\tilde K)} + \sum_{e \in \E^{int}} \norm{\llbracket \nabla U\rrbracket}_e C h_K^{1/2}\abs{v}_{H^1(\tilde K)}\\
+    \leq &C \left( \sum_{K \in \T} h_K^2 \norm{f + \Delta U}_{K}^2\right)^{1/2}\left(\sum_{K \in \T}\abs{v}_{H^1(\tilde K)}^2\right)^{1/2} \\
+    +&C \left(\sum_{e \in \E^{int}}h_K\norm{\llbracket \nabla U \rrbracket}^2_e\right)^{1/2} \left(\sum_{e \in \E^{int}} \abs{v}^2_{H^1(\tilde K)} \right)^{1/2}\\
+    \leq &  \tilde C \abs{v}_{H^1(\O)} \left(\sum_{K \in \T} h_K^2\norm{f + \Delta U}_K^2 + \sum_{e \in \E^{int}} h_K \norm{\llbracket \nabla U\rrbracket}_e^2 \right)^{1/2},
+  \end{align*}
+  with the third inequality following from Cauchy-Schwarz for sequences. Using Poincar\'e-Friedrichs inequality we deduce
+  \todo{Beter uitschrijven}
+  \begin{equation}
+    \label{eq:enormdual}
+    \enorm{u - U}_{\O} = \sup_{0\ne v \in V}\frac{a(u - U, v)}{\abs{v}_{H^1(\O)}} \leq \tilde C \left(\sum_{K \in \T}h_K^2\norm{f +\Delta U}_K^2 + \sum_{e \in \E^{int}}h_K\norm{\llbracket U \rrbracket}_e^2 \right)^{1/2}.
+  \end{equation}
+\begin{lem}
+  \label{lem:globrel}
+  A global error bound in terms of $r_a$ is given by,
+  \[
+    \enorm{u - U}_{\O}^2 \leq 3 \sum_{a \in \V} \norm{r_a}^2_{H^1_\star(\omega_a)'}
+  \]
+\end{lem}
+\begin{proof}
+  Since $H_0^1(\O)$ is a Hilbert with respect to $ \ip{\nabla \cdot, \nabla \cdot}_\O$, we find by duality
+  \[
+    \enorm{u - U}_{\O} = \norm{\nabla u - \nabla U}_{\O} = \sup_{ v \in H_0^1(\O): v \ne 0 } {\abs{a(u - U, v)} \over \norm{\nabla v}_{\O}} = \sup_{ v \in H_0^1(\O): v \ne 0 } {\abs{\ip{r, v}} \over \norm{\nabla v}_{\O} }.
+  \]
+  Rewriting the residual operator using the partition of unity for $v \in H_0^1(\O)$ yields
+  \begin{align*}
+    \ip{r , v} &= \sum_{a \in \V^{int}} \ip{r_a, {v - v_{\omega_a}}} + \sum_{a \in \V^{bdr}} \ip{r_a, v} \\
+    &\leq \sum_{a \in \V^{int}} \norm{r_a}_{H^1_\star(\omega_a)'} \norm{\nabla (v- v_{\omega_a})}_{\omega_a} 
+    + \sum_{a \in \V^{bdr}} \norm{r_a}_{H^1_\star(\omega_a)'} \norm{\nabla v}_{\omega_a}\\
+    &= \sum_{a \in V} \norm{r_a}_{H^1_\star(\w_a)'} \norm{\nabla v}_{\w_a}\\
+    &\leq \sqrt{\sum_{a \in \V} \norm{\nabla v}_{\w_a}^2} \sqrt{\sum_{a \in \V} \norm{r_a}^2_{H^1_\star(\w_a)'}} \leq \sqrt{3}\norm{\nabla v}_{\O}\sqrt{\sum_{a\in \V} \norm{r_a}^2_{H_\star^1(\w_a)'}}.
+  \end{align*}
+  The first equality follows from orthogonality on the constants; the first inequality follows since $v - v_{\omega_a}, v \in H_\star^1(\w_a)$ 
+  for an interior resp. boundary vertex $a$; and finally $\sum_{a \in \V} \norm{\nabla v}^2_{\omega_a} \leq 3\norm{\nabla v}_{\O}^2$ holds
+  as every triangle is contained in a three patches. Combining these inequalities for a non-zero $v\in H_0^1(\O)$ yields
+  \begin{align*}
+    \norm{\nabla u - \nabla U}_{\O} \leq \norm{\nabla v}_{\O}^{-1} \ip{r,v} \leq \sqrt{3} \norm{\nabla v}_{\O}^{-1} \norm{\nabla v}_{\O} \sqrt{\sum_{a \in \V} \norm{r_a}_{H^1_\star(\omega_a)'}}.
+  \end{align*}
+\end{proof}
+\begin{proof}
+  From \eqref{eq:defsigma} we have for $v \in H_\star^1(\w_a)$ that $\ip{r_a, v} = - \ip{\v{\sigma_a}, \nabla v}_{\w_a}$.
+  This directly provides us with the first inequality, i.e.
+  \[
+    \norm{r_a}_{H_\star^1(\omega_a)'} = \sup_{v \in H_\star^1(\w_a) : \norm{\nabla v}_{\w_a} = 1} \abs{\ip{r_a, v}} = \sup_{v \in H_\star^1(\w_a) : \norm{\nabla v}_{\w_a}=1} \abs{\ip{\v{\sigma_a}, \nabla v}_{\w_a}} \leq \uanorm{\v{\sigma_a}}_{\w_a}.
+  \]
+\end{proof}
+
+The oscillation terms will also appear in the local equivalence with the standard residual estimator. 
+The effects are summarized in the following lemma. The proof follows easily by mimicking the proof of Lemma \ref{lem:starequiv}
+using the results from the previous Theorem.
+Similarly Lemma's \ref{lem:loceff}, \ref{lem:globrel} and Theorem \ref{thm:locresequiv} concerning local bounds on $\w_a$  have
+the following discretized counterpart. 
+
+\begin{thm}
+  Fix $a \in \V$. The discretized local residual provides reliability by
+  \begin{align*}
+    \enorm{u - U}_{\O}^2 &\leq 3\sum_{a\in \V} \left[\norm{\tilde r_a}_{H^1_\star(\w_a)'} + C_{PF,\w_a} h_{\w_a} \norm{(I - Q_a)(\psi_a f)}_{\w_a}\right]^2\\
+    &\lesssim \sum_{a \in \V} \norm{\tilde r_a}_{H^1_\star(\w_a)'}^2 + h_{\w_a}^2\norm{(I - Q_a)(\psi_a f)}_{\w_a}^2.
+  \end{align*}
+  and local efficiency with
+  \[
+    \norm{\tilde r_a}_{H_\star^1(\w_a)'} \lesssim \enorm{u - U}_{\w_a} + h_{\w_a} \norm{(I - Q_a) (\psi_a f)}_{\w_a}.
+  \]
+
+\end{thm}
+\begin{proof}
+  Reliability follows from the triangle inequality in combination with Lemma~\ref{lem:globrel},
+  \begin{align*}
+    \enorm{u - U}^2_{\O} &\leq 3 \sum_{a \in \V} \norm{r_a}^2_{H_\star^1(\w_a)'}\\
+    &\leq 3 \sum_{a \in \V} \left[ \norm{\tilde r_a}^2_{H_\star^1(\w_a)'} + \norm{r_a - \tilde r_a}^2_{H_\star^1(\w_a)'}\right]\\
+    &\leq 3 \sum_{a\in \V} \left[\norm{\tilde r_a}_{H^1_\star(\w_a)'} + C_{PF,\w_a} h_{\w_a} \norm{(I - Q_a)(\psi_a f)}_{\w_a}\right]^2\\
+    &\lesssim \sum_{a \in \V} \norm{\tilde r_a}_{H^1_\star(\w_a)'}^2 + h_{\w_a}^2\norm{(I - Q_a)(\psi_a f)}_{\w_a}^2,
+  \end{align*}
+  where we used Young's inequality $(x+y)^2 \leq 2x^2 + 2y^2$ for positive $x,y$.
+
+  The efficiency result follows directly from the triangle inequality and Lemma \ref{lem:loceff}.
+
+  The proof of Theorem~\ref{thm:locresequiv} holds for any functional $r \in H_\star^1(\w_a)'$ that can be decomposed in triangle and edge terms.
+  In particular it holds for $\tilde r_a$, providing us with the last part of the theorem.
+\end{proof}
+
+  An element $K \in \wt \RR$ satisfies the interior node property. This implies that the three triangles adjacent to $K$ are also refined in going
+  from $\T$ to $\T_\star$, i.e. $\w_K$ is entirely refined and thus $\w_K \in \RR^1$. Together with $\RR^3 \subset \RR^1$ this provides the desired bound:
+  \[
+    \eta_\T^2(U, \RR^3) \lesssim \enorm{U_\star - U}^2_{\O} + \osc^2_\T(f, \RR^1).
+  \]
+
+
+
+  For every triangle $K$ satisfying the interior node property, there exists a discrete lower bound for the classical estimator \cite[Lem~3.2]{mekchay2005convergence}:
+  \[
+    \hat \eta^2_\T(U, K) \lesssim \enorm{U_\star - U}^2_{\w_K} + \hat \osc_\T^2(f, \w_K) \quad \text{with } \w_K = \set{K' \in \T: K' \cap K \ne \emptyset}.
+  \]
+  Here $\hat \osc^2_\T(f, K) := h_K^2 \norm{(I - \Pi_{p-1})(f)}^2_{K}$ is the standard oscillation as in Definition~\ref{def:clasest}. Rewriting
+  this classical oscillation term shows
+  \[
+    \hat \osc^2_\T(f, \w_K) = \sum_{K \subset \w_K} h_K^2 \norm{ (I - \Pi_{p-1})(f)}^2_K \lesssim h_{\w_K} \sum_{K \subset \w_K} \norm{(I - \Pi_{p-1})(f)}^2_{K} = \osc_\T^2(f, \w_K).
+  \]
+
+  The discrete reliability from equivalence with the classical residual estimator. Denote $\hat \eta_\T$ for the
+  classical residual estimator (cf. Definition \ref{def:clasest}). 
+  By Theorem~\ref{thm:residual_erro} with $\hat \RR = \T \setminus \T_\star$ we have a discrete reliability for the standard 
+  estimator $\hat \eta_\T$: 
+  \[
+    \enorm{ U_\star -  U}^2 \lesssim \hat\eta^2_\T(U, \hat\RR) =\sum_{K \in \hat \RR}h^2_K\norm{f +\Delta U}_K^2+h_K \norm{\llbracket \nabla U  \rrbracket}^2_{\partial K \setminus \partial \O}.
+  \]
+  For $\V_K, \V_e$ the vertices of an element $K$ resp. an edge $e \subset \partial K \setminus \partial \O$ we infer that 
+  \[
+    h_K^2\norm{f + \Delta U}_K^2 \leq h_{\w_a}^2\norm{f + \Delta U}_{\w_a}^2 \quad \forall a \in \V_K, \quad h_K \norm{\llbracket \nabla U  \rrbracket}^2_{e} \leq h_{\w_a} \norm{\llbracket \nabla U \rrbracket}^2_{\gamma_a} \quad \forall a \in \V_e.
+  \]
+  The first inequality is obvious as $K \subset \w_a$ for $a \in \V_K$. 
+  For the second inequality we note that $e \subset \partial K \setminus \partial \O$ is an interior edge, and thus that 
+  that $e \subset \gamma_a$ for $a \in \V_e$.
+  From these inequalities we deduce 
+  \begin{align*}
+    \enorm{ U_\star -  U}^2 &\lesssim\sum_{K \in \hat \RR}h^2_K\norm{f +\Delta U}_K^2+h_K \norm{\llbracket \nabla U  \rrbracket}^2_{\partial K \setminus \partial \O} \\
+    &\leq  \sum_{K \in \hat \RR}\sum_{a \in \V_K} h_{\w_a}^2 \norm{f + \Delta U}_{\w_a}^2 + h_{\w_a} \norm{\llbracket \nabla U \rrbracket}_{\gamma_a}^2\\
+  &\lesssim \eta^2_\T(U, \RR^0) + \osc_\T^2(f,  \RR^0) = \vartheta_\T^2(U, \RR^0),
+\end{align*}
+  where the last inequality follows from the equivalence between the two estimators on patches; see Lemma \ref{lem:locequivosc}.
+  We also used $\RR^0 := \RR^0_{\T \to \T_\star} = \{\w_a \in \W : a \in \V_K, K \in \hat \RR\}$,
+  and that the maximum number of triangles in a patch is universally bounded.
+
+
+
+  The last equality follows from the discretized local lower bound for the standard estimator --- with $\hat \osc_\T(f, K) := h_K^2 \norm{f - \Pi_{p-1}(f)}^2_{K}$ the 
+  standard oscillation as in Definition~\ref{def:clasest}.
+  It is easily seen that the standard oscillation term is dominated, i.e.
+  \begin{align*}
+    \hat \osc_\T^2(f, \hat \RR) &= \sum_{K \in \hat \RR} h_K^2 \norm{(I - \Pi_{p-1})(f)}^2_K \leq \sum_{\w_a \in \RR}  \uanorm{h_a(I - \Pi^a_{p-1})( f)}^2_{\w_a} = \osc_\T^2(f, \RR).
+  \end{align*}
+  Since $\wt \RR \subset \RR$ we now have
+  $\osc_\T^2(f, \wt \RR) + \hat \osc^2_\T(f, \hat \RR) \lesssim \osc_\T^2(f, \RR)$; together with \eqref{eq:disclowprf} this provides
+  the discrete lower bound.
+
+
+  {
+    \color{blue}
+    
+
+      
+
+    A start for discrete efficiency can be given. Let $\w_a \subset \RR$ be a patch that is refined, then 
+    \begin{align*}
+      \norm{r_a}_{\left(H^1_\star(\w_a) \cap \V(\T_\star)\right)'} &= \sup_{\{v \in H^1_\star(\w_a) \cap \V(\T_\star) : \norm{\nabla v}_{\w_a}=1\}}
+      a(u - U, \psi_a v) \\
+      &= \sup_{\{v \in H^1_\star(\w_a) \cap \V(\T_\star) : \norm{\nabla v}_{\w_a}=1\}} a(U_\star - U, \psi_a v) \\
+      &\lesssim \enorm{U_\star - U}_{\w_a}.
+    \end{align*}
+    Under the assumption that $\norm{r_a}_{H_\star^1(\w_a)'} \lesssim  \norm{r_a}_{\left(H^1_\star(\w_a) \cap \V(\T_\star)\right)'}$ we  directly see that
+    \[
+      \uanorm{\vsiga}_{\w_a} \lesssim \norm{r_a}_{H_\star^1(\w_a)'} + \osc_\T(f,\w_a) \lesssim \enorm{U_\star - U}_{\w_a} + \osc_\T(f,\w_a).
+    \]
+    For the assumption to be true, we probably need to use the interior node property.
+  }
+
+
+  \begin{align*}
+  \end{align*}
+  Consider some element $K$ and a bisected descendent $K_\star$ of $K$. Under the current definitions
+  we cannot ensure that $h_{K_\star} < h_K$, and we therefore cannot guarantee the strict oscillation reduction. 
+  Alternatively we can consider $h'_K := (\vol K)^{1/2}$, for which we have $h'_{K_\star} \leq {1\over\sqrt{2}} h'_K$. 
+  Shape regularity gives the equivalence $h'_K \approx h_K$, so that all the bounds in Lemma~\ref{lem:assumptions} are still
+  valid if we replace $h_K$ by $h'_K$. For this oscillation reduction property we therefore implicitly replace $h_K$ by
+  $h'_K$ in the  oscillation definition.
+  For $K_\star \subset K$ we have $\norm{(I - \Pi_{p-1})(f)}_{K_\star} \leq \norm{(I - \Pi_{p-1})(f)}_K$.
+  With the changed definition of $h_K$ we then discover that
+  \[
+    \sum_{K_\star \in \T_\star \setminus \T} h_{K_\star}^2 \norm{(I - \Pi_{p-1})(f)}^2_{K_\star} 
+    \leq \frac{1}{2} \sum_{K \in \T \setminus \T_\star} h_K^2 \norm{(I - \Pi_{p-1})(f)}^2_K.
+  \]
+
+{
+  \color{blue}
+  How to proceed? I think it's possible. The set $\RR$ consists of all patches that have at least one triangle refined.
+  Image a situation where all these patches in $\RR$ have a single triangle refined, but where the $\norm{(I - \Pi_{p-1})(f)}_K$ 
+  blows for unrefined $K$. This norm appears on both sides of the inequality, and therefore we cannot find a $\lambda$.. 
+}
+
+
+
+  Next we tackle rewriting the minimizing problem. By the polarization identity
+  \[
+    \uanorm{\v{\zeta_a} + \psi_a \nabla U}_{\w_a}^2 = \uanorm{\v{\zeta_a}}_{\w_a}^2 + \norm{\psi_a \nabla U}^2_{\w_a} + 2 \ip{\v{\zeta_a}, \psi_a \nabla 
+    U}_{\w_a}.
+  \]
+  Now $\psi_a \nabla U$ is fixed,  so minimizing $\uanorm{\v{\zeta_a} + \psi_a \nabla U}_{\w_a}$ for $\vzeta$ is equivalent to minimizing
+  \[
+    \frac{1}{2} \uanorm{\v{\zeta_a}}^2_{\w_a} + \ip{\v{\zeta_a}, \psi_a \nabla U}_{\w_a}.
+  \]
+
+There exists a basis $\set{\v{\tau_1},\dots, \v{\tau_n}}$ of $\RT_{p,0}(\w_a)$ and
+  a basis $\set{q_1, \dots, q_M}$ of $\QQ(\w_a)$. Express the solution $\v{\zeta_a}$ in this basis  and use the previous paragraphs
+  to  see that solving $\v{\zeta_a} \in \RT_{p,0}(\w_a)$ is
+  equivalent to finding coefficients $\v{c} \in \R^n$ that minimize 
+  \[
+    J(\v{c}) := \frac{1}{2} \norm{\sum c_i \v{\tau_i}}^2_{\w_a} + \ip{\sum c_i \v{\tau_i}, \psi_a \nabla U}_{\w_a}
+  \]
+  subject to the constraint $G(\v{c}) = \v{0}$, where
+  \[
+    G_k(\v{c}) = \ip{\div \sum c_i \v{\tau_i}, q_k}_{\w_a} - \ip{\psi_a f - \nabla \psi_a \cdot \nabla U, q_k}_{\w_a}  \quad k \in \set{1, \dots, M}.
+  \]
+  This appears like a classical optimisation problem, and we can solve it using the Lagrange multiplier. 
+  Let $\v{c}$ be a local minimum of $J$ satisfying the optimization constraint, then
+  exists a Lagrange multiplier $\v{\lambda} \in \R^{M}$ such that 
+   \begin{equation}
+     \label{eq:lagrange}
+     \nabla J(\v{c}) + \sum \lambda_k \nabla G_k(\v{c}) = 0\quad \text{and} \quad G(\v{c}) = 0.
+   \end{equation}
+   Calculating the partial derivatives of $J$ and $G_k$ for $c_j$ with $j=1,\dots, n$ gives
+   \begin{align*}
+     \frac{\partial J}{\partial c_j} &= \ip{ \sum c_i \v{\tau_i}, \v{\tau_j}}_{\w_a} + \ip{\v{\tau_j}, \psi_a \nabla U}_{\w_a},\\
+     \frac{\partial G_k}{\partial c_j} &= \ip{\div \v{\tau_j}, q_k}_{\w_a}.
+   \end{align*}
+   Plug these derivatives into the Lagrange equation \eqref{eq:lagrange}; one directly sees that
+   solving $(\v{c}, \v{\lambda})$ from \eqref{eq:lagrange} is equivalent to solving $(\v{\zeta_a}, \v{\lambda_a})$ from
+   the system \eqref{eq:systemzeta} by setting $(\v{\zeta_a},{\v{\lambda_a}}) = (\sum c_i \tau_i, \sum \lambda_k q_k)$.
+   In other words, every $\v{\zeta_a}$ that attains a local minimum indeed solves the sytem.
+
+
+
+
+
+      which also preserves boundary values, see \cite{scott1990finite}. 
+    Write $E_\star = U_\star - U$ for the error and let $V \in \VV(\T)$ be the following approximation of $E_\star$:
+    \[
+      V := I_kE_\star \quad \text{in } \O_k, \quad V:= E_\star \quad \text{elsewhere}.
+    \]
+    Since $\O_\RR$ contains all the patches that were refined, we see that $V \in \VV(\T)$.
+
+      
+
+  For $E_\star = U_\star - U$ and $V \in \VV(\T)$ we deduce from Galerkin orthogonality~that
+  \[
+  \]
+  Let $V$ be the Scott-Zhang \cite{scott1990finite} interpolator of $E_\star$ so that $V - E_\star = 0$ on $\T \cap \T_\star$. 
+  From the Scott-Zhang approximation theory \cite{scott1990finite} and Poincar\'e-Friedrichs inequality for $E_\star \in H_0^1(\O)$ we discover that
+  \begin{align*}
+    \ip{\vsig^\triangle , \nabla V - \nabla E_\star}_\O &= \sum_{K \in \T \setminus \T_\star} \ip{\vsig^\triangle, \nabla V - \nabla E_\star}_K\leq \sum_{K \in \T \setminus \T_\star} \uanorm{\vsig^\triangle}_K \norm{\nabla V - \nabla E_\star}_K\\
+    &\lesssim \sum_{K \in \T \setminus \T_\star} \uanorm{\vsig^\triangle}_K\norm{E_\star}_{H^1(\w_K)}\\
+    &\lesssim \norm{E_\star}_{H^1(\O)} \sqrt{\sum_{K \in \T \setminus \T_\star} \uanorm{\vsig^\triangle}^2_K} \\
+    &\lesssim \enorm{E_\star}_{\O} \sqrt{\sum_{K \in \T \setminus \T_\star} \uanorm{\vsig^\triangle}^2_K}.
+  \end{align*}
+  Assume no oscillation occurs, then this gives the wanted local upper bound
+  \[
+    \enorm{U_\star - U}^2_\O \lesssim\sum_{K \in \T \setminus \T_\star} \uanorm{\vsig^\triangle}^2_K.
+  \]
+    
+
+    Notice that $\VV(\T_\star) \subset \VV(\T)$, and thus from Galerkin orthogonality we deduce
+    \[
+      a(E_\star, V) = a(U_\star - u, V) + a(u - U, V) = 0 + 0 = 0.
+    \]
+    Invoking the partition of unity, and using that the difference $E_\star - V$ vanishes outside of~$\O_\RR$, which is the union
+    of patches in $\RR$, shows
+    \[
+      \enorm{E_\star}^2_\O = a(E_\star, E_\star) = a(E_\star, E_\star - V) = \sum_{a \in \V} a(E_\star, (E_\star - V)\psi_a) = \sum_{\w_a \in \RR} a(E_\star, (E_\star - V)\psi_a).
+    \]
+    Here we also used that $\w_a = \supp(\psi_a)$. Notice that $(E_\star - V)\psi_a \in \VV(\T_\star)$, and thus using that $U_\star$ is the
+    Galerkin approximation shows
+    \begin{align*}
+      \sum_{\w_a \in \RR} a(U_\star - U, (E_\star - V)\psi_a) &= \sum_{\w_a \in \RR} a(u - U, (E_\star - V)\psi_a) \\
+      &= \sum_{\w_a \in \RR} \ip{r_a, E_\star - V} \\
+      &\leq \sum_{\w_a \in \RR} \norm{r_a}_{H^1_\star(\w_a)'} \norm{\nabla \left(E_\star- V\right)}_{\w_a}\\
+      &\leq \sum_{\w_a \in \RR} \norm{r_a}_{H^1_\star(\w_a)'} \norm{E_\star - V}_{H^1(\w_a)},
+    \end{align*}
+    where we used the definition of the local residual $r_a$. On a connected component $\O_k$ we have $E_\star - V = (I - I_k)(E_\star)$. 
+    From the Scott-Zhang interpolation theory (cf. \cite[Thm~4.1]{scott1990finite}) we know that
+    $\norm{(I - I_k)(E_\star)}_{H^1(\O_k)} \lesssim \norm{E_\star}_{H^1(\O_k)}$ for a constant only depending on shape regularity.
+    Due to the finite overlap of patches that make up $\O_\star$ we deduce 
+    \[
+      \sum_{\w_a \in \RR} \norm{r_a}_{H^1_\star(\w_a)'} \norm{E_\star - V}_{H^1(\w_a)} \lesssim \norm{E_\star}_{H^1(\O_\RR)} \sqrt{\sum_{\w_a \in \RR} \norm{r_a}_{H^1_\star(\w_a)'}^2} \lesssim
+      \norm{\nabla E_\star}_{\O} \sqrt{\sum_{\w_a \in \RR} \norm{r_a}^2_{H^1_\star(\w_a)'}}.
+    \]
+    The last inequality follows since $U, U_\star \in H_0^1(\O)$ and thus that $E_\star \in H_0^1(\O)$, which allows us to use Poincare-Friedrichs inequality.
+    In the proof of Lemma~\ref{lem:clasequivlow} we have shown that $\norm{r_a}_{H^1_\star(\w_a)'} \leq \uanorm{\vsiga}_{\w_a} + \osc_\T(f,\w_a)$.
+    Combining everything then proves the discrete lower bound, i.e.
+    \[
+      \enorm{U_\star - U}^2 \lesssim \sum_{\w_a \in \RR} \uanorm{\vsiga}^2_{\w_a} + \osc^2_\T(f,\w_a) = \eta_\T^2(U, \RR) + \osc^2_\T(f,\RR).
+    \]
+  \iffalse
+  A piecewise polynomial on $\T_{k}$ is also a piecewise polynomial on $\T_{k+1}$, since $\T_{k+1} \geq \T_k$.
+  Therefore we have $U_{k+1} - U_{k} \in \VV(\T_{k+1})$; combined with Galerkin orthogonality yields,
+  \[
+    \enorm{u - U_k}_{\O}^2 = \enorm{u - U_{k+1}}^2_{\O} + \enorm{U_{k+1} - U_{k}}^2_{\O} \implies e_{k+1}^2 = e_k^2 - E_k^2.
+  \]
+  Introducing constants $\gamma > 0, \delta > 0$ and $0 < \beta < 1$, one easily sees that
+  \[
+    e_{k+1}^2 + \gamma \osc_{k+1}^2 = e_k^2 - E_k^2 + \gamma \osc_{k+1}^2 \leq e_k^2 - \beta E_k^2 + (1 + \delta)\gamma \osc_{k+1}^2.
+  \]
+  Invoking the oscillation reduction from Lemma \ref{lem:oscasum} property results in,
+  \begin{equation}
+    \label{eq:ineq2}
+    e_{k+1}^2 + \gamma \osc^2_{k+1} \leq e_k^2 - \beta E_k^2 + (1 + \delta)\gamma\left[ \osc^2_k - \lambda \osc^2_k(\RR_k)\right].
+  \end{equation}
+  Discrete efficiency from Lemma \ref{lem:assumptions} read as
+  \[
+    \enorm{U_{k+1} -  U_k}_\O \geq C_3 \eta_k^2(\RR_k) - \osc_k^2(\RR_k) \geq C_3 \eta_k^2(\mathcal{M}_k) - \osc_k^2(\RR_k),
+  \]
+  where the last inequality follows since $\mathcal{M}_k \subset \RR_k$.
+  Inserting this into inequality \eqref{eq:ineq2} results in,
+  \begin{align*}
+    e_{k+1} + \gamma \osc^2_{k+1} &\leq e_k^2 - \beta \left[C_3 \eta_k^2(\mathcal{M}_k) - \osc_k^2(\RR_k)\right] +  (1 + \delta)\gamma\left[ \osc^2_k - \lambda \osc^2_k(\RR_k)\right] \\
+    &\leq e_k^2 + (1 + \delta)\gamma \osc_k^2 - \beta C_3 \eta_k^2(\M_k) - \left[(1+\delta)\lambda \gamma - \beta\right]\osc^2_k(\RR_k).
+  \end{align*}
+  Let the  constants satisfy $(1 + \delta) \lambda \gamma\geq \beta$, 
+  then we may replace $\osc_k^2(\RR_k)$ by the smaller $\osc_k^2(\mathcal{M}_k)$.
+  Pick $\beta$ such that the coefficients of $\osc_k^2(\mathcal{M}_k)$ and $\eta_k^2(\M_k)$ match, i.e.
+  \[
+    (1 + \delta)\lambda \gamma - \beta = \beta C_3 \implies \beta = \frac{1}{1 + C_3} (1+\delta)\lambda \gamma
+  \]
+  then the inequality becomes
+  \begin{align*}
+    e_{k+1} + \gamma \osc^2_{k+1} \leq e_k^2 + (1 + \delta)\gamma \osc_k^2 - \frac{C_3}{1 + C_3} \gamma \lambda (1 + \delta) \left[\eta_k^2(\M_k) + \osc_k^2(\M_k)\right].
+  \end{align*}
+  This last term is per definition equal to $\vartheta_k^2(\M_k)$.
+  By the D\"orfler marking property we have $\vartheta_k^2(\mathcal{M}_k) \geq \theta^2 \vartheta_k^2$, so that the above simplifies to
+  \[
+    %e_{k+1} + \gamma \osc^2_{k+1} \leq e_k^2 + (1 + \delta)\gamma \osc_k^2 - \frac{C_3}{1 + C_3} \gamma \lambda (1 + \delta)\theta^2\vartheta_k^2.
+  \]
+  Invoke the reliability bound from \ref{lem:assumptions} to reduce this to,
+  \begin{align*}
+ e_{k+1} + \gamma \osc^2_{k+1} &\leq (1 - C_1^{-1} C_3 \theta^2)e_k^2 + \gamma \osc^2_k - (\lambda \gamma - 1 - C_3) \osc_k^2(\mathcal{M}_k).
+  \end{align*}
+  \textcolor{blue}{
+    Can we proceed? Does not seem like it.
+  }
+  \fi
+\end{document}
