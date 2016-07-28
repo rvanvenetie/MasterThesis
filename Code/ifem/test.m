@@ -4,36 +4,22 @@ function   test(method, estimators, afem)
   %close all; 
   %profile on;
   %% Parameters
-  theta = 0.3;    uh =0;
+  theta = 0.5;    uh =0;
 
   global refinemethod;
   refinemethod = @uniformrefine;
 
-  maxN =  1e4;
+  maxN =  1e3;
   maxIt = 12;
-  
-  switch method
-  case 'square_sin'
-    [node, elem, bdFlag, pde] = squaresin();
-  case 'square_ana'
-    [node, elem, bdFlag, pde] = squareana(10);
-  case 'square_peak'
-    [node, elem, bdFlag, pde] = squarepeak(10, 0.51, 0.117);
-  case 'square_one'
-    [node, elem, bdFlag, pde] = squareone();
-  case 'lshape_corner'
-    [node, elem, bdFlag, pde] = lshapecorner();
-  case 'lshape_one'
-    [node, elem, bdFlag, pde] = lshapeone();
-  case 'crack_one'
-    [node, elem, bdFlag, pde] = crackone();
-  end
+
+
+  [node, elem, bdFlag, pde] = examples(method);
+
   %plotuh(node, elem, pde, bdFlag);
   %return;
 
   % AFEM suffix
   if afem
-    return
     method =sprintf('%s_afem', method);
   end
 
@@ -50,15 +36,15 @@ function   test(method, estimators, afem)
   mkdir(sprintf('%s/%s', savedir, method)); clf;
 
   %showmesh(node, elem);
-  figure(1)
-  export_fig(gca, sprintf('%s/%s/mesh_initial.pdf',savedir, method), '-painters');
+  figure(1);
+  %export_fig(gca, sprintf('%s/%s/mesh_initial.pdf',savedir, method), '-painters');
 
   %plotapproxh1(method,node, elem, pde, bdFlag,pde.Du, 10)
   %return
   % one uniform refinement
   %[node, elem, bdFlag] = uniformbisect(node, elem, bdFlag);
   if afem
-    CompareAfem(method, node, elem, pde, bdFlag, theta,maxN)
+    compareafem(method,estimators, node, elem, pde, bdFlag, theta,maxN)
   else
      compareuniform(method, estimators, node, elem, pde, bdFlag, maxN);
   end

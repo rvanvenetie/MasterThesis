@@ -10,5 +10,5 @@ function [toterr, errelem] = zzestimate(node, elem, Duh, area, f)
   errelem = sqrt(errElem1 + errElem2);
 
   % total error
-  toterr = sqrt(sum(errElem1 + errElem2))
+  toterr = sqrt(sum(errElem1 + errElem2));
 end

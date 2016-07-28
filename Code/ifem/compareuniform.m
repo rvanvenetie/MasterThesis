@@ -1,5 +1,5 @@
 % Calculates various estimators for different estimators and plots
-function [N,equilError, resError, mixedError, errH1] = compareuniform(method, estimators, node, elem, pde, bdFlag, maxN)
+function compareuniform(method, estimators, node, elem, pde, bdFlag, maxN)
   savedir = 'figures';
 
   % Create new figures 
