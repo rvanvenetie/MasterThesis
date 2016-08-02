@@ -113,7 +113,14 @@ Raviart-Thomas functions can be (partially) determined by their divergence and s
 
 \section{Auxiliary results}
 \label{sec:aux}
-Here the proof of Lemma \label{lem:clasequivlow} is included for self-completeness.
+Here the proof of Lemma \ref{lem:clasequivlow} is included for self-containedness.
+  \begin{lemstar}
+  The estimator $\uanorm{\v{\sigma_a}}_{\w_a}$ is also bounded from below by the classical estimator,
+  \[
+    \uanorm{\vsiga}_{\w_a} \gtrsim h_{\w_a}\norm{f + \Delta U}_{\w_a} + h^{1/2}_{\w_a} \norm{\llbracket \nabla U  \rrbracket}_{\gamma_a},
+  \]
+  for a constant depending on the shape regularity and the polynomial-degree $p$ used in~$\VV$.
+  \end{lemstar}
 \begin{proof}
   A lower bound for $\uanorm{\vsiga}_{\w_a}$ can be given in terms or $r_a$.
   By the definition of the local equilibrium property~\eqref{eq:defsigma} we have $\ip{r_a, v} = - \ip{\v{\sigma_a}, \nabla v}_{\w_a}$ for $v \in H_\star^1(\w_a)$,

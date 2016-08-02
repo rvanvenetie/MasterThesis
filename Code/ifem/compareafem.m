@@ -50,6 +50,7 @@ function [N,err] = estimateafem(estimator, node, elem, pde, bdFlag, theta, maxN)
   end
   N = []
   err = []
+  f1 = figure(1)
   while (size(node,1) < maxN)
     % Calculate the discrete solution and its derivative
     uh = Poisson(node, elem, pde, bdFlag);
@@ -75,6 +76,10 @@ function [N,err] = estimateafem(estimator, node, elem, pde, bdFlag, theta, maxN)
     case 'zz'
       % Calculate the zienkewicz-zhu estimator
       [~,eta] = zzestimate(node, elem, Duh, area, pde.f);
+      % show initial mesh on figure 1
+      figure(f1); clf;
+      showmesh(node, elem);
+      export_fig(f1, sprintf('%s/result%d.pdf', savedir, j), '-painters');
     otherwise
       disp('You dumb boy, select a valid estimator')
       return
