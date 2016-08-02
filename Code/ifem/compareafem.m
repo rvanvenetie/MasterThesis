@@ -3,7 +3,7 @@ function compareafem(method, estimators, node, elem, pde, bdFlag, theta, maxN)
   savedir = 'figures';
 
   % Create new plot figures
-  f2 = figure(2); clf; hold on;
+  f2 = figure(2); clf; 
 
   % Iteratively build legend
   leg = {}
@@ -21,19 +21,19 @@ function compareafem(method, estimators, node, elem, pde, bdFlag, theta, maxN)
     switch estimator{1}
     case 'uniform'
       leg{end+1} = 'uniform($U_k$)'
-      figure(f2); loglog(N, err, 'b-o')
+      figure(f2); loglog(N, err, 'b-o'); hold on;
     case 'residual'
       leg{end+1} = 'residual($U_k$)';
-      figure(f2); loglog(N, err, 'r-x'); % abs
+      figure(f2); loglog(N, err, 'r-x'); hold on;
     case 'mixed'
       leg{end+1} = 'mixed($U_k, \sigma$)';
-      figure(f2); loglog(N, err, 'm-d'); % abs
+      figure(f2); loglog(N, err, 'm-d');hold on;
     case 'equilibrated'
       leg{end+1} = 'equilibrated($U_k, \zeta$)';
-      figure(f2); loglog(N, err, '-s', 'color', [0 0.5 0]); % abs
+      figure(f2); loglog(N, err, '-s', 'color', [0 0.5 0]); hold on;
     case 'zz'
       leg{end+1} = 'ZZ($U_k$)';
-      figure(f2); loglog(N, err, 'k-*'); %abs
+      figure(f2); loglog(N, err, 'k-*'); hold on;
     end
   end
   figure(f2);
@@ -41,6 +41,11 @@ function compareafem(method, estimators, node, elem, pde, bdFlag, theta, maxN)
   title('Comparison AFEM performance')
   xlabel('Number of vertices');
   ylabel('Exact error');
+  
+  
+  saveas(f2, sprintf('%s/%s/norm_%d_%g.fig',savedir, method, maxN, theta));
+  set(f2, 'Color', 'none'); % Set background transparent
+  export_fig(f2, sprintf('%s/%s/norm_%d_%g',savedir, method, maxN, theta),'-pdf', '-painters'); % Export to PDF using export_fig
 end
 
 function [N,err] = estimateafem(estimator, node, elem, pde, bdFlag, theta, maxN)
@@ -68,7 +73,7 @@ function [N,err] = estimateafem(estimator, node, elem, pde, bdFlag, theta, maxN)
       eta = sqrt(eta)
     case 'equilibrated'
       % Compute the equilibrated flux estimator
-      [~, eta, ~] =  equil(node, elem, Duh, sig, pde.f);
+      [~, eta, ~] =  equil(node, elem, Duh, pde.f);
     case 'residual'
       % Compute the classical residual estimator
       eta = estimateresidual(node, elem, uh, pde);

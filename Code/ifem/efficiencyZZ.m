@@ -1,5 +1,5 @@
 function efficiencyZZ
-  maxN = 1e5
+  maxN = 2e5
   meths = {'square_sin', 'square_ana', 'lshape_one' , 'crack_one'};
   colors = {'r', 'b', [0 0.5 0], 'm'};
   markers = ['o','x','s','d'];

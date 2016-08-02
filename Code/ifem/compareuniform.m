@@ -13,10 +13,13 @@ function compareuniform(method, estimators, node, elem, pde, bdFlag, maxN)
   % First, calculate the exact error and plot
   [N, errH1] = estimateuniform('exact', node, elem, pde, bdFlag, maxN)
   figure(f2); loglog(N,  errH1, 'b-o'); 
-  legendAbs{end + 1} = '$\|\nabla{\tilde U_k} - \nabla {U_k}\|$';
+  legendAbs{end + 1} = '$\|\nabla{U_{\star,k}} - \nabla {U_k}\|$';
 
   % Calculate & plot the result for the various estimators
   for estimator = estimators
+    if strcmp(estimator{1}, 'exact')
+      continue
+    end
 
     % estimate this thingy
     disp(estimator{1})
@@ -64,6 +67,7 @@ function compareuniform(method, estimators, node, elem, pde, bdFlag, maxN)
 
   % Save, todo
   %saveas(f2, sprintf('%s/%s/norm_slope_%d.png',savedir, method, len));
+  export_fig(f2, sprintf('%s/%s/norm_slope_%d',savedir, method, len),'-pdf', '-painters'); % Export to PDF using export_fig
 
 
   % add legends and shit for relative figure
@@ -74,4 +78,5 @@ function compareuniform(method, estimators, node, elem, pde, bdFlag, maxN)
   
   % save, todo
   %saveas(f3, sprintf('%s/%s/efficiency_%d.fig',savedir, method, len));
+  export_fig(f3, sprintf('%s/%s/efficiency_%d',savedir, method, len),'-pdf', '-painters'); % Export to PDF using export_fig
 end
