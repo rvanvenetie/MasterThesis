@@ -1,4 +1,4 @@
-function   test(method, estimators, afem)
+function   test(method, estimators, afem, maxN)
   savedir = 'figures';
   %clear all;
   %close all; 
@@ -9,8 +9,10 @@ function   test(method, estimators, afem)
   global refinemethod;
   refinemethod = @uniformrefine;
 
-  maxN =  1e3;
-  maxIt = 12;
+  if ~exist('maxN', 'var')
+    maxN =  1e4;
+  end
+  %maxIt = 12;
 
 
   [node, elem, bdFlag, pde] = examples(method);
