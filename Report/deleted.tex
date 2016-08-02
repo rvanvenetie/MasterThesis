@@ -337,4 +337,32 @@ There exists a basis $\set{\v{\tau_1},\dots, \v{\tau_n}}$ of $\RT_{p,0}(\w_a)$ a
     Can we proceed? Does not seem like it.
   }
   \fi
+
+
+
+The first recovery based estimator proposed by Zi
+The first paper by Zienkiewicz-Zhu 
+The initial ZZ-estimator p
+Here one aims to construct a $\vsig^\star$ construct an approximation $\vsig^\star$ of $\nabla u$ that is of better quality than $\nabla U$. 
+If this done correctly, we would get $\nabla u - \nabla U \approx \vsig^\star - \nabla U$ and thus the latter would provide
+an estimator. Zienkewicz and Zhu use the fact that $\nabla U$ has better approximation quality
+at certain points in the domain. They propose evaluating $\nabla U$ at these \emph{super-convergent} points and then using these
+evaluations to \emph{recover} more accurate values of $\nabla u$ in the vertices. Here
+
+A variety of strategies for gradient recovery is documented in literature, e.g. \cite{zienkiewicz1992superconvergent}. 
+We will use a simple averaging strategy: for a linear finite element space $\VV(\T)$, the reconstructed gradient $\vsig^\star$ is constructed as
+the function in $[\VV(\T)]^2$ with values in vertices $a \in \V$ given by
+\[
+  \vsig^\star(a) = \frac{1}{\vol(w_a)} \sum_{K \subset \w_a} \vol(K) \nabla U|_K
+\]
+The ZZ estimator is then simply $\norm{\vsig^\star - \nabla U}_K$. Notice that $\nabla U$ is piecewise constant, whereas
+the recovered gradient $\vsig^\star$ is a (continuous) piecewise linear function. So $\vsig^\star$ is a
+locally smoothened version of $\nabla U$ and therefore intuitively a better approximation of $\nabla u$. We will
+not go into theoretical details about reliability and efficiency of this estimator.
+
+Also note the patch-wise nature of this ZZ estimator, providing some resemblance with the equilibrated flux estimator.
+It is clearly interesting to compare this cheap and simple ZZ estimator with the equilibrated flux estimator. An implementation
+of the ZZ estimator 
+
+
 \end{document}

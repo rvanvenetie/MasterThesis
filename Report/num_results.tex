@@ -1,19 +1,20 @@
 \documentclass[thesis.tex]{subfiles}
 \begin{document}
-All of this theory allows us to easily implement the equilibrated flux estimator, and present some (interesting) results.
-With this implementation we will analyze the unknown constants still present in the error bounds. 
-In particular, how tight is the error bound given by the equilibrated flux estimator?
+The content of the previous chapter allow us to easily implement the equilibrated flux estimator, and present some (interesting) results.
+We will analyze the unknown constants present in the error bounds using this implementation.
+In particular we seek out to answer questions like: How tight is the error bound given by the equilibrated flux estimator?
 What is the practical convergence rate of AFEM driven by the equilibrated flux estimator?
 How do the equilibrated flux estimator and classical estimator --- both optimal AFEM drivers --- compare to eachother?
 
 
   MATLAB \cite{MATLAB:2015} is  used for the actual implementation. We 
-  make extensive use of iFEM \cite{chenifem}, a general framework for adaptive finite element methods. 
-  We let the iFEM framework  calculate a \emph{linear} discrete solution $U$ for a given partition.
+  make extensive use of iFEM~\cite{chenifem}, a Matlab framework for (adaptive) finite element methods. 
+  All of the results are gathered for the \emph{linear} lagrange finite element space $\VV(\T)$.
+  We let iFEM  calculate the linear discrete solution $U$ for a given partition.
   The package ships with an implementation of the \emph{newest vertex bisection} refinement algorithm.
   This refinement method bisects triangles and ensures conformity as well as shape regularity of the resulting triangulation.
   We will first asses some (normal) finite element solutions.  After this we will
-  consider the performance of AFEM driven by the (lowest order) equilibrated flux estimator. The results
+  consider the performance of the adaptive finite element method driven by the (lowest order) equilibrated flux estimator. The results
   will be compared to the classical residual estimator. The implementation calculates $\vzet$ from \eqref{eq:systemzeta} and uses the element-wise estimator from Theorem~\ref{thm:zetaupper}.
 
   \section{Exact error}
@@ -27,14 +28,22 @@ How do the equilibrated flux estimator and classical estimator --- both optimal 
   we approximate $\ip{\psi_a f - \nabla \psi_a \nabla U, q_k}_K$ by the edge-midpoint quadrature and ignore this approximation error. Similarly we simply replace the
   data oscillation term $\uanorm{f - \div \v{\zeta}}_K$  by its edge-midpoint quadrature. Provided that $f$ is sufficiently smooth, the effects of these extra errors are of higher order $h$, and thus should be insignificant for small diameter.
   
-  The other approach is using a constant $f$, without knowing the exact solution $u$. We propose to approximate the true error $\enorm{u - U}_\O$ by replacing $u$ with another finite element solution $\tilde U$  --- quite dazzling if one thinks about it.
-  To make this work we let~$\tilde U$ be a solution on a finer triangulation $\tilde \T \geq \T$, such that
-  every element in $\tilde \T$ is at least \emph{one} bisection away from its corresponding element in $\T$. We have
+  The other approach is using a constant $f$, without knowing the exact solution $u$. We propose to approximate the true error $\enorm{u - U}_\O$ by replacing $u$ with another finite element solution $U_\star$  --- quite dazzling if one thinks about it.
+  To make this work we let~$U_\star$ be a solution on a finer triangulation $\T_\star \geq \T$, such that
+  every element in $\T_\star$ is at least \emph{one} bisection away from its corresponding element in $\T$. We have
   \[
-    \enorm{u - U}_\O \leq \uaenorm{u - \tilde U}_{\O} + \uaenorm{U - \tilde U}_{\O},
+    \enorm{u - U}_\O \leq \uaenorm{u - U_\star}_{\O} + \uaenorm{U - U_\star}_{\O},
   \]
-  where we hope --- which is most likely the case if $u$ possesses some smoothness --- that $\uanorm{u - \tilde U}_{\O} \ll \uanorm{U - \tilde U}_{\O}$. The straightforward implementation follows from noting that $U$ is also in the finite element spaces of refined triangulations.  iFEM  conveniently provides a function that calculates the coefficients of $U$ with respect to the linear basis of $\tilde \T$.
+  where we hope --- which is most likely the case if $u$ possesses some smoothness --- that 
+  $\uanorm{u - U_\star}_{\O} \ll \uanorm{U - U_\star}_{\O}$. 
+  An straightforward implementation of this approximation follows from noting that $U$ lies in the finite element spaces $\VV(\T_\star)$
+  for refined triangulations $\T_\star \geq \T$.  iFEM  conveniently provides a function that calculates the
+  coefficients of $U$ with respect to the linear basis of $\T_\star$.
   \section{Uniform refinements}
+  First we calculate the normal finite element solutions: we let iFEM calculate
+  the linear discrete solutions $(U_k)_{k \geq 0}$ for a sequence of uniformly bisected triangulations $(\T_k)_{k \geq 0}$, 
+  i.e. every triangle is bisected into four subtriangles. We then compare the estimators on this produced sequence of triangulations
+  and discrete solutions.
   \begin{exmp}[Unit square]
     \label{ex:squaresin}
   Take $\O = (0,1)\times(0,1)$ with exact solution $u(x,y) = \sin(2\pi x)\sin(2\pi y)$, and thus
@@ -45,9 +54,8 @@ How do the equilibrated flux estimator and classical estimator --- both optimal 
     \end{alignedat}
   \end{equation*}
 \end{exmp}
-  The exact solution has four peaks and is very smooth. We let iFEM calculate the discrete solutions $(U_k)_{k \geq 0}$ for 
-  a sequence of uniformly bisected triangulations, i.e. every triangle is bisected into four subtriangles. iFEM uses third order quadrature to approximate the integrals containing $f$. The produced result is illustrated in Figure~\ref{fig:squareuh}.
-
+  The exact solution has four peaks and is very smooth. iFEM uses third order quadrature to approximate the integrals containing $f$.
+  The produced discrete solutions $U_k$ are illustrated in Figure~\ref{fig:squareuh}.
   \begin{figure}
     \centering
     \includegraphics[width=.32\linewidth]{square_sin/mesh_uh_1.pdf}
@@ -56,7 +64,7 @@ How do the equilibrated flux estimator and classical estimator --- both optimal 
     \caption{The finite element solutions $U_k$ for Example~\ref{ex:squaresin} with  uniformly bisected triangulations, from left to right we have diameters $h = 2^{-1}, 2^{-3}, 2^{-8}$.}
     \label{fig:squareuh}
 \end{figure}
-The images clearly indicate convergence of the FEM solution. 
+The images clearly visualize some convergence of the FEM solution. 
 As $u \in H^2(\O)$ we expect that $\enorm{u - U_k}_{\O} \lesssim h \abs{u}_{H^1(\O)}$. For uniform refinements this
 latter is equivalent to $\enorm{u - U_k}_{\O} \lesssim N^{1/2} \abs{u}_{H^1(\O)}$, with $N$ the total number of vertices.
 
@@ -66,29 +74,31 @@ We compare these against the equilibrated flux estimator from Theorem~\ref{thm:z
 \[
   \enorm{u - U}_{\O} \leq \sqrt{\sum_{K \in \T} \eta^2_\T(U, K)} \quad \text{with} \quad \eta^2_\T(U,K) :=  \left[ \uanorm{\vzet + \nabla U}_{K} + \frac{h_K}{\pi} \uanorm{ f - \div\v{\zeta}}_{K}\right]^2.
 \]
-We also calculate their efficiency indices as $\enorm{u - U_k} / \eta$. In the equilibrated case we would like this value to be close to one, as this shows tightness of the estimator. In the residual case we have an extra constant in the reliability bound, and thus tightness depends also depends on this (unknown) constant.
-The results are given in Figure~\ref{fig:squareerror}. The experimental convergence rate is in line with the theoretical convergence rate.
+We calculate the efficiency indices of these estimators as $\enorm{u - U_k} / \eta$. In the equilibrated flux case we would like this
+value to be close to one, as this shows tightness of the estimator. 
+In the residual case we have an extra constant in the reliability bound, and thus tightness depends also depends on this (unknown)
+constant.
+The results are given in Figure~\ref{fig:squareerror}. The experimental convergence rate is in line with the theoretical convergence 
+rate, as can see using the slope triangle.
 \begin{figure}
   \centering
   \includegraphics[width=.49\linewidth]{square_sin/norm_slope_9.pdf}
   \includegraphics[width=.49\linewidth]{square_sin/efficiency_9.pdf}
-  \caption{The left compares the exact error in the energy norm with the standard residual estimator, and the equilibrated flux estimator.
-    These are calculated for discrete solutions $U_k$ of Example~\ref{ex:squaresin} for a sequence of uniformly refined triangulations. 
-    The triangle has a slope of $-1/2$.  
+  \caption{The left compares the exact error in the energy norm with the standard residual estimator and the equilibrated flux estimator.  The results are gathered for discrete solutions $U_k$ of Example~\ref{ex:squaresin} using a sequence of uniformly refined triangulations.  The triangle has a slope of $-1/2$.  
   The right figure plots $\enorm{u - U_k} / \eta$; an estimation of the efficiency index.}
   \label{fig:squareerror}
 \end{figure}
 
 Even though we calculated the equilibrated flux estimator for $p=0$, it still proves to be real close to the actual error. The efficiency index
 seems to increase, which could be explained by a reduction  of quadrature errors for smaller diameters. We have the exact solution
-$u$ for this system, and thus we can empirically verify the claim that $\enorm{u - U_k}_{\O}$ is more or less equal to $\enorm{U_{k+i} - U_k}_{\O}$ for $i\geq 1$. The results for this problem with $i=1,2,3$ are given in Figure~\ref{fig:squareapprox}. The quality
+$u$ for this system, and thus we can empirically verify the claim that $\enorm{u - U_k}_{\O}$ is more or less equal to $\enorm{U_{k+i} - U_k}_{\O}$ for $i\geq 1$. A comparsion for  $i=1,2,3$ is given in Figure~\ref{fig:squareapprox}. The quality
 of the error approximation increases with~$i$ as expected. 
 \begin{figure}
   \centering
   \includegraphics[width=.49\linewidth]{square_sin/approx_H1_10.pdf}
   \includegraphics[width=.49\linewidth]{square_sin/approx_H1_rel_10.pdf}
-  \caption{ The exact error $\enorm{u - U_k}_{\O}$ is compared to the approximation $\enorm{U_{k+i} - U_k}_{\O}$ for $i=1,2,3$ in Example~\ref{ex:squaresin}. The
-    left image all of these terms are separately visualised, which results in a cluttered image as expected. The right image
+  \caption{ A comparision for Example~\ref{ex:squaresin} of the exact error $\enorm{u - U_k}_{\O}$ with the approximation $\enorm{U_{k+i} - U_k}_{\O}$ ($i=1,2,3$). In the left image all these norms are plotted, which results in a cluttered image as expected.
+    The right image
   displays the relative terms, i.e. $\enorm{U_{k+i} - U_k}_{\O} / \enorm{u - U_k}_{\O}$.}
   \label{fig:squareapprox}
 \end{figure}
@@ -108,10 +118,12 @@ initial triangulation~$\T_0$ is equal the one used in the previous problem.
 The efficiency of the equilibrated flux estimator is less for this problem, which is most likely due to the large oscillation factor,
 but it still outperforms the classical residual estimator. 
 
-The behaviour of $\enorm{U_{k+i} - U_k}_\O$ is very similar to that of the previous problem, it appears to be a good estimation of $\enorm{u - U_k}_{\O}$.
-We will therefore use this in the following problems, due to the absence of an exact solution. 
+The behaviour of $\enorm{U_{k+i} - U_k}_\O$ is very similar to that of the previous problem; it appears to be a good estimation of
+the exact error $\enorm{u - U_k}_{\O}$.
+In the following problems we will use this approximation,  due to the absence of an exact solution. 
 For accuracy reasons we pick $i=3$, which should be enough for a `true error' indication.
-We will write $\wt U_k$ for the discrete solution found on the three time uniformly refined triangulation of $\T_k$.
+We will write $U_{\star,k}$ for the discrete solution on $\T_{\star,k}$,
+the triangulation found by uniformly refining every triangle in $\T_k$ three times.
 
 \begin{figure}
   \centering
@@ -219,7 +231,7 @@ globally minimizes this norm. It is therefore interesting to compare their perfo
 
 The iFEM package ships with an implementation of the lowest order mixed finite element solution. In Figure~\ref{fig:effmixed} the results are given.
 One image plots the efficiency indices of the mixed and equilibrated flux estimator
-for the above domains. In every case the mixed flux estimator has a higher efficiency index  --- as one would expect. 
+for the above domains using uniform refinements. In every case the mixed flux estimator has a higher efficiency index  --- as one would expect. 
 More surprising is the behaviour for the unit square problems. The efficiency coefficients of the equilibrated flux estimator
 seem to  converge to the efficiency coefficient of the mixed flux estimator. This suggests that the penalty of applying
 local instead of global minimization decreases for fine triangulations. For the L-shaped and crack domain we have different behaviour,
@@ -289,39 +301,32 @@ The ZZ-estimator for an element $K$ is then simply $\norm{G_\T U - \nabla U}_K$.
 not assess theoretical details about reliability and efficiency of this estimator. Note the patch-wise nature of this ZZ estimator,
 providing some resemblance with the equilibrated flux estimator.
 It is clearly interesting to compare this cheap and simple ZZ estimator with the equilibrated flux estimator.
-An implementation of the ZZ estimator is straightforward using the helper functions of iFEM.
 
+An implementation of the ZZ estimator is straightforward using the framework provided by iFEM. 
+Numerical results for the ZZ estimator are given in Figure~\ref{fig:ZZ}.
+One image displays the efficiency index of the ZZ estimator for the previous examples using uniform refinement.
+The results are fascinating! The efficiency index of the ZZ estimator is close to $1$ for all of the four examples previously
+studied. Compare this result to the efficiencies of the equilibrated flux estimator and the mixed flux estimator in Figure~\ref{fig:effmixed}.
+The simple ZZ estimator outperforms both these (relatively) expensive flux estimators. 
 
-this quadrature turn
+\begin{figure}
+  \centering
+  \includegraphics[width=.49\linewidth]{ZZ/efficiency.pdf}
+  \includegraphics[width=.49\linewidth]{ZZ/afem.pdf}
+  \caption{
+    The left image compares the efficiency index of the ZZ estimator for various domains.
+    The right figure shows the quality of three (A)FEM produced sequences for the cracked domain, i.e. Example~\ref{ex:crack}. The adaptive solutions are found using D\"orfler marking parameter $\theta = 1/2$.
+  }
+  \label{fig:ZZ}
+\end{figure}
 
-of this global projection $G_\T^*U$ is as expensive as
-Calculation of this global projector is as expensive as the calcul
-Calculation of $G_\T^*U$
+This high accuracy is closely
+connected to the polynomial degree used in the FEM space $\VV(\T)$. That is, the accuracy
+is expected to drop if one uses higher order polynomials in the FEM space \cite{bartels2002each}.
+There are different gradient recovery methods that are suffer less from this accuracy drop.
 
-The first recovery based estimator proposed by Zi
-The first paper by Zienkiewicz-Zhu 
-The initial ZZ-estimator p
-Here one aims to construct a $\vsig^\star$ construct an approximation $\vsig^\star$ of $\nabla u$ that is of better quality than $\nabla U$. 
-If this done correctly, we would get $\nabla u - \nabla U \approx \vsig^\star - \nabla U$ and thus the latter would provide
-an estimator. Zienkewicz and Zhu use the fact that $\nabla U$ has better approximation quality
-at certain points in the domain. They propose evaluating $\nabla U$ at these \emph{super-convergent} points and then using these
-evaluations to \emph{recover} more accurate values of $\nabla u$ in the vertices. Here
-
-A variety of strategies for gradient recovery is documented in literature, e.g. \cite{zienkiewicz1992superconvergent}. 
-We will use a simple averaging strategy: for a linear finite element space $\VV(\T)$, the reconstructed gradient $\vsig^\star$ is constructed as
-the function in $[\VV(\T)]^2$ with values in vertices $a \in \V$ given by
-\[
-  \vsig^\star(a) = \frac{1}{\vol(w_a)} \sum_{K \subset \w_a} \vol(K) \nabla U|_K
-\]
-The ZZ estimator is then simply $\norm{\vsig^\star - \nabla U}_K$. Notice that $\nabla U$ is piecewise constant, whereas
-the recovered gradient $\vsig^\star$ is a (continuous) piecewise linear function. So $\vsig^\star$ is a
-locally smoothened version of $\nabla U$ and therefore intuitively a better approximation of $\nabla u$. We will
-not go into theoretical details about reliability and efficiency of this estimator.
-
-Also note the patch-wise nature of this ZZ estimator, providing some resemblance with the equilibrated flux estimator.
-It is clearly interesting to compare this cheap and simple ZZ estimator with the equilibrated flux estimator. An implementation
-of the ZZ estimator 
-
-
-
+The ZZ estimator can be used to drive AFEM. The right image in Figure~\ref{fig:afem} compares this ZZ driven AFEM method
+with the AFEM results produced by the equilibrated flux estimator. The results are (again) gathered for the cracked domain 
+(Example~\ref{ex:crack}). Unsurprisingly we see that the ZZ driven AFEM solutions are of the same quality as the ones produced by the
+equilibrated flux estimator. 
 \end{document}
