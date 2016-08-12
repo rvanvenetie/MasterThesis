@@ -1,0 +1,634 @@
+\documentclass[thesis.tex]{subfiles}
+\begin{document}
+Having properly introduced the equilibrated flux estimator, we can now turn our attention
+to an adaptive finite element method that utilizes this estimator.
+Recall from \ref{sec:afem} that AFEM can be described by the following loop,
+\[
+  \texttt{SOLVE} \to \texttt{ESTIMATE} \to \texttt{MARK} \to \texttt{REFINE}.
+\]
+In words: calculate the Ritz-Galerkin solution for a triangulation, estimate
+the error using an a posteriori error estimator, mark elements that need to be refined, refine
+the triangulation, and start over. 
+
+After specifying the details of these four modules, we will be able to show that the produced
+sequence of Galerkin approximations converges with an optimal rate. This result
+is similar to the classical (or standard) one in \S\ref{sec:optimalafem}, except that we will now use the equilibrated flux estimator. This
+result is a simplified form of the proof given by Casc\'on and Nochetto~\cite{cascon2012}.
+A different optimality proof is given by Kreuzer and Siebert \cite{kreuzersiebert}; therein
+slightly different versions of \texttt{MARK} and \texttt{REFINE} are used.
+
+\section{Design of the adaptive finite element method}
+First we need some additional notation. Given a triangulation $\T$ we denote $\W$ for the set of star patches, i.e.~
+\[
+  \W := \set{\w_a : a \in \V}
+  %\mathcal{W} = \mathbb{W} = \mathfrak{W}  = \mathscr{W}= \mathlarger{\mathlarger{\mathlarger{\mathbb{\omega}}}}  := \set{\w_a : a \in \V}.
+\]
+For $a \in \V$, let $\v{\sigma_a}$ be the equilibrated local flux corresponding to the discrete solution $U \in \VV(\T)$. We denote the
+  error estimator, oscillation, and total error resp.~by:
+\begin{align*}
+  \eta^2_\T(U, \w_a) &:= \uanorm{\v{\sigma_a}}^2_{\w_a}, \\
+%  \osc^2_\T(f, \w_a) &:=h^2_{\w_a} \norm{(I - \Pi_p^a) (\psi_a f)}^2_{\w_a}, \\
+  \osc^2_\T(f, \w_a) &:= \uanorm{h_a(I - \Pi_{p-1}^a)(f)}_{\w_a}^2 = \sum_{K \subset \w_a} h_K^2 \uanorm{(I - \Pi_{p-1})(f)}^2_K,\\
+  \vartheta^2_\T(U, \w_a) &:= \eta^2_\T(U, \w_a) + \osc^2_\T(f, \w_a).
+\end{align*}
+The above quantities extend to sets of patches in the usual way 
+--- just take the sum over the patches in the set.
+We stress that any patch $\w \in \W$ is implicitly associated to a vertex $a \in \V$.
+
+\begin{rem}
+  In contrast to the \emph{element-wise} classical residual estimator, we use the \emph{patch-wise} equilibrated flux estimator $\uanorm{\vsiga}_{\w_a}$ here. This
+  is a natural choice due to the localized patch-wise properties of the equilibrated flux estimator. 
+  Moreover, we require the patch-wise equivalence with the classical residual estimator for the optimality proof of AFEM.
+
+  On the other hand, from \S\ref{sec:releffdisc} we know that $\uanorm{\vsig^\triangle}_K$ is a reliable and efficient
+  element-wise estimator --- without an unknown constant in the reliability bound. This element-wise variant
+  therefore is therefore more convenient in practice. We will come back to this issue later, after we have proven
+  optimality of the patch-wise version.
+\end{rem}
+
+\begin{description}
+  \item[SOLVE]
+Given a triangulation $\T$, this method computes
+\[
+  U = \texttt{SOLVE}(\T),
+\]
+with $U \in \VV(\T)$ the  Ritz-Galerkin solution in \emph{exact} arithmetic. The effects of using an inexact solver have
+been studied in the literature as well, see for example \cite{carstensen2014axioms}.
+\item[ESTIMATE]
+  Given a triangulation $\T$ with vertices $\V$ and its discrete solution $U \in \VV(\T)$, this module 
+calculates the total error indicators --- the equilibrated flux estimator plus the oscillation. We have
+\[
+  \set{\vartheta_\T(U, \w_a)}_{a \in \V} = \texttt{ESTIMATE}(U, \T).
+\]
+\item[MARK]
+A \emph{D\"orfler Marking} strategy \cite{dorfler1996convergent} is used for marking. For a parameter $\theta \in (0,1]$, we calculate
+\[
+  \mathcal{M} = \texttt{MARK}( \set{\vartheta_\T(U, \w_a)}_{a \in \V}, \T),
+\]
+where $\mathcal{M} \subset \W$ is the \emph{minimal} cardinality set that satisfies
+\[
+  \vartheta_\T(U,\mathcal{M}) \geq \theta \vartheta_\T(U, \W).
+\]
+In contrast to the standard residual case in \S\ref{sec:afem}, marking is done using the total error estimator.
+\item[REFINE]
+This module refines the marked elements in $\T$. It calculates
+\[
+  \T_\star = \texttt{REFINE}(\T, \mathcal{M}),
+\]
+with $\T_\star$ the smallest conforming refinement of $\T$ such that the triangles of
+all patches in the marked set $\M$ are bisected at least 3 times. 
+To provide conformity, one generally also needs to refine extra elements in that were not marked.
+
+This three times refinement rule ensures the so-called \emph{interior node} property,
+which is also used by Mekchay \& Nochetto \cite{mekchay2005convergence} and Morin et al. in \cite{morin2002convergence}.
+The interior node property ensures that all the marked triangles, as well as their sides, contain a node of $\T_\star$ in their interior.
+This condition is needed for  discrete efficiency. Casc\'on \& Nochetto \cite{cascon2012} avoid
+refining every element three times by  spreading the refinements across consecutive steps;
+they ensure that the interior node property is satisfied after a fixed number of refinement steps.
+\end{description}
+
+We can now formulate the AFEM algorithm and its produced sequences. For this we use the
+iteration counter $k$ as a subscript to differentiate among the sets.
+Let an initial triangulation $\T_0$ be given, set $k = 0$ and iterate the following steps:
+\begin{enumerate}
+\item $U_k = \texttt{SOLVE}(\T_k)$;
+\item $\set{\vartheta_k(U_k, \w_a)}_{a \in \V_k} = \texttt{ESTIMATE}(U_k, \T_k)$;
+  \item $\mathcal{M}_k = \texttt{MARK}(\set{\vartheta_k(U_k, \w_a)}_{a \in \V_k}, \T_k)$;
+  \item $\T_{k+1} = \texttt{REFINE}(\T_k, \mathcal{M}_k)$;
+  \item $k  := k + 1$.
+\end{enumerate}
+
+\section{Optimality conditions}
+Casc\'on \& Nochetto provide a general list of assumptions in \cite[\S 4]{cascon2012}, under which the above AFEM algorithm produces
+an optimal sequence of solutions $(U_k, \T_k)_{k \geq 0}$.
+They do not prove that the equilibrium flux estimator actually  satisfies these assumptions.
+In Lemma \ref{lem:assumptions} we will prove that these
+assumptions indeed hold for the equilibrium flux estimator.
+In AFEM driven by the standard residual estimator, we had a refined set containing the triangles that were refined.
+In the current case, however, we need to define similar sets, but then in terms of refined patches.
+
+First, let $\RR^0_{\T \to \T_\star}$ denote the set of all patches in $\T$ that contain at least \emph{one} triangle that is refined when going to $\T_\star$, i.e.
+\[
+\RR^0_{\T \to \T_\star} := \W \setminus \W_\star =  \set{ \w_a \in \W :  K \not \in \T_\star\quad \text{ for some }  K \subset \w_a}.
+\]
+For $j \geq 1$, the set $\RR^j_{\T \to \T_\star}$ consists of all patches $\w_a$ such that every triangle in $\w_a$ is bisected at least $j$  times when going from $\T$ to $\T_\star$.
+Formally, 
+\[
+  \RR^j_{\T \to \T_\star} := \set{ \w_a \in \W : g(K') - g(K) \geq j,  \, \forall K' \in \T_\star \text{ with } K' \subset K, \, \forall K \in \T \text{ with } K \subset \w_a},
+\]
+where $g(K)$ is the generation of $K$ --- the number of bisections needed to create $K$ from the initial triangulation $\T_0$. For $j=1$ this set contains
+all patches that are \emph{entirely} refined, for $j=3$ it contains all patches such that every triangle satisfies the interior node property.
+Notice that $\RR^0_{\T \to \T_\star} \subset \RR^1_{\T \to \T_\star} \subset \dots$ . Moreover, we let $\O_\RR^j \subset \O$ denote the domain
+spanned by the patches $\w_a \in \RR^j_{\T \to \T_\star}$.
+With this extra notation we are able to state and prove the assumptions for optimality given in \cite{cascon2012}.
+\begin{lem}
+  \label{lem:assumptions}
+  Let a triangulation $\T$ and a refinement $\T_\star \geq \T$ be given, with $U \in \VV(\T)$
+  and $U_\star \in \VV(\T)$ the appropriate discrete solutions. There
+  exists constants $C_1, C_2, C_3$ such that:
+  \begin{enumerate}
+    \item The estimator is reliable; the approximation error can be bound using the total error estimator:
+      \begin{equation}
+        \label{eq:globupper}
+        \enorm{ u - U}_{\O}^2 \leq C_1 \vartheta^2_\T(U, \W) = C_1 \left [ \eta^2_\T(U, \W) + \osc^2_\T(f, \W)\right]
+      \end{equation}
+    \item The estimator is efficient; the estimator provides a lower bound for the error (up to oscillation):
+      \begin{equation}
+        \label{eq:globlower}
+        C_2 \eta^2_\T(U, \W) \leq \enorm{u - U}^2_{\O} + \osc_\T^2(f, \W).
+      \end{equation}
+    \item The estimator provides discrete reliability; the error between $U$ and $U_\star$ can be bound using the
+      refined set $\RR^0_{\T \to \T_\star}$:
+      \begin{equation}
+        \label{eq:locupper}
+        \enorm{U_\star - U}^2_{\O}  \leq C_1\vartheta^2_\T(U, \RR^0_{\T \to \T_\star}).
+      \end{equation}
+    \item The estimator provides discrete efficiency, i.e.~the reverse of the above
+      \begin{equation}
+        \label{eq:loclower}
+        C_3 \eta^2_\T(U, \RR^3_{\T \to \T_\star}) \leq \enorm{U_\star - U}^2_{\O_{\RR^3}}  + \osc_\T^2(U, \RR^1_{\T \to \T_\star}).
+      \end{equation}
+  \end{enumerate}
+\end{lem}
+\begin{proof}  ~
+  \begin{subproof}[Reliability and Efficiency]
+  Reliability follows directly from Theorem \ref{thm:discsynge}:
+  \[
+    \enorm{u - U}_{\O}^2 \lesssim \sum_{a\in \V}\uanorm{\vsiga}^2_{\w_a} + \uanorm{h_a(I - \Pi_{p-1}^a)(f)}_{\w_a}^2 =\sum_{a \in \V} \eta_\T^2(U,\w_a) + \osc_\T^2(f, \w_a) = \vartheta^2_\T(U, \W).
+  \]
+  Efficiency follows from Theorem~\ref{thm:discbounds}.
+\end{subproof}
+
+\begin{subproof}[Discrete reliability]
+  Discrete reliability can be proven using equivalence with the classical residual estimator. 
+  We opt not to follow this road, and instead give the following direct proof, inspired by \cite[\S3.2]{cascon2012}.
+ Write $E_\star = U_\star - U$ for the discrete error and consider a $V \in \VV(\T)$ to be specified later. Notice that $\VV(\T) \subset \VV(\T_\star)$, and thus from Galerkin orthogonality we deduce
+ \begin{equation}
+   \label{eq:beginn}
+        \enorm{E_\star}^2_{\O} = a(E_\star, E_\star - V) = a(u - U, E_\star - V) = \ip{r, E_\star - V} = \sum_{a \in \V} \ip{r_a, E_\star - V}
+      \end{equation}
+      The second equality holds since $U_\star$ is the Galerkin approximation on $\VV(\T_\star) \ni E_\star - V$.
+      From orthogonality of $r_a$ on constants for $a \in \V^{int}$, we infer that
+      \begin{equation}
+        \label{eq:residualthing}
+        \sum_{a \in \V} \ip{r_a, E_\star - V} \leq \sum_{a \in \V}\norm{r_a}_{H_\star^1(\w_a)'} \norm{\nabla \left (E_\star - V\right)}_{\w_a}.
+      \end{equation}
+      We will construct $V$ using the Scott-Zhang interpolant \cite{scott1990finite} of $E_\star$.
+
+      Consider $\RR := \RR^0_{\T \to \T_\star}$, the set of patches in $\T$ such that at least \emph{one} triangle is refined when going from $\T$ to $\T_\star$. 
+      The union of patches in $\RR$ make up a domain $\O_\RR \subset \O$.
+      Let~$\O_k$ be one of the connected components of the interior of $\O_\RR$, and consider $\VV_k(\T)$ the restriction of $\VV(\T)$ to $\O_k$.
+      We use the Scott-Zhang interpolation operator onto the space~$\VV_k(\T)$, i.e.~ $I_k : H^1(\O_k) \to \VV_k(\T)$ as defined in \cite[2.13]{scott1990finite}.
+      An important property of $I_k$ is that it preserves conforming boundary values: for $v \in H^1(\O_k)$ with $v = \tilde v$ on~$\partial \O_k$ for some $\tilde v \in \VV_k(\T)$, we have $I_k v = v$ on $\partial \O_k$.
+      Now define $V$ by
+      \[
+        V := I_kE_\star \quad \text{in } \O_k, \quad V:= E_\star \quad \text{elsewhere}.
+      \]
+      Since $E_\star$ has conforming boundary values on $\partial \O_k$, we infer that $V$ is continuous. Furthermore,
+      as $\O_\RR$ is the union all the patches that were refined, we conclude that $V \in \VV(\T)$. 
+
+      Plug this specific $V$ into equation \eqref{eq:residualthing} and use that $V = E_\star$ outside $\O_\RR$ to discover
+      \begin{equation}
+        \label{eq:magic}
+      \begin{aligned}
+        \sum_{a \in \V} \norm{r_a}_{H_\star^1(\w_a)'} \norm{\nabla \left (E_\star - V\right)}_{\w_a} &= \sum_{\w_a \in {\RR}} \norm{r_a}_{H_\star^1(\w_a)'} \norm{\nabla \left (E_\star - V\right)}_{\w_a} \\
+        &\leq \sqrt{\sum_{\w_a \in \RR} \norm{r_a}_{H_\star^1(\w_a)'}^2} \sqrt{\sum_{\w_a \in \RR} \norm{\nabla \left(E_\star - V\right)}^2_{\w_a}}.
+      \end{aligned}
+    \end{equation}
+      Focus on this last factor. We have ${E_\star - V = (I - I_k)(E_\star)}$ on every connected component $\O_k$.
+      From the Scott-Zhang interpolation theory (cf.~\cite[Thm~4.1]{scott1990finite}) we know that
+      $\norm{(I - I_k)(E_\star)}_{H^1(\O_k)} \lesssim \norm{E_\star}_{H^1(\O_k)}$, for a constant only depending on shape regularity.
+      Since every triangle in $\O_\RR$ is contained in a maximum of three patches we deduce
+      \begin{align*}
+        \sum_{\w_a \in \RR} \norm{\nabla \left(E_\star  - V\right)}^2_{\w_a} &\leq \sum_{\w_a \in \RR} \norm{E_\star - V}^2_{H^1(\w_a)} \\
+        &\eqsim \sum_{\O_k \subset \O_\RR} \norm{E_\star - V}^2_{H^1(\O_k)} \\
+        &\lesssim \sum_{\O_k \subset \O_\RR} \norm{E_\star}^2_{H^1(\O_k)} \\
+        &\leq \norm{E_\star}^2_{H^1(\O)} \lesssim \enorm{E_\star}^2_{\O}. 
+      \end{align*}
+    The last  inequality follows since $U, U_\star \in H_0^1(\O)$ and thus that $E_\star \in H_0^1(\O)$, which allows us to invoke Poincare-Friedrich's inequality.
+    Insert this derivation into \eqref{eq:magic}, and chain its result with equations \eqref{eq:beginn} and \eqref{eq:residualthing} to obtain
+    \[
+      \enorm{E_\star}^2_\O \leq \sum_{a \in \V} \norm{r_a}_{H_\star^1(\w_a)'} \norm{\nabla \left (E_\star - V\right)}_{\w_a} \lesssim \sqrt{\sum_{\w_a \in \RR} \norm{r_a}_{H_\star^1(\w_a)'}^2} \enorm{E_\star}_{\O}.
+    \]
+    For the first factor in this equality we can use that $\norm{r_a}_{H^1_\star(\w_a)'} \leq \uanorm{\vsiga}_{\w_a} + \osc_\T(f,\w_a)$, as shown
+    in the proof of Lemma~\ref{lem:clasequivlow}. 
+    Standard calculations then prove discrete reliability:
+    \[
+      \enorm{U_\star - U}_{\O}^2 \lesssim  \sum_{w_a \in \RR} \norm{r_a}^2_{H_\star^1(\w_a)'} \lesssim \sum_{\w_a \in \RR} \uanorm{\vsiga}^2_{\w_a} + \osc^2_\T(f,\w_a) = \vartheta_\T^2(U, \RR). \qedhere
+    \]
+  \end{subproof}
+
+  \begin{proof}[Discrete  efficiency]
+    Discrete efficiency can be proven using equivalence with the classical residual estimator.
+  Write $\RR^j := \RR^j_{\T \to \T_\star}$, and invoke Lemma \ref{lem:locequivosc} for equivalence with the standard residual estimator:
+  \begin{equation*}
+    \eta_\T^2(U,  \RR^3) = \sum_{\w_a \in  \RR^3} \uanorm{\vsiga}_{\w_a}^2\lesssim \sum_{\w_a \in  \RR^3} \left[ \osc_\T^2(f, \w_a) + h^2_{\w_a} \norm{f + \Delta U}^2_{\w_a} + h_{\w_a} \norm{\llbracket \nabla U \rrbracket}^2_{\gamma_a} \right].
+  \end{equation*}
+  Focus on the last two terms of this expression.  Every patch $\w_a \in \RR^3$ consists entirely of triangles that satisfy the interior node property.
+  This implies that both triangular neighbours of an edge $e \subset\gamma_a$ satisfy the interior node property.
+  For such an edge $e$, there exists a discrete lower bound using the classical \emph{edge} estimator (\cite[Thm~4.3]{stevenson2007optimality}  or \cite[Lem~4.2]{morin2000data}):
+  \[
+    \sum_{K \in \T_e} h_K^2 \norm{f + \Delta U}_K^2 + h_e\norm{\llbracket U\rrbracket}^2_e \lesssim \sum_{K \in \T_e} \left[\enorm{U_\star - U}_K^2 +  h_K^2\norm{(I - \Pi_{p-1})(f)}^2_K\right],
+  \]
+  where $\T_e$ consists of the two triangles $K \in \T$ adjacent to the (interior) edge $e \subset \gamma_a$. 
+
+  Using that $h_K \eqsim h_{\w_a} \eqsim h_e$ for every triangle $K \subset \w_a$ and edge $e \subset \gamma_a$, allow us to relate the classical edge estimator to its patch-wise version:
+  \[
+    h_{\w_a}^2\norm{f + \Delta U}^2_{\w_a} + h_{\w_a} \norm{\llbracket \nabla U \rrbracket}^2_{\gamma_a} \eqsim
+    \sum_{e \subset \gamma_a} \left[  \sum_{K \in \T_e} h^2_K \norm{f + \Delta U}_K^2 + h_e \norm{ \llbracket \nabla U \rrbracket}^2_{e}\right].
+  \]
+  After chaining  the above results, we obtain discrete efficiency:
+  \begin{align*}
+    \eta_\T^2(U,  \RR^3) &\lesssim \sum_{\w_a \in  \RR^3} \left[ \osc_\T^2(f, \w_a) + h^2_{\w_a} \norm{f + \Delta U}^2_{\w_a} + h_{\w_a} \norm{\llbracket \nabla U \rrbracket}^2_{\gamma_a} \right] \\
+    &\eqsim \osc_\T^2(f, \RR^3) + \sum_{\w_a \in \RR^3} \sum_{e \subset \gamma_a}  \left[\sum_{K \in \T_e} h^2_K \norm{f + \Delta U}_K^2 + h_e \norm{ \llbracket \nabla U \rrbracket}^2_{e}\right]\\
+    &\lesssim \osc_\T^2(f, \RR^3) + \sum_{\w_a \in \RR^3} \sum_{e \subset \gamma_a}  \sum_{K \in \T_e} \left[ \enorm{U_\star - U}_K^2 + h_K^2\norm{(I- \Pi_{p-1})(f)}^2_K\right]\\
+    &\eqsim \osc_\T^2(f, \RR^3) + \sum_{\w_a \in \RR^3} \left[ \enorm{U_\star - U}^2_{\w_a} +  \norm{h_a(I- \Pi_{p-1})(f)}^2_{\w_a}\right]\\
+    &\eqsim \osc_\T^2(f,\RR^3) + \enorm{U_\star - U}^2_{\O_{\RR}^3}. \qedhere
+  \end{align*}
+  \end{proof}
+\let\qed\relax
+
+\end{proof}
+\section{Contraction property}
+It is possible that the equilibrated flux estimator does not strictly decrease upon a refinement.
+The oscillation term, on the other hand, does satisfy such a reduction property.
+\begin{lem}
+  \label{lem:oscasum}
+  The oscillation satisfies the oscillation reduction property. That is, there exists a constant $0 < \lambda < 1$, such that for any refinement $\T_\star \geq \T$ one has
+  \[
+    \osc_{\T_\star}^2(f, \W_{\T_\star}) \leq \osc^2_{\T}(f, \W_{\T}) - \lambda \osc^2_{\T}(f, \RR^1_{\T \to \T_\star}).
+  \]
+\end{lem}
+\begin{proof}
+  Denote $\W = \W_{\T}$ and $\W_\star = \W_{\T_\star}$. Rewriting the left hand side yields,
+  \begin{align*}
+    \osc_{\T_\star}^2(f, \W_\star) &= \osc^2_{\T_\star}(f, \W_\star \cap \W) + \osc^2_{\T_\star}(f, \W_\star \setminus \W)\\
+    &= \osc^2_{\T}(f, \W_\star \cap \W) + \osc^2_{\T_\star}(f, \W_\star \setminus \W)\\
+    &= \osc^2_{\T}(f, \W) - \osc^2_{\T}(f, \W \setminus \W_\star) + \osc_{\T_\star}^2(f, \W_\star \setminus \W).
+  \end{align*}
+  We see that the result holds if there exists $0 < \lambda < 1$ such that
+  \begin{equation}
+    \label{eq:blabla}
+    \osc_{\T_\star}^2(f, \W_\star \setminus \W) \leq \osc_{\T}^2(f, \W\setminus \W_\star) - \lambda \osc_\T^2(f, \RR^1_{\T \to \T_\star}).
+  \end{equation}
+  The set $\W_\star \setminus \W$ contains all newly introduced patches in $\T_\star$, whereas $\W \setminus \W_\star$ contains
+  all patches that have at least one triangle refined.
+
+  The use of patches instead of elements makes things a little confusing.  
+  Therefore we will first analyze the above inequality using triangles.
+  Consider some element $K$ and a bisected descendent $K_\star$ of $K$. Under the current definitions,
+  we cannot ensure that $h_{K_\star} < h_K$, and we therefore cannot guarantee the strict oscillation reduction. 
+  Alternatively, we could define $h'_K := (\vol K)^{1/2}$, for which we have $h'_{K_\star} \leq {1\over\sqrt{2}} h'_K$. 
+  Shape regularity gives the equivalence $h'_K \eqsim h_K$, so that all the bounds in Lemma~\ref{lem:assumptions} are still
+  valid if we replace $h_K$ by $h'_K$. To prove this lemma, we implicitly replace $h_K$ by
+  $h'_K$ in the oscillation definition.
+
+  First, consider
+  Let $K$ be an element that is contained in some patch from  $\RR^1_{\T \to \T_\star}$.
+  This element is refined, and from properties of the orthogonal projector $\Pi_{p-1}$ we infer that
+  \begin{equation}
+    \label{eq:strictosc}
+  \begin{aligned}
+    \sum_{\set{K_\star \in \T_\star : K_\star \subset K}} h^2_{K_\star} \norm{(I - \Pi_{p-1})(f)}^2_{K_\star} &\leq \frac{1}{2}h^2_K \sum_{\set{K_\star \in \T_\star : K_\star \subset K}} \norm{(I - \Pi_{p-1})(f)}^2_{K_\star} \\
+    &\leq \frac{1}{2} h^2_K \norm{(I - \Pi_{p-1})(f)}^2_K.
+  \end{aligned}
+  \end{equation}
+  That is, oscillation on $K$ is strictly reduced by refining $K$.
+  Enlarging this to a single patch $\w_a \in \RR^1_{\T \to \T_\star}$ gives
+  \begin{equation}
+    \label{eq:singlepatch}
+    \osc_\T^2(f, \w_a) = \sum_{K \subset \w_a} h_K^2\norm{(I-\Pi_{p-1})(f)}_K^2 \geq 2 \sum_{K \subset \w_a} \sum_{K_\star \subset K}h^2_{K_\star} \norm{(I-\Pi_{p-1})(f)}^2_{K_\star}.
+  \end{equation}
+  Unfortunately, the right hand side cannot be written as the sum of patch-wise oscillations in $\T_\star$.
+  The difficulty is that refining $\w_a$ will introduce new patches in $\T_\star$, for which 
+  some only partially overlap with $\w_a$. 
+  
+  It is wise to decompose all patch oscillations from \eqref{eq:blabla} over its triangles:
+  \begin{align*}
+    \osc_{\T}^2(f, \W \setminus \W_\star)  &= \sum_{\w_a \in \W \setminus \W_\star} \sum_{K \subset \w_a} h_{K}^2 \norm{(I-\Pi_{p-1})(f)}^2_{K}, \\
+    \osc_{\T_\star}^2(f, \W_\star \setminus \W)  &= \sum_{\w_a \in \W_\star \setminus \W} \sum_{K_\star \subset \w_a} h_{K_\star}^2 \norm{(I-\Pi_{p-1})(f)}^2_{K_\star}.
+  \end{align*}
+  Examining these sums reveals that the total area covered by triangles $K$ in the upper sum is identical to the area covered by the (smaller) triangles $K_\star$ in the
+  lower sum. For for every patch $\w_a \in \RR^1_{\T \to \T_\star}$, we may use \eqref{eq:singlepatch} to discover a strict decrease oscillation on the refined elements of $\w_a$.
+  Carefully examining both of the above sums, and using this strict oscillation decrease, shows that the result is true with $\lambda = \frac{1}{2}$.
+\end{proof}
+
+
+We can now prove the so-called contraction property; this shows a weighted convergence of the AFEM method described above.
+\begin{thm}
+  There exists a constant $0 < \alpha < 1$ and $\gamma > 0$, depending on the shape regularity of $\T_0,$ and $\set{\lambda, \theta}$ such that
+\[
+  \enorm{ u - U_{k+1}}^2 +\gamma \osc^2_{k+1}(f, \W_{k+1}) \leq \alpha^2\left(\enorm{ u - U_k}^2 + \gamma\osc^2_k(f, \W_k)\right)
+\]
+\end{thm}
+\begin{proof}
+  Adapt the notation used in \cite{cascon2012}, i.e.~for $j =0,1,2,\dots$ we write
+  \begin{alignat*}{2}
+    e^2_j &:= \enorm{u - U_j}^2_{\O}, &\quad E^2_j &:= \enorm{U_{j+1} - U_j}_{\O}^2,\\
+    \osc^2_j &:= \osc_{\T_{j}}^2(f, \W_{\T_{j}}), &\quad \osc^2_j(\mathcal{M}_j) &:= \osc^2_{\T_j}(f, \mathcal{M}_j), \\
+    \eta^2_j &:= \eta_{\T_j}^2(U_j, \W_{\T_j}), &\quad \eta^2_j(\mathcal{M}_j) &:= \eta^2_{\T_j}(U, \mathcal{M}_j),\\
+    \RR^i_j & := \RR^i_{\T_j \to \T_{j+1}}.
+  \end{alignat*}
+
+  A piecewise polynomial on $\T_{k}$ is also a piecewise polynomial on $\T_{k+1}$, because ${\T_{k+1} \geq \T_k}$.
+  Therefore, we have $U_{k+1} - U_{k} \in \VV(\T_{k+1})$, and thus by Galerkin orthogonality 
+  \[
+    \enorm{u - U_k}_{\O}^2 = \enorm{u - U_{k+1}}^2_{\O} + \enorm{U_{k+1} - U_{k+1}}^2_{\O} \implies e_{k+1}^2 = e_k^2 - E_k^2.
+  \]
+  Introduce constants $\gamma > 0$ and $0 < \beta < 1$ that will be selected later:
+  \[
+    e_{k+1}^2 + \gamma \osc_{k+1}^2 = e_k^2 - E_k^2 + \gamma \osc_{k+1}^2 \leq e_k^2 - \beta E_k^2 + \gamma \osc_{k+1}^2.
+  \]
+  Application of the oscillation reduction property from Lemma \ref{lem:oscasum} results in
+  \begin{equation}
+    \label{eq:ineq1}
+  \begin{aligned}
+    e_{k+1}^2 + \gamma \osc^2_{k+1} \leq e_k^2 - \beta E_k^2 + \gamma \osc_k^2 - \gamma\lambda \osc_k^2(\RR^1_k).
+      %e_{k+1}^2 + \gamma \osc^2_{k+1} \leq e_k^2 
+    %e_{k+1}^2 + \gamma \osc^2_{k+1} &= e_k^2 - E_k^2 + \gamma \osc^2_{k+1} \\
+    %&\leq e_k^2 - E_k^2 + \gamma \left[\osc_k^2 - \lambda  \osc^2_k(\RR_k) \right].
+  \end{aligned}
+\end{equation}
+Discrete efficiency \eqref{eq:loclower} from Lemma \ref{lem:assumptions} reads as
+  \[
+    E_k^2 = \enorm{U_{k+1} -  U_k}_\O \geq C_3 \eta_k^2(\RR^3_k) - \osc_k^2(\RR^1_k) \geq C_3 \eta_k^2(\mathcal{M}_k) - \osc_k^2(\RR^1_k),
+  \]
+  where the last inequality follows since the all marked patches satisfy the interior node property when going from $\T_k$ to $\T_{k+1}$,
+  and thus $\M_k \subset \RR^3_k$.
+  By inserting this into inequality \eqref{eq:ineq1} we obtain
+  \begin{align*}
+    e_{k+1}^2 + \gamma \osc^2_{k+1} &\leq e_k^2 - \beta C_3 \eta_k^2(\M_k) + \beta \osc_k^2(\RR^1_k) + \gamma \osc_k^2 - \gamma\lambda  \osc^2_k(\RR^1_k) \\
+  &= e_k^2 + \gamma \osc_k^2 - \beta C_3\eta_k^2(\M_k) - \left[\lambda \gamma - \beta\right]\osc^2_k(\RR^1_k).
+  \end{align*}
+  Under the assumption that $\lambda \gamma \geq \beta$ we may replace $\osc_k^2(\RR^1_k)$ by the smaller $\osc_k^2(\mathcal{M}_k)$:
+  \[
+    e_{k+1}^2 + \gamma \osc^2_{k+1} \leq e_k^2 + \gamma \osc_k^2 - C_3 \beta \eta_k^2(\M_k) - \left[\lambda \gamma - \beta\right]\osc^2_k(\M_k).
+  \]
+  Now pick $\beta$ such that  the coefficients of $\osc_k^2(\M_k)$ and $\eta_k^2(\M_k)$ match, i.e.
+  \[
+    \beta C_3 = \lambda \gamma - \beta \implies \beta := \frac{1 }{1 + C_3}\lambda \gamma,
+  \]
+  which ensures that $\lambda \gamma \geq \beta$. Substitute $\beta$ and use the definition $\vartheta_k^2 = \eta_k^2 + \osc_k^2$ to attain
+  \begin{align*}
+  e_{k+1}^2 + \gamma \osc^2_{k+1} &\leq e_k^2+\gamma \osc_k^2 - \frac{C_3}{1+C_3} \lambda \gamma \vartheta_k^2(\M_k) \\
+    &\leq e_k^2 + \gamma \osc_k^2 - \frac{C_3}{1 + C_3} \lambda \gamma \theta^2 \vartheta_k^2,
+    %- \left[\lambda \gamma - 1 - C_3\right]\osc^2_k(\M_k) \\
+    % &\leq e_k^2 + \gamma \osc_k^2 - C_3 \vartheta_k^2(\M_k)\\
+    % &\leq e_k^2 + \gamma \osc_k^2 - C_3 \theta^2 \vartheta_k^2,
+  \end{align*}
+  with the last step following from the D\"orfler marking property, i.e.~$\vartheta_k^2(\mathcal{M}_k) \geq \theta^2 \vartheta_k^2$. 
+  Since the total error dominates oscillation, $\vartheta_k^2 \geq \osc_k^2$, we infer that
+  \[
+    e_{k+1}^2 + \gamma \osc_{k+1}^2 \leq e_k^2 + \gamma \osc_k^2 - \frac{C_3}{2(1 + C_3)} \lambda \gamma \theta^2\left(\vartheta_k^2 + \osc_k^2\right).
+  \]
+  Rewriting the (global) reliability bound \eqref{eq:globupper} shows $\vartheta_k^2 \geq C_1^{-1} e_k^2$, and thus
+  \begin{align*}
+    e_{k+1}^2 + \gamma \osc_{k+1}^2 &\leq \left(1 - \frac{C_3 \lambda \theta^2}{2C_1(1+C_3)}\gamma\right) e_k^2 + \gamma \left( 1 - \frac{C_3}{2(1 + C_3)}\lambda\theta^2\right)\osc_k^2\\
+    &:= \alpha^2_1(\gamma) e_k^2 + \gamma \alpha_2^2 \osc_k^2.
+  \end{align*}
+  Since $\lambda$ and $\theta^2$ are both contained in the interval $(0,1)$ we have $0 < \alpha^2_2 < 1$. We are left to
+  pick $\gamma$ such that $0 < \alpha_1^2(\gamma) < 1$, which translates into
+  \[
+    0 < \gamma < \frac{2C_1(1 + C_3)}{C_3\lambda \theta^2}.
+  \]
+  Any $\gamma$ satisfying the above completes the proof, since $\alpha^2 = \max\set{\alpha_1^2(\gamma), \alpha_2^2} < 1$ with
+  \[
+    e_{k+1}^2 + \gamma \osc_{k+1}^2 \leq \alpha_1^2(\gamma)e_k^2 + \gamma \alpha_2^2\osc_k^2 \leq \alpha^2 \left( e_k^2 + \gamma \osc_k^2\right).
+  \]
+
+\end{proof}
+
+
+\section{Optimality of AFEM}
+\todo{bla}
+We will show that convergence of AFEM driven by the equilibrated flux estimator convergence with the best possible rate --- and
+thus  optimal in this sense.
+From the reliability and efficiency of the estimator we know that
+\[
+  \enorm{u - U}^2_\O + \osc^2_{\T}(f, \W) \eqsim \eta_\T^2(U, \W) + \osc_\T^2(f, \W) = \vartheta_\T^2(U, \W).
+\]
+The total error estimator is equivalent to the approximation error (up to an oscillation term).
+Since we cannot get rid of the oscillation term (cf.~\cite[Rem~5.1]{cascon2008}), it makes sense to incorporate this into the
+definition of an approximation class.
+
+Denote $\TT$ for the set of all conforming refinements of $\T_0$ found by applying bisection. Moreover, let $\TT_N \subset \TT$ be the restriction of
+triangulations with at most $N$ triangles more than $\T_0$, i.e.~$\T \in \TT_N$ if $\T \leq \#T_0 + N$.
+We define the optimal approximation class in terms of $s > 0$. For $v \in H_0^1(\O)$ with $\Delta v \in L^2(\O)$, let
+$V_\T \in \VV(\T)$ denote the Ritz-Galerkin approximation of the Poisson problem associated with $v$.
+A measure for the optimal convergence rate of $v$ is given by
+\[
+  \abs{v}_{\A_s} := \sup_{N > 0}(N+1)^s \inf_{\T \in \TT_N} \left(\enorm{v - V_\T}_{\O}^2 + \osc_\T^2(f, \W)\right)^{1/2}.
+\]
+As approximation class we take all the functions for which this measure is finite, i.e.
+\[
+  \A_s := \set{ v \in H_0^1(\O) : \Delta v \in L^2(\O), \quad  \abs{v}_{\A_s} < \infty}.
+\]
+So if the Poisson solution $u$  satisfies $u \in \A_s$, then the total 
+error $e(N)$ of the discrete solution $U_N \in \VV(\T)$ on the \emph{best} partition $\T_N \in \TT_N$ satisfies
+\begin{equation}
+  \label{eq:errorafem}
+  e(N) := \left(\enorm{u - U_N}^2_\O + \osc^2_{\T_N}(f,\W)\right)^{1/2} \leq (N+1)^{-s} \abs{u}_{\A_s}.
+\end{equation}
+Our goal is to prove that the sequence $\left(U_k\right)_{k \geq 0}$ satisfies a similar convergence rate.
+
+  Notice that this optimality class explicitly depends on our definition of oscillation, and thus differs from the definition for the
+  classical estimator given in \S\ref{sec:optimalafem}. Naturally these definitions are equivalent, as one can see from
+  \[
+    \osc^2_\T(f,\W) = \sum_{\w_a \in \W} \sum_{K \subset \w_a} h_K^2 \norm{(I - \Pi)(f)}_K^2 = 3 \sum_{K \in \T} h_K^2 \norm{(I - \Pi)(f)}_K^2 = \hat \osc^2_\T(f,\T).
+  \]
+
+The proof of optimality for AFEM driven by the equilibrated flux estimator is very similar to the standard case in \S\ref{sec:optimalafem}. 
+We opt to follow the steps given by Casc\'on and Nochetto in \cite{cascon2012}.
+Define the maximum D\"orfler marking parameter by
+\begin{equation}
+  \label{eq:theta}
+  \theta_*^2 := \frac{C_2}{(1+ C_1)(1 + C_2)}.
+\end{equation}
+The following lemma establishes a relation between the  total error reduction and the D\"orfler marking. 
+\begin{lem}
+\label{lem:dorfler}
+  Let $\T \in \TT$ a triangulation with discrete solution $U \in \VV(\T)$, a marking parameter $\theta \in (0, \theta_*)$ and 
+  a refinement $\T_\star \geq \T \in \TT$ with discrete solution $U_\star \in \VV(\T_\star)$ that satisfies
+  \[
+    \enorm{ u - U_\star}_\O^2+ \osc^2_{\T_\star}(f, \W_\star) \leq \mu (\enorm{u - U}_\O^2 + \osc_\T^2(f, \W)),
+  \]
+  for $\mu := 1 - {\theta^2 \over \theta_*^2}$.
+
+  Then the refined set $\RR^0 = \RR^0_{\T \to \T_\star}$ satisfies the D\"orfler property
+  \[
+    \vartheta_\T(U, \RR^0) \geq \theta \vartheta_\T(U, \W).
+  \]
+\end{lem}
+\begin{proof}
+  From the efficiency bound \eqref{eq:globlower} in Lemma \ref{lem:assumptions} we deduce
+  \[
+    C_2 \vartheta_\T^2(U, \W) \leq \enorm{u - U}_\O^2 + (1+C_2)\osc_\T^2(f, \W) \leq (1 + C_2)\left(\enorm{u - U}_\O + \osc_\T^2(f, \W)\right),
+  \]
+  and thus
+  \[
+    {C_2 \over 1 + C_2} \vartheta_\T^2(U, \W) \leq \enorm{u - U}_\O^2 + \osc_\T^2(f,\W).
+  \]
+  Together with the assumption this becomes
+  \begin{equation}
+    \label{eq:maineq}
+  \begin{aligned}
+    (1 - \mu){C_2 \over 1 + C_2} \vartheta_\T^2(U, \W) &\leq (1 - \mu) \left[ \enorm{u - U}_\O^2 + \osc_\T^2(f, \W)\right]\\
+    &\leq \enorm{u - U}_\O^2 + \osc_\T^2(f,\W) - \enorm{u - U_\star}_\O^2 - \osc_{\T_\star}^2(f, \W_\star).
+  \end{aligned}
+\end{equation}
+  Using the Galerkin orthogonality and $\RR^0 = \W \setminus \W_\star$ shows
+  \begin{align*}
+    \enorm{U_\star - U}^2_\O &= \enorm{u - U}^2_\O - \enorm{u - U_\star}^2_\O,\\
+    \osc_\T^2(f, \W) &= \osc_{\T_\star}^2(f, \W \cap \W_\star) + \osc_{\T_\star}^2(f, \RR^0) \leq \osc_{\T_\star}^2(f, \W_\star) + \osc^2_{\T}(f, \RR^0).
+  \end{align*}
+  After inserting these relations into  \eqref{eq:maineq} we infer that
+  \begin{align*}
+    (1 - \mu){C_2 \over 1 + C_2} \vartheta_\T^2(U, \W) &\leq \enorm{U_\star - U}_\O^2 + \osc^2_{\T}(f, \RR^0) \\
+    &\leq \enorm{U_\star - U}_\O^2 + \vartheta_\T(U, \RR^0) \\
+    &\leq (1 + C_1) \vartheta_\T^2(U, \RR^0),
+  \end{align*}
+  where the last step follows from discrete reliability \eqref{eq:locupper}.
+  In conclusion, by definition of $\theta_*^2$ and $\mu$ we see that
+  \[
+  \vartheta_\T^2(U, \RR^0) \geq  (1 - \mu){C_2 \over (1 + C_1)(1 + C_2)}\vartheta_\T^2(U, \W) \geq \theta^2 \vartheta_\T^2(U, \W). 
+  \]
+\end{proof}
+The following corollary relates the triangulations produced by AFEM with the optimal triangulations. This hinges on the fact that AFEM selects 
+a \emph{minimal} cardinality set $\M_k$. This key idea was first used by Stevenson in \cite{stevenson2007optimality}.
+\begin{cor}
+  Let $\set{\T_k, \VV_k, U_k}_{k \geq 0}$ be the sequence of results produced by AFEM for a marking parameter $\theta \in (0, \theta_*)$.
+  If $u \in \A_s$ then the minimal D\"orfler set $\M_k$ satisfies
+  \[
+    \M_k \lesssim \left(1 - \frac{\theta^2}{\theta^2_*}\right)^{-1 / 2s} \abs{u}_{\A_s}^{1/s} \left(\enorm{u - U_k}_\O^2 + \osc^2_{\T_k}(f, \W_k)\right)^{-1/2s}.
+  \]
+\end{cor}
+\begin{proof}
+  Let $\mu$ be as in the previous Lemma and set $\epsilon^2 := \mu \left( \enorm{u - U_k}_\O^2 + \osc_{\T_k}^2(f, \W_k)\right)$.
+  Since $u \in \A_s$, by definition of the approximation class there exists a triangulation $\T_\epsilon \in \TT$ with
+  discrete solution $U_\epsilon$ such that\footnote{To see this, let $e(N)$ denote the smallest error on a triangulation from $\TT_N$. This function is decreasing, since $\TT_N \subset \TT_{N+1}$, and we have $e(N) \to 0$ as $N \to \infty$. Therefore, there exists a $N$ such that $e(N) \leq \epsilon \leq e(N-1)$. From the definition we also find
+  $N^s e(N-1) \leq \abs{u}_{\A_s}$, and thus $N \leq e(N-1)^{-1/s} \abs{u}_{\A_s}^{1/s} \leq \epsilon^{-1/s}\abs{u}_{\A_s}^{1/s}$.}
+  \[
+    \# \T_\epsilon - \# \T_0 \leq \abs{u}_{\A_s}^{1/s} \epsilon^{-1/s}, \quad \text{and } \enorm{u - U_\epsilon}_\O^2 + \osc^2_{\T_\epsilon}(f, \W_{\epsilon}) \leq \epsilon^2.
+  \]
+  For $\T_\star = \T_k \oplus \T_\epsilon$ --- the smallest common conforming refinement of $\T_k$ and $\T_\epsilon$ ---  
+  we find from the Galerkin orthogonality and the oscillation reduction property that
+  \begin{align*}
+    \enorm{u - U_\star}_\O^2 + \osc^2_{\T_\star}(f, \W_\star) \leq \enorm{u - U_\epsilon}_\O^2 + \osc^2_{\T_\epsilon}(f,\W_\epsilon) \leq \epsilon^2.
+  \end{align*}
+  By the choice of $\epsilon^2$ it follows that $u - U_\star$ satisfies the conditions of the previous lemma, and thus that $\RR^0_{\T_k \to \T_\star}$ satisfies the D\"orfler property. Since $\mathcal{M}_k$ is the \emph{minimal} cardinality set that satisfies
+  the D\"orfler property we may conclude that $\# \mathcal{M}_k \leq \# \RR^0_{\T_K \to \T_\star}$.
+  
+  Now $\RR^0_{\T_k \to \T_\star}$ consists of all those patches containing a refined triangle going from $\T_k$ to $\T_\star$. Since
+  every patch has a uniformly bounded number of triangles, with a bound only depending on $\T_0$, we conclude
+  \[
+    \# \mathcal{M}_k \leq \# \RR^0_{\T_k \to \T_\star} \lesssim \# \T_\star - \# \T_k \leq \# \T_\epsilon - \# \T_0 \leq \abs{u}_{\A_s}^{1/s}\epsilon^{-1/s}.
+  \]
+  The third inequality is a property of the smallest common refinement \cite[Lem~3.7]{cascon2008}.
+\end{proof}
+We are almost ready to prove the main optimality result. For this we need to bound the number of refined triangles. 
+This number can inflate beyond $\#\M$ in one iteration due to the conformity constraint. Fortunately, the cumulative sum behaves correctly as summarized in the following theorem.
+\begin{thm}
+  For a constant only depending on shape regularity we have
+\begin{equation}
+  \label{eq:nvbound}
+  \# \T_k - \# \T_0 \lesssim \sum_{i = 0}^{k-1} \# \mathcal{M}_i.
+\end{equation}
+\end{thm}
+\begin{proof}
+  A proof for the classical (element-wise) estimator is given in \cite{ste08}. In this case the marked sets $\mathcal{\hat M}_i$ consist \emph{triangles} that
+  are bisected once. We however consider marked sets $\M_i$ consisting of \emph{patches} that are to be bisected three times. The proof in \cite{ste08}
+  is every technical and therefore omitted here. We only remark that the main arguments are also valid for our case, hence providing \eqref{eq:nvbound}.
+\end{proof}
+We are finally ready to prove the main optimality theorem.
+\begin{thm}
+  Suppose that the marking parameter $\theta$ satisfies $\theta \in (0, \theta_*)$ (see \eqref{eq:theta}),
+  and suppose that $u \in \A_s$ for some $s >0$.
+
+  Then the produced sequence $\set{U_k, \VV_k \T_k}_{k \geq 0}$ of AFEM-solutions satisfies 
+  \[
+    \left(\enorm{u - U_k}^2_\O + \osc^2_k(f,\W_k)\right)^{1/2} \lesssim \abs{u}_{\A_s} \left(\#\T_k - \#\T_0\right)^{-s},
+  \]
+  for a constant depending on $\T_0$, but independent of $u$.
+\end{thm}
+\begin{proof}
+Combine the contraction property, the previous corollary and inequality \eqref{eq:nvbound}:
+\begin{align*}
+  \# \T_k - \# \T_0 &\lesssim \sum_{i = 0}^{k-1} \# \mathcal{M}_i \\
+  &\lesssim \left(1 - \frac{\theta^2}{\theta^2_*}\right)^{-1 / 2s} \abs{u}_{\A_s}^{1/s} \sum_{i=0}^{k-1} \left(\enorm{u - U_i}_\O^2 + \osc^2_{\T_i}(f, \W_i)\right)^{-1/2s}\\
+  &\eqsim \left(1 - \frac{\theta^2}{\theta^2_*}\right)^{-1 / 2s} \abs{u}_{\A_s}^{1/s} \sum_{i=0}^{k-1} \left(\enorm{u - U_i}_\O^2 + \gamma\osc^2_{\T_i}(f, \W_i)\right)^{-1/2s}\\
+  &\leq \left(1 - \frac{\theta^2}{\theta^2_*}\right)^{-1 / 2s} \abs{u}_{\A_s}^{1/s} \left(\sum_{i=1}^{k} \alpha^{i \over s}\right) \left(\enorm{u - U_k}_\O^2 + \gamma\osc^2_{\T_k}(f, \W_k)\right)^{-1/2s}\\
+  &\lesssim \abs{u}_{\A_s}^{1/s}\left(\enorm{u - U_k}_\O^2 + \osc^2_{\T_k}(f, \W_k)\right)^{-1/2s}.
+\end{align*}
+Here we used that $\alpha < 1$, so that it forms a geometric series.
+ Standard algebra calculations on this inequality provide us with the desired result.
+\end{proof}
+  Compare this result to the definition of the approximation class $\A_s$.
+  The best possible error $e(N)$ on $\TT_N$ satisfies $e(N) \leq N^{-s}\abs{u}_{\A_s}$, see  \eqref{eq:errorafem}.
+  By the previous theorem exists a constant $C_{opt}$ such that the error made by AFEM is bound by
+  \[
+    \left(\enorm{u - U_k}^2_\O + \osc^2_k(f, \W_k)\right)^{1/2} \leq C_{opt} \left(\#\T_k - \#\T_0\right)^{-s} \abs{u}_{\A_s}.
+  \]
+  Hence the AFEM provided solutions exhibit  the same optimal convergence rate.
+  \section{Discussion}
+  \label{sec:remarks}
+  A few remarks can be added to the above optimality proof.
+  \subsection{Interior node property}
+  In the current proof we need the interior node property which requires \texttt{REFINE} to
+  bisect the marked patches at least three times. 
+  In practice one often wants to avoid this many refinements; one would like to just bisect every marked patch once.
+  However, by letting \texttt{REFINE} apply single bisections we cannot guarantee that the local lower bound holds, which
+  is needed to prove the contraction property of AFEM solutions.
+  
+  Casc\'on and Nochetto \cite{cascon2012} reduce the number of bisections by proposing a variant of the  \texttt{REFINE} method that
+  ensures the interior node property after a fixed amount of steps. Although this requires less bisections in one step, it does require
+  a non-standard \texttt{REFINE} implementation.
+  
+  Kreuzer \& Siebert \cite{kreuzersiebert} circumvent
+  the interior node property altogether by using equivalence with the standard residual estimator and by requiring that
+  the error estimator dominates the oscillation, i.e.~$\eta_\T(U, \w_a) \geq \osc_\T(f,\w_a)$.
+  In the equilibrated flux estimator this does not hold for a general $f$. However, if one considers a Poisson problem
+  without oscillation (or with a very smooth $f$), then this does hold. For such problems one can therefore 
+  obtain an optimal convergence rate using a \texttt{REFINE} method that applies only a single bisection to the marked patches.
+
+  \subsection{Element-wise estimator}
+  We have proven  optimality of AFEM driven by the patch-wise estimators $\uanorm{\vsiga}_{\w_a}$.
+  As noted before, we ideally would use the element-wise estimators $\uanorm{\vsig^\triangle}_K$. 
+  We have proven that this element-wise variant $\uanorm{\vsig^\triangle}_K$ is reliable and efficient. We are left to prove  discrete reliability and discrete efficiency
+  from Lemma~\ref{lem:assumptions}. For the patch-wise estimator we used that $\uanorm{\vsiga}_{\w_a}$
+  is equivalent to the standard residual estimator on $\w_a$. It is not directly
+  clear if such a relation also holds for $\uanorm{\vsig^\triangle}_K$.  Attempts to find an equivalence between $\uanorm{\vsiga}_{\w_a}$ and $\uanorm{\vsig^\triangle}_K$ also
+  fail:
+  \[
+    \uanorm{\vsig^\triangle}_K \leq \sum_{a \in \V_K} \uanorm{\vsiga}_{\w_a},\quad \sum_{a \in \V_k} \uanorm{\vsiga}^2_{\w_a} = \uanorm{\vsig^\triangle}^2_K + \sum_{a \in \V_K} \uanorm{\vsiga}^2_{\w_a \setminus K} \not \lesssim \uanorm{\vsig^\triangle}^2_K.
+  \]
+
+  The discrete reliability can be directly proven using the Scott-Zhang local interpolator.
+  For simplicity assume we do not have data oscillation. With $E_\star = U_\star - U$ and $V \in \VV(\T)$ we deduce from Galerkin orthogonality~that
+  \[
+    \enorm{E_\star}^2_{\O} = a(E_\star, E_\star - V) = a(u - U, E_\star - V) = \ip{r, E_\star - V} = \ip{\vsig^\triangle, \nabla V -\nabla E_\star}_\O.
+  \]
+  The second equality holds since $U_\star$ is the Galerkin approximation on ${\VV(\T_\star) \ni E_\star - V}$.
+  The last equality follows from the equilibrated characteristic without oscillation, i.e.~$\ip{\vsig^\triangle, \nabla v} = -\ip{r,v}$.
+  Let $V$ be the Scott-Zhang \cite{scott1990finite} interpolator of $E_\star$ so that $V - E_\star = 0$ on $\T \cap \T_\star$. 
+  From the Scott-Zhang approximation theory \cite{scott1990finite} and Poincar\'e-Friedrichs inequality for $E_\star \in H_0^1(\O)$ we discover that
+  \begin{align*}
+    \ip{\vsig^\triangle , \nabla V - \nabla E_\star}_\O &= \sum_{K \in \T \setminus \T_\star} \ip{\vsig^\triangle, \nabla V - \nabla E_\star}_K\leq \sum_{K \in \T \setminus \T_\star} \uanorm{\vsig^\triangle}_K \norm{\nabla V - \nabla E_\star}_K\\
+    &\lesssim \sum_{K \in \T \setminus \T_\star} \uanorm{\vsig^\triangle}_K\norm{E_\star}_{H^1(\w_K)}\\
+    &\lesssim \norm{E_\star}_{H^1(\O)} \sqrt{\sum_{K \in \T \setminus \T_\star} \uanorm{\vsig^\triangle}^2_K} \\
+    &\lesssim \enorm{E_\star}_{\O} \sqrt{\sum_{K \in \T \setminus \T_\star} \uanorm{\vsig^\triangle}^2_K}.
+  \end{align*}
+  This gives the desired local upper bound
+  \[
+    \enorm{U_\star - U}^2_\O \lesssim\sum_{K \in \T \setminus \T_\star} \uanorm{\vsig^\triangle}^2_K.
+  \]
+
+  For the discrete efficiency no such direct proof comes to mind, and without an equivalence  with the standard residual estimator 
+  we cannot prove that it holds. Due to the similarities we \emph{conjecture} that this bound also holds. This would imply optimal convergence of AFEM
+  driven by the element-wise equilibrated flux estimator as well.
+
+  \subsection{Lower order estimator}
+  In \S\ref{sec:lowerorder} we introduced an equilibrated flux estimator $\vhsiga$ in the lower order Raviart-Thomas $\RT_{p-1,0}^{-1}(\w_a)$. 
+  The element-wise estimator $\norm{\v{\hat \sigma}}_K$ provides a reliability bound for which the oscillation is still of higher order. The
+  efficiency result for this estimator introduced an extra edge-related oscillation term. As with the above, we conjecture that AFEM driven
+  by this estimator is optimal as well. This claim is supported by the numerical results in Chapter 5.
+\end{document}

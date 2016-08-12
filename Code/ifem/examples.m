@@ -51,7 +51,7 @@ function [node, elem, bdFlag, pde] = lshapecorner()
   p = sym('p', 1:2);
 
   r = sqrt(x^2 + y^2);
-  t = atan(y/(x+0.0000001));
+  t = atan(y/(x));
 
   % Symbolic functions
   u = (x+1)*x*(x-1)*(y+1)*y*(y-1) * r^(2/3) * sin(2/3*t);

@@ -1,7 +1,7 @@
 \documentclass[thesis.tex]{subfiles}
 \begin{document}
 \section{Sobolev spaces}
-A proof of the following theorems can be found in most standard works, e.g. \cite{gaticasimple}.
+A proof of the following theorems can be found in most standard works, e.g.~\cite{gaticasimple}.
 \begin{thm}
   \label{thm:green}
   Let $\O$ be a bounded domain with Lipschitz boundary, then for all $v,w \in H^1(\O)$  there holds
@@ -20,7 +20,7 @@ The weak divergent Sobolev space is defined by
 \[
   H(\div; \O) := \set{ \v{\sigma} \in [L^2(\O)]^2 : \div \v{\sigma} \in L^2(\O)}.
   \]
-  Where $\div \v{\sigma} \in L^2(\O)$ is interpreted in distributional sense, i.e. there exists a $v\in L^2(\O)$ such that
+  Where $\div \v{\sigma} \in L^2(\O)$ is interpreted in distributional sense, i.e.~there exists a $v\in L^2(\O)$ such that
   \[
     - \int_{\O} \nabla \f \cdot \v{\sigma} = \int_{\O} v\f\quad \forall \f \in D(\O).
   \]
@@ -41,9 +41,9 @@ trace of $v$ on $\partial \O$.
 \section{Poincar\'e-Friedrichs inequality}
 \label{sec:poincfried}
 For some $H^1$ functions it is possible to (universally) bound the $L^2$-norm by its $H^1$-seminorm.
-Both Poincar\'e and Friedrichs' inequality provide such bounds. Due to their similarity these type 
+Both Poincar\'e and Friedrichs inequality provide such bounds. Due to their similarity these type 
 of inequalities are named \emph{Poincar\'e-Friedrichs inequality}.
-\begin{thm}[Friedrichs' inequality]
+\begin{thm}[Friedrichs inequality]
   Suppose that $\O \subset \R^n$ is a  bounded Lipschitz domain, then for $h_\O$ the diameter of $\O$ we have
   \[
     \norm{v}_{\O} \leq h_\O  \norm{\nabla v}_{\O} \quad \forall v \in H^1_{0}(\O).
@@ -61,12 +61,13 @@ of inequalities are named \emph{Poincar\'e-Friedrichs inequality}.
   \]
 \end{thm}
 Here $C_F$ and $C_P$ --- combined $C_{FP}$ in short --- are actually taken as the smallest constant such that the bound holds.
-It is not directly clear how $C_{FP}$ depends on the shape of the domain. For some domain types explicit
+It is not directly clear how $C_{FP}$ depends on the shape of the domain. For some domain types, explicit
 upper bounds can be given. All \emph{convex} domains $\O$  satisfy $C_{P}(\O) \leq \frac{1}{\pi}$.
-Constant bounds for Friedrichs' inequality in terms of geometry can be found in Literature,
-e.g. \cite{zheng2005friedrichs, veeser2011poincare}. In particular, for stars $\w_a$  --- the elements touching
+Constant bounds for Friedrichs inequality in terms of geometry can be found in literature,
+e.g.~\cite{zheng2005friedrichs, veeser2011poincare}. In particular, for stars~$\w_a$  --- the elements touching
 a vertex $a$ in some triangulation --- a constant bound can be given that only depends on the shape regularity of 
-the associated triangulation: $C_{F}(\w_a) \leq C(\sup_{K \in \T} h_K / p_K)$.
+the associated triangulation: 
+\[C_{F}(\w_a) \leq C(\sup_{K \in \T} h_K / p_K).\]
 
 \section{Raviart-Thomas elements}
 
@@ -115,7 +116,7 @@ Raviart-Thomas functions can be (partially) determined by their divergence and s
 \label{sec:aux}
 Here the proof of Lemma \ref{lem:clasequivlow} is included for self-containedness.
   \begin{lemstar}
-  The estimator $\uanorm{\v{\sigma_a}}_{\w_a}$ is also bounded from below by the classical estimator,
+  The estimator $\uanorm{\v{\sigma_a}}_{\w_a}$ is bounded from below by the classical estimator,
   \[
     \uanorm{\vsiga}_{\w_a} \gtrsim h_{\w_a}\norm{f + \Delta U}_{\w_a} + h^{1/2}_{\w_a} \norm{\llbracket \nabla U  \rrbracket}_{\gamma_a},
   \]
@@ -151,7 +152,7 @@ Here the proof of Lemma \ref{lem:clasequivlow} is included for self-containednes
     \geq \sup_{\{v \in H_0^1(K) : v \ne 0\}} { \langle{r^T_a, v}\rangle_K \over \norm{\nabla v}_{K}}
     = \sup_{\{v \in H_0^1(K) :  \norm{\nabla v}=1\}} { \langle\psi_a\left[ f + \Delta U\right],v\rangle_K }
   \]
-  An estimate for this last term can be found using equivalence of norms (cf. \cite[Ex~9.x.5]{brenner}):
+  An estimate for this last term can be found using equivalence of norms (cf.~\cite[Ex~9.x.5]{brenner}):
   
   That is, we claim that $\norm{q} := \sup_{\{v \in H_0^1(K) : \norm{\nabla v}=1\}} \langle \psi_a q, v\rangle_K$
   defines a norm for polynomials $q$ of degree $r$ on $K$. The only troublesome axiom to be satisfied

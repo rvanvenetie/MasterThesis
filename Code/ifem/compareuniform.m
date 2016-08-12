@@ -30,19 +30,19 @@ function compareuniform(method, estimators, node, elem, pde, bdFlag, maxN)
     case 'residual'
       legendAbs{end+1} = 'residual($U_k$)';
       figure(f2); loglog(N, err, 'r-o'); % abs
-      figure(f3); semilogx(N, errH1 ./ err, 'r-o'); % rel
+      figure(f3); semilogx(N, err ./ errH1, 'r-o'); % rel
     case 'mixed'
       legendAbs{end+1} = 'mixed($U_k, \sigma$)';
       figure(f2); loglog(N, err, 'm-o'); % abs
-      figure(f3); semilogx(N, errH1 ./ err, 'm-o'); % rel
+      figure(f3); semilogx(N, err ./errH1, 'm-o'); % rel
     case 'equilibrated'
       legendAbs{end+1} = 'equilibrated($U_k, \zeta$)';
       figure(f2); loglog(N, err, '-o', 'color', [0 0.5 0]); % abs
-      figure(f3); semilogx(N, errH1 ./ err, '-o', 'color', [0 0.5 0]); % rel
+      figure(f3); semilogx(N, err ./errH1, '-o', 'color', [0 0.5 0]); % rel
     case 'zz'
       legendAbs{end+1} = 'ZZ($U_k$)';
       figure(f2); loglog(N, err, 'k-o'); %abs
-      figure(f3); semilogx(N, errH1 ./ err, 'k-o'); %rel
+      figure(f3); semilogx(N, err ./ errH1, 'k-o'); %rel
     end
     % Same for every estimator
     legendRel{end+1} = legendAbs{end};

@@ -75,16 +75,26 @@ function [N,err] = estimateafem(estimator, node, elem, pde, bdFlag, theta, maxN)
     case 'equilibrated'
       % Compute the equilibrated flux estimator
       [~, eta, ~] =  equil(node, elem, Duh, pde.f);
+      % show initial mesh on figure 1
+      figure(f1); clf;
+
+      %colormap('jet')
+      h = trisurf(elem(:,1:3),node(:,1),node(:,2),zeros(size(node,1),1)) %,eta ./ err(end));
+      set(h,'edgecolor','k', 'facecolor', 'none');
+      %caxis([0,1])
+      %caxis('auto')
+      %colorbar;
+      view(2); axis equal; axis tight; axis off;
+      %//#h = colorbar;
+
+      set(f1, 'Color', 'none'); % Set background transparent
+      export_fig(f1, sprintf('/tmp/result_%d.pdf', N(end) ), '-painters');
     case 'residual'
       % Compute the classical residual estimator
       eta = estimateresidual(node, elem, uh, pde);
     case 'zz'
       % Calculate the zienkewicz-zhu estimator
       [~,eta] = zzestimate(node, elem, Duh, area, pde.f);
-      % show initial mesh on figure 1
-      figure(f1); clf;
-      showmesh(node, elem);
-      export_fig(f1, sprintf('%s/result%d.pdf', savedir, j), '-painters');
     otherwise
       disp('You dumb boy, select a valid estimator')
       return

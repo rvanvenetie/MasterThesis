@@ -89,9 +89,9 @@ Science Park 105-107, 1098 XG Amsterdam\\
 %----------------------------------------------------------------------------------------
 %	HEADING SECTIONS
 %----------------------------------------------------------------------------------------
-\vspace{3cm}
-\includegraphics[width=\textwidth]{UvaLogoTekst.pdf}\\[1.5cm]
-\textsc{\LARGE \@program}\\[0.5cm]
+\vspace{1.5cm}
+\includegraphics[width=\textwidth]{UvaLogoTekst.pdf}\\[1cm]
+\textsc{\LARGE \@program}\\[0.3cm]
 \textsc{\Large \@documentTitle}\\[0.5cm]
 
 %----------------------------------------------------------------------------------------
@@ -104,7 +104,7 @@ Science Park 105-107, 1098 XG Amsterdam\\
 \vspace{0.5cm}
 \HRule
 
-\vspace{2cm}
+\vspace{1cm}
  
  
 \begin{tabular}{p{0.45\textwidth} >{\raggedleft\let\newline\\\hspace{0pt}}p{0.45\textwidth}}
@@ -115,9 +115,11 @@ Science Park 105-107, 1098 XG Amsterdam\\
 {\Large \@date} & \raggedleft {\if\@dailysupervisorTitle\relax \else \Large \@dailysupervisorTitle \fi}
 \end{tabular}
 
-
-
+\vspace{1cm}
+\includegraphics[width=0.45\linewidth]{mesh/lshape_afem.pdf}
+%\vspace{-2pt}
 \vspace{\stretch{1}}
+
 
 \if\@secondinstitute\relax
 \begin{tabular}{>{\centering\let\newline\\\hspace{0pt}}p{0.4\textwidth}}
@@ -144,6 +146,7 @@ Science Park 105-107, 1098 XG Amsterdam\\
 \vfill
 \noindent
 \titletext: \@title\\
+Cover image: An optimal triangulation found using AFEM with the equilibrated flux estimator\\
 \ifnum\value{authors} < 2%
 \authortextsingular: \@authordetails\\
 \else

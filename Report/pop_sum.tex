@@ -1,0 +1,38 @@
+\documentclass[thesis.tex]{subfiles}
+\begin{document}
+Exact solutions of many partial differential equations are hard or impossible to find. 
+This is a problem in many practical (research) fields --- think of an engineer wanting to solve a heat
+equation for some object. One way to overcome this problem is to use some \emph{approximation} method.
+That is, instead of seeking the exact solution one constructs a function that is close in norm to the exact solution.
+For many types of partial differential equations such approximations are provided by the \emph{finite element method} (FEM).
+
+Consider for example a two-dimensional Poisson
+boundary value problem on the unit square $\O = [0,1] \times [0,1]$: solve $u$ from
+  \begin{equation*}
+  \begin{alignedat}{2}
+    -\Delta u &=&1 \quad &\text {in } \Omega, \\
+    u &=& 0 \quad &\text{on } \partial\O.
+  \end{alignedat}
+\end{equation*}
+The first step of FEM is to subdivide the domain $\O$ into smaller pieces --- called \emph{elements}. 
+For our example this means that
+we subdivide the unit square into triangles. In the next step we define a function space on each of these elements, and
+combine the elements to form a \emph{finite} dimensional function space over the domain $\O$. An approximation $U$ of the exact solution $u$
+is then found in this finite element space by solving a system of equations (each element induces a set of equations).
+
+In order to improve the quality of $U$ we could subdivide every element and calculate an approximation for the
+refined subdivision. This classical approach works, i.e. the sequence of FEM approximations converges towards the exact solution.
+For some problems a faster convergence rate can be achieved by only subdividing
+those elements where the current approximation $U$ has the worst quality. This is the so-called \emph{adaptive} finite element method (AFEM).
+
+The immediate question is how to determine the approximation error $\norm{u - U}$ on an element. We apply approximation techniques
+in the first place since the exact solution $u$ is unknown. Fascinatingly there are \emph{estimators} that can be used
+to estimate the error $\norm{u - U}$ on an element --- without knowing the exact solution $u$! One well-known
+estimator is the residual error estimator. This was the first estimator for which \emph{optimal} convergence of adaptive finite element 
+method was proved.
+
+Recently quite some research interest has been in finding estimator with more favorable properties.
+In this work we concentrate on the \emph{equilibrated} flux estimator. We given an in-depth overview its
+properties and us these properties to show that AFEM using this estimator also provides optimal convergence.
+Lastly we experimentally verify these claims using an actual implementation.
+\end{document}
