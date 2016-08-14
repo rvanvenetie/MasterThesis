@@ -229,7 +229,7 @@ The Raviart-Thomas space $\RT_p(K)$ has  the following (unisolvent) characterisa
   Then $\vsig \equiv 0$ in $K$.
 \end{thm}
 \begin{proof}
-  Examinaton of the dimensions of the function spaces reveals that the number of equations equals the dimension of $\RT_p(K)$.
+  Examination of the dimensions of the function spaces reveals that the number of equations equals the dimension of $\RT_p(K)$.
   Since $\vsig \cdot n_e \in \P_p(e)$, the first equation implies that $\vsig \cdot n_e$ vanishes on all edges of $K$.
 
   Let $p \geq 1$, then for any $q \in \P_p(K)$ we have $\nabla q \in \left[\P_{p-1}(K)\right]^2$, and by the divergence theorem this gives that
@@ -311,7 +311,7 @@ system of equations \eqref{eq:systemzeta} that define $\vzeta$. For simplicity w
 investigating this system for the lowest order estimator ($p=0$).  We will derive
 explicit (nodal) basis functions for both the spaces used in \eqref{eq:systemzeta}, i.e.~$\RT_{0,0}(\w_a)$ and $\QQ_0(\w_a)$.
 
-\subsection{Raviart-Thomas}
+\subsection{Raviart-Thomas space}
 The lowest order Raviart-Thomas space contains only edge related nodal variables, cf.~\eqref{eq:nodalrt}.
 Let $K$ be a triangle with vertices $\set{v_1, v_2, v_3}$ and label the opposite edges by $\set{e_1, e_2, e_3}$.
 A basis for $\P_0(e_i)$ is simply the constant function~$\1$.
@@ -348,8 +348,7 @@ global basis function associated to $e$ is given by
 \end{equation}
 The extra Neumann boundary constraints needed for $\RT_{0,0}$ are easily incorporated, one simple removes the
 basis functions associated to the vanishing Neumann edges. 
-\subsection{Polynomial basis}
-\todo{Betere titel?}
+\subsection{Polynomial space $\QQ_0(\w_a)$}
 The system \eqref{eq:systemzeta} defines the polynomial space $\QQ_0(\w_a) \subset \P_0^{-1}(\w_a)$. For boundary
 vertices we can simply take the constant functions $\1$ on each of the elements as basis. For an interior vertex $a \in \V^{int}$
 we have the additional mean zero constraint, i.e.
@@ -377,8 +376,8 @@ we let $U$ be the \emph{linear} Lagrange finite element solution for some triang
 Notice that $U$ is a polynomial of degree $1$ and thus of one order higher than the estimator.
 In \S\ref{sec:lowerorder} we saw that such an estimator still provides reliability and efficiency.
 
-\textcolor{blue}{Do we indeed retrieve the bounds from \S\ref{sec:lowerorder}? Not entirely sure whether solving the system \eqref{eq:systemzeta} is also equivalent to lower 
-order approximations of $\vsiga$. Equivalence shown in beginning of this chapter is in trouble due to the edge projector--- integration by parts does not (directly) work.}
+%\textcolor{blue}{Do we indeed retrieve the bounds from \S\ref{sec:lowerorder}? Not entirely sure whether solving the system \eqref{eq:systemzeta} is also equivalent to lower 
+%order approximations of $\vsiga$. Equivalence shown in beginning of this chapter is in trouble due to the edge projector--- integration by parts does not (directly) work.}
 
 Implementation of the estimator $\vzeta$ for $p=0$ now follows quite easily. 
 Starting with an interior vertex $a \in \V$ we must solve $(\vzeta, \lambda_a) \in \RT_{0,0}(\w_a)\times \QQ_0(\w_a)$ from the system
@@ -466,7 +465,7 @@ Starting with an interior vertex $a \in \V$ we must solve $(\vzeta, \lambda_a) \
   able to express the nodal basis in terms of $\tau_j$.
 
   The above construction is sensitive to numerical instabilities. The advantage of this method, however, is that
-  we directly find a $H(\div; \O)$-conforming basis of $\RT_p(\T)$. Furthermore, it is trivial to incorporate vanishing Neumann conditions,
+  we directly find a $H(\div; \O)$-conforming basis of $\RT_p(\T)$. Furthermore, it is trivial to incorporate homogeneous Neumann conditions,
   and therefore to provide a basis for the subspace $\RT_{p,0}(\w_a)$ that
   is used in calculation of the equilibrated flux estimator.
 

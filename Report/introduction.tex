@@ -2,8 +2,8 @@
 \begin{document}
 Many years have passed since the first appearance of the \emph{finite element method}. 
 For a large class of boundary value problems, it has proved to be the approximation method of choice. 
-Let $\O$ be the domain of boundary value problem of interest. The general finite element method can be characterized as follows.
-First the domain $\O$ is partitioned into a set of \emph{elements}.  Each of these elements is equipped with a (local) function space.
+Let $\O$ be the domain of the boundary value problem of interest. The general finite element method can be characterized as follows.
+First, the domain $\O$ is partitioned into a set of \emph{elements}.  Each of these elements is equipped with a (local) function space.
 Assembling these local spaces together results in a function space $\VV$ on the entire domain~$\O$. A finite element \emph{approximation} $U$
 is then chosen from $\VV$ such that $U$ is close to the exact solution in some sense 
 --- e.g.~U can be the projection of the exact solution on $\VV$. 
@@ -16,7 +16,7 @@ approximations for repeated subdivisions of the partition.
 
 For smooth solutions $u$, it has been shown
 that an optimal convergence rate is obtained by subdividing each element of the partition. 
-In the two-dimensional case with triangular elements this could correspond to subdividing each triangle into four
+In the two-dimensional case with triangular elements, this could correspond to subdividing each triangle into four
 congruent subtriangles. All of this theory is well established and summarized  in various books, e.g.~\cite{brenner, zienkiewicz1977finite}.
 
 For less smooth $u$, this simplistic refinement strategy unfortunately does not provide an optimal convergence rate.
@@ -39,8 +39,8 @@ approximations $U$ in practice.  Fortunately, a variety of alternative (nonresid
 \cite{verfurth2013posteriori}.
 
 This work will focus one of these estimators in particular:
-the \emph{equilibrated} flux estimator \cite{braessequil, braessequilrobust, ernequil}. This estimator provides a true upper bound
-for the local error without an constant, eliminating one of the shortcomings of the standard residual estimator. 
+the \emph{equilibrated flux} estimator \cite{braessequil, braessequilrobust, ernequil}. This estimator provides a true upper bound
+for the local error without an unkown constant, eliminating one of the shortcomings of the standard residual estimator. 
 Braess, Pillwein and Sch\"oberl \cite{braessequilrobust} showed another --- arguably more important --- property of this estimator: \emph{polynomial-robustsness}. That is,
 the constant appearing in the lower bound is independent of the polynomial degree used in $\VV$.
 This latter condition might enable one to prove optimality of yet another version of finite element method, the so-called
@@ -55,7 +55,7 @@ by Casc\'on and Nochetto.
 
 The advantages of the equilibrated flux estimator come at the price of implementational
 complexity. We shall therefore discuss an equivalent --- and easier to implement --- construction of the equilibrated flux estimator
-as presented by Ern and Volharik in \cite{ernequil}. The equilibrated flux estimator
+as presented by Ern and Volharik in~\cite{ernequil}. The equilibrated flux estimator
 for the lowest order finite element space is implemented using this alternative construction. The implementation
 will be used to analyze and compare the standard residual estimator with the equilibrated flux estimator.
 

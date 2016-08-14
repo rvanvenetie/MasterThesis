@@ -96,7 +96,7 @@ We are left to check the continuity and coercivity of the bilinear form.
       \int_\Omega \left(\v{b} \cdot \nabla v\right)v  = \int_\Omega \v{b} \cdot \left({1 \over 2} \nabla v^2\right) = - \int_\Omega \left(\nabla \cdot \v{b} \right) {1 \over 2} v^2 = 0.
     \]
     By non-negativity of $c$, we have $cv^2 \geq 0$ on $\Omega$. 
-    The Poincar\'e-Friedrich  inequality --- stated in \S\ref{sec:poincfried} --- provides us with a constant $C_\Omega$ such that $\|v\|_{L^2(\Omega)} \leq C_\Omega \|\nabla v\|_{L^2(\Omega)}$ for $v \in H_0^1(\Omega)$. Combining this with the uniform ellipticity of~$\mathbf{A}$~yields,
+    The Poincar\'e-Friedrich  inequality --- stated in \S\ref{sec:poincfried} --- provides us with a constant $C_\Omega$ such that ${\|v\|_{L^2(\Omega)} \leq C_\Omega \|\nabla v\|_{L^2(\Omega)}}$ for $v \in H_0^1(\Omega)$. Combining this with the uniform ellipticity of~$\mathbf{A}$~yields,
     \begin{align*}
       a(v,v) &= \int_\Omega \left(\mathbf{A} \nabla v\right) \cdot \nabla v + \left(\v{b} \cdot \nabla v\right)v + cv^2 \\
       &\geq  \int_\Omega \left(\mathbf{A}(x) \nabla v(x)\right) \cdot \nabla v(x)\, \dif x \\
@@ -435,16 +435,16 @@ In the literature, the finite element space is frequently defined in terms of th
   either contained in $\T$ or can be obtained by applying a finite number of bisections to an element in $\T$.
   Write $R_{\T \to \T_\star}$ for the set of refined elements, i.e.~$R_{\T \to \T_\star} = \T\setminus \T_\star$.
   To distinguish between finite element solutions, denote $U_\star$ for the Galerkin approximation in $\VV(\T_\star)$. 
-  The following theorem holds.
-  \todo{Reliability and efficiency}
+  The following theorem shows \emph{reliability} and \emph{efficiency} of the estimator.
   \begin{thm}[{\cite{stevenson,cascon2008}}]
     \label{thm:residual_erro}
-    There is a constant $C_1$ such that for $\T_\star \geq \T$ we have 
+    There exists a constant $C_1$ such that for $\T_\star \geq \T$ we have 
+    reliability and discrete reliability:
     \[
-      \enorm{U_\star - U}^2_{\O} \leq C_1 \eta^2 (U, R_{\T \to \T_\star}) \quad \text{and} \quad \enorm{u - U}^2_{\O} \leq C_1 \eta^2 (U, \T).
+      \enorm{u - U}^2_{\O} \leq C_1 \eta^2 (U, \T) \quad \text{and} \quad \enorm{U_\star - U}^2_{\O} \leq C_1 \eta^2 (U, R_{\T \to \T_\star}).
     \]
 
-    Similarly, there exists a constant $C_2$ such that
+    Similarly, we have efficiency for a constant $C_2$:
     \[
       \eta^2(U, \T) \leq C_2 \left [\enorm{u - U}^2_{\O} + \osc^2(f, \T) \right].
     \]
@@ -465,7 +465,7 @@ In the literature, the finite element space is frequently defined in terms of th
     \texttt{SOLVE} \to \texttt{ESTIMATE} \to \texttt{MARK} \to \texttt{REFINE}.
   \]
   Solve a discrete solution $U$, estimate local errors using $\eta(U, K)$, select a subset of elements for which
-  the error is large and refine these elements. Later in \S\ref{sec:afemequil} a more detailed description of this
+  the error is large and refine these elements. Later in Chapter 3 a more detailed description of this
   method will be given.
 
   Marking --- making the selection of triangles to be refined --- is  done using D\"orfler marking, named after its inventor D\"orfler in \cite{dorfler1996convergent}.
@@ -486,7 +486,7 @@ In the literature, the finite element space is frequently defined in terms of th
   This shows that the \emph{quasi-error} $\enorm{u - U_k}^2_\O + \gamma \eta^2\left(U_k, \T_k\right)$ is reduced at every step.
   Since $\eta^2(U_k,\T_k)$ is proportional to the total error, and $\enorm{u - U_k}$ is a non-increasing sequence, this proves 
   convergence of AFEM.
-  One can even prove that this convergence is with the best possible rate. To formalise this, we introduce an approximation class.
+  One can even prove that this error decays the best possible rate. To formalise this, we introduce an approximation class.
   \begin{defn}
     \label{def:optimalclas}
     For $s > 0$ define the approximation class $\A^s$ by
@@ -495,9 +495,10 @@ In the literature, the finite element space is frequently defined in terms of th
                                   & \abs{u}_{\A^s} := \sup_{N \in \NN} \left(N + 1\right)^s \min_{\set{\T \in \TT : \#\T -\# \T_0 \leq N}} \sqrt{\enorm{u - U_\T}^2_{\O} + \osc^2(f,\T)} < \infty\}.
     \end{align*}
   \end{defn}
-  Suppose that $u \in \A^s$. For $\T_N$, the best partition on $N + \#\T_0$ triangles, the total error satisfies $\sqrt{\enorm{u - U_N}_\O^2 + \osc^2(f, \T_N)} \leq  (N+1)^{-s} \abs{u}_{\A^s}$. The number of triangles are in proportion with the number of degrees of freedom; it therefore provides a representative quantity for comparing
-  the energy error decay.
-
+  Suppose that $u \in \A^s$. For $\T_N$, the best partition on $N + \#\T_0$ triangles,
+  the total error satisfies $\sqrt{\enorm{u - U_N}_\O^2 + \osc^2(f, \T_N)} \leq  (N+1)^{-s} \abs{u}_{\A^s}$.
+  The number of triangles are in proportion with the number of degrees of freedom; it therefore provides a representative quantity for comparing
+  the error decay.
 
   We have the following celebrated optimality theorem. A proof of this theorem as well as a historic overview of contributions that lead to this result
   can be found in \cite{stevenson, cascon2008}. 
@@ -508,6 +509,8 @@ In the literature, the finite element space is frequently defined in terms of th
       \# \T_k - \# \T_0 \leq C \abs{u}^{1/s}_{\A^s} \left( \sqrt{ \enorm{u - U_k}^2_{\O} + \osc^2(\T_k, f)}\right)^{-1/s}.
     \]
   \end{thm}
-  In \S\ref{sec:afemequil} we will prove something very similar, but for a different estimator.
-  Details of the adaptive finite element method will then become clear.
+  In words, the sequence of triangulations produced by AFEM provide  the same convergence rate --- in terms of the degrees of freedom ---
+  as the best possible sequence of triangulations.
+  In Chapter 3 we will prove something very similar, but for a different estimator.
+  Details of the adaptive finite element method and of the optimality proof will then become clear.
 \end{document}
