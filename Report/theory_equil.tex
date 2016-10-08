@@ -65,7 +65,7 @@ From now until \S\ref{sec:oscillation}, we suppose that $f$ is a piecewise polyn
 \[
   f\in \P_{p-1}^{-1}(\T) := \set{ f \in L^2(\O): f|_K \in \P_{p-1}(K) \quad \forall K \in \T},
 \]
-and consider the  $p$-th order Raviart-Thomas space $\RT_p(\T)$ defined by:
+and consider the  $p$-th order \emph{Raviart-Thomas} \cite{raviart1977mixed}  space $\RT_p(\T)$ defined by:
 \begin{align*} 
   \RT_p(K)    &:= \left[ \P_p(K)\right]^2 + \P_p(K)\v{x}, \\
   \RT_p^{-1}(\T) &= \set{ \v{\sigma} \in \left[L^2(\O)\right]^2 : \v{\sigma}|_K \in \RT_p(K) \quad \forall K \in \T},\\
@@ -288,9 +288,9 @@ We equip this space with the norm $\norm{\nabla \cdot }_{\omega_a}$, which is a 
   \norm{\nabla v}_{\omega_a} = 0 \implies v = C_{st}, \quad v \in H_\star^1(\omega_a) \implies C_{st} = 0.
 \]
 Even stronger,
-this norm is equivalent to the $H^1$-norm due to Poincar\'e-Friedrichs inequality (cf.~\S\ref{sec:poincfried}).
+this norm is equivalent to the $H^1$-norm by Poincar\'e-Friedrichs inequality (cf.~\S\ref{sec:poincfried}).
 With these definitions we are able to proof local efficiency in terms of $r_a$.
-To avoid unnecessary confusion we  will write $a \lesssim b$ if there holds $a \leq C b$ for some constant $C$.
+To avoid unnecessary confusion, we  will write $a \lesssim b$ if there holds $a \leq C b$ for some constant~$C$.
 Similarly, we write $a \gtrsim b$ if we have $b \lesssim a$, and $a \eqsim b$ if both inequalities hold.
 \begin{lem}
   \label{lem:loceff}
@@ -345,7 +345,7 @@ Recall that $\vsiga\in \RT_{p,0}(\w_a)$ was found to be the minimal norm functio
 \begin{proof}
 The proof of this theorem is very involved. A constructive proof is given in \cite[Theorem~7]{braessequilrobust}.
 The theorem formulation given in \cite{braessequilrobust} is only applicable to interior vertices $a \in \V^{int}$.
-Due to the nature of the proof, however, this easily extends to boundary vertices $a \in \V^{bdr}$ as well (cf.~Theorem~\ref{thm:sigmasolvable}). 
+By the nature of the proof, however, this result easily extends to boundary vertices $a \in \V^{bdr}$ as well (cf.~Theorem~\ref{thm:sigmasolvable}). 
 \end{proof}
 \begin{thm}
   \label{thm:equilprop}
@@ -364,12 +364,13 @@ Due to the nature of the proof, however, this easily extends to boundary vertice
     &\leq 3 \sum_{K \in \T} \sum_{a \in \V_K} \uanorm{\vsiga}_K^2  = 3 \sum_{a \in \V} \uanorm{\vsiga}_{\w_a}^2.
   \end{align*}
   The second inequality follows from the fact that every triangle has three vertices and that $(x+y+z)^2 \leq 3 x^2 + 3y^2 + 3z^2$ for positive 
-  variables.  The last equality follows from the notion that every triangle is contained in exactly three patches.
+  variables.  
   
   Global efficiency follows from summarizing the local bound given in the Lemma \ref{lem:loceff} and the previous Theorem, i.e.
   \[
     \sum_{a \in \V} \uanorm{\vsiga}^2_{\w_a} \lesssim \sum_{a \in \V} \norm{r_a}^2_{H^1_\star(\w_a)'} \lesssim \sum_{a \in \V} \enorm{u - U}_{\w_a}^2 = 3 \enorm{u - U}^2_{\O}.
   \]
+  The last equality follows from the notion that every triangle is contained in exactly three patches.
   The hidden constants depend on the shape regularity, but are independent of the polynomial-degree $p$.
 \end{proof} 
 \section{Equivalence with the classical residual estimator}
@@ -381,13 +382,15 @@ Due to the nature of the proof, however, this easily extends to boundary vertice
   Casc\'on and Nochetto \cite{cascon2012} note that discrete reliability and efficiency follows from a patch-wise equivalence between the
   equilibrated flux estimator and the classical residual estimator from Definition~\ref{def:clasest}: 
   \[
-    \uanorm{\v{\sigma_a}}_{\w_a} \eqsim h_{\w_a}\norm{f + \Delta U}_{\w_a} + h^{1/2}_{\w_a} \norm{\llbracket \nabla U  \rrbracket}_{\gamma_a}.
+    \uanorm{\v{\sigma_a}}_{\w_a} \eqsim h_{\w_a}\norm{f + \Delta U}_{\w_a} + h^{1/2}_{\w_a} \norm{\llbracket \nabla U  \rrbracket}_{\gamma_a},
   \]
+  where $\Delta U$ is to be interpreted as the element-wise Laplacian of $U$.
   Unfortunately, neither of these claims --- local equivalence and the discrete bounds --- are proven in \cite{cascon2012}.
   We will overcome this shortcoming by providing proofs, starting with the patch-wise equivalence.
-  The inequalities that make up this equivalence are separately shown in the following two Lemma's.
+  The inequalities that make up this equivalence are separately shown in the following two Lemmas.
 
   \begin{lem}
+    \label{lem:clas123}
   The estimator $\uanorm{\v{\sigma_a}}_{\w_a}$ is bounded by the classical estimator on the patch~$\w_a$, 
   \[
     \uanorm{\vsiga}_{\w_a} \lesssim h_{\w_a}\norm{f + \Delta U}_{\w_a} + h^{1/2}_{\w_a} \norm{\llbracket \nabla U  \rrbracket}_{\gamma_a},
@@ -456,7 +459,7 @@ Due to the nature of the proof, however, this easily extends to boundary vertice
   \]
   for a constant depending on the shape regularity and the polynomial-degree $p$ used in~$\VV$.
 \end{cor}
-\section{Discretization and Oscillation}
+\section{Discretization and oscillation}
 \label{sec:oscillation}
 Thus far we have assumed the right hand side $f$ to be a broken polynomial of degree at most $p-1$. In practice one 
 often has a more general $f \in L^2(\O)$, and thus we must alter the above method.
@@ -471,20 +474,25 @@ We will replace the (exact) local residuals~$r_a$ by discretized local residuals
 \end{align*}
 Since $\1 \in \P_p^{-1}(\w_a)$ and $\Pi_p^a$ is an \emph{orthogonal} projector we find 
 \[
-  \ip{\Pi_p^a(\psi_a f), \1}_{\w_a} = \ip{\psi_a f, \Pi_p^a(\1)}_{\w_a} = \ip{\psi_a f, \1},
+  \ip{\Pi_p^a(\psi_a f), \1}_{\w_a} = \ip{\psi_a f, \Pi_p^a(\1)}_{\w_a} = \ip{\psi_a f, \1}.
 \]
-and thus $\tilde r_a$ also vanishes on constants by the Galerkin orthogonality. We can therefore interpret
-$\tilde r_a$ as a functional on the space  $H_\star^1(\w_a)$.
-
-Hereafter $\v{\sigma_a}$ will be constructed using the discretized local residual. That is, 
-for each vertex $a \in \V$, we let  $\v{\sigma_a}\in\RT_{p,0}^{-1}(\w_a)$ be the minimal $L^2$-norm
-flux satisfying
+From Galerkin orthogonality it then follows that $\tilde r_a$ also vanishes on constant functions for interior vertices $a \in \V^{int}$.
+%and thus $\tilde r_a$ also vanishes on constants by the Galerkin orthogonality.
+We can therefore interpret
+$\tilde r_a$ as a functional on the space~$H_\star^1(\w_a)$.
+Hereafter, $\v{\sigma_a}$ will be  defined in terms of the discretized local residual.
+\begin{defn}[Equilibrated flux]
+  \label{def:sigmadefdisc}
+  For each vertex $a \in \V$, the equilibrated flux is defined as  the minimal $L^2$-norm
+  flux $\vsiga \in \RT_{p,0}^{-1}(\w_a)$ that satisfies
 \begin{equation}
   \label{eq:sigmadefdisc}
   \ip{\tilde r_a, v} = - \ip{\v{\sigma_a}, \nabla v}_{\w_a} \quad \forall v \in H^1(\w_a) \cap H_0^1(\O).
 \end{equation}
+\end{defn}
 The proof that such a flux $\vsiga$ exists is identical to the proof
-of Theorem~\ref{thm:sigmasolvable}, because $\tilde r_a$ also vanishes on constant functions.
+of Theorem~\ref{thm:sigmasolvable}, because~$\tilde r_a$ also vanishes on constant functions for 
+interior vertices $a \in \V^{int}$.
 
 
 \subsection{Reliability and efficiency}
@@ -492,9 +500,9 @@ of Theorem~\ref{thm:sigmasolvable}, because $\tilde r_a$ also vanishes on consta
 Of course, this discretization comes at a price. The
 constant-free error estimate provided by Prager and Synge in Theorem~\ref{thm:reliablsyn}  
 has the following discretized counterpart.
-\begin{thm}
+\begin{thm}[Reliability]
   \label{thm:discsynge}
-  Let $\vsiga$ be as described above and take $\vsig^\triangle = \sum_{a \in \V} \vsiga$, then
+  Let $\vsiga$ be as defined above and take $\vsig^\triangle = \sum_{a \in \V} \vsiga$, then
   \begin{align*}
     \enorm{u - U}_{\O}^2  &\leq \sum_{K \in \T} \left[ \uanorm{\vsig^\triangle}_{K} + \frac{h_K}{\pi} \uanorm{ (I-\Pi_p)(f)}_{K}\right]^2 \\
     &\lesssim \sum_{a \in \V} \left[ \uanorm{\vsiga}^2_{\w_a} + \sum_{K \subset \w_a} h_K^2 \uanorm{(I- \Pi_{p-1})(f)}_{K}^2\right].
@@ -509,8 +517,7 @@ has the following discretized counterpart.
   For $v \in H_0^1(\O)$, the residual $r$ in terms of the localized residuals $r_a$ and $\tilde r_a$ is given by
   \begin{align*}
     \ip{r, v} &= \sum_{a \in \V} \ip{r_a, v} = \sum_{a \in \V} \ip{\tilde r_a, v} + \ip{r_a - \tilde r_a, v}\\
-    &=\sum_{a \in \V} \ip{\tilde r_a , v} + \sum_{a \in \V} \sum_{ K \subset \w_a}\ip{(I - \Pi_p)(\psi_a f), v}_{K}\\
-    &= \sum_{a \in \V} -\ip{\vsiga, \nabla v}_{\w_a} + \sum_{K \in \T} \sum_{a \in \V_K} \ip{(I - \Pi_p)(\psi_a f),v}_K\\
+    &=\sum_{a \in \V} -\ip{\vsiga, \nabla v}_{\w_a}  + \sum_{a \in \V} \sum_{ K \subset \w_a}\ip{(I - \Pi_p)(\psi_a f), v}_{K}\\
     &=  \sum_{K \in \T} \left[-\ip{\vsig^\triangle, \nabla v}_{K} +  \ip{(I - \Pi_p)(f),v}_K \right].
   \end{align*}
   The last equality holds since $\psi_a$ forms a partition of unity on each
@@ -553,9 +560,9 @@ This shortens the notation of data oscillation, i.e.
 The discretized residual will also introduce an oscillation term
  in the discretized analogues of the efficiency results from~\S\ref{sec:efficiency}, see the
 following theorem.
-\begin{thm}
+\begin{thm}[Efficiency]
   \label{thm:discbounds}
-  For $\v{\sigma_a}$ constructed as described above we have patch-wise efficiency~with
+  For the equilibrated flux $\v{\sigma_a}$ we have patch-wise efficiency~with
   \[
     \uanorm{\vsiga}_{\w_a} \lesssim \norm{\tilde r_a}_{H_\star^1(\w_a)'} \lesssim \enorm{u - U}_{\w_a} + \uanorm{h_a(I - \Pi_{p-1}^a)(f)}_{\w_a},
     %h_{\w_a} \norm{(I - \Pi_p^a) (\psi_a f)}_{\w_a},
@@ -586,7 +593,7 @@ following theorem.
     \norm{\tilde r_a}_{H_\star^1(\w_a)'} \leq \norm{r_a}_{H_\star^1(\w_a)'} + \norm{r_a - \tilde r_a}_{H_\star^1(\w_a)'} 
     \lesssim \enorm{u - U}_{\w_a} + \uanorm{h_a(I - \Pi_{p-1}^a)(f)}_{\w_a}.
   \]
-  The asserted patch-wise efficiency follows  by invoking the (powerful) theorem from Braess et. al \cite{braessequilrobust} which shows that $\uanorm{\vsiga}_{\w_a} \lesssim \norm{\tilde r_a}_{H^1_\star(\w_a)'}$, for a constant independent of the polynomial degree $p$.
+  The asserted patch-wise efficiency follows  by invoking the (powerful) theorem from Braess et.~al \cite{braessequilrobust} which shows that $\uanorm{\vsiga}_{\w_a} \lesssim \norm{\tilde r_a}_{H^1_\star(\w_a)'}$, for a constant independent of the polynomial degree $p$.
 
   The element-wise efficiency follows directly from the above result and the triangle inequality, i.e.
   \[
@@ -638,7 +645,7 @@ using the results from the previous theorem.
     &= \sum_{a \in \V} - \ip{\vhsiga, \nabla v}_{\w_a} + \sum_{a \in \V} \ip{(I-\Pi_{p-1}^a)(\psi_a f),v}_{\w_a} + \sum_{a \in \V} \sum_{e \subset \gamma_a} \ip{(I-\Pi_{p-1})(\psi_a \llbracket \nabla U \rrbracket), v}_{e},
   \end{align*}
   where we used that $\psi_a \Delta U$ is a polynomial of degree $p-1$, and thus in the range of~$\Pi_{p-1}^a$.
-  Using that $\psi_a$ forms a partition of unity on every edge $e$ and that $\llbracket \nabla U \rrbracket$ is a
+  Using that $\psi_a$ forms a partition of unity on every edge $e$, and that $\llbracket \nabla U \rrbracket$ is a
   polynomial of degree $p-1$, allow us to write
   \[
     \sum_{a \in \V} \sum_{e \subset \gamma_a} \ip{(I-\Pi_{p-1})(\psi_a \llbracket \nabla U \rrbracket), v}_{e}
@@ -651,7 +658,7 @@ using the results from the previous theorem.
     &\lesssim \sum_{a \in \V}  \uanorm{\vhsiga}^2_{\w_a} + \sum_{a\in \V} \uanorm{h_a(I - \Pi_{p-2}^a)( f)}_{\w_a}^2.
   \end{align*}
   The oscillation term appearing in these reliability bounds are of one order lower than the ones we had in Theorem~\ref{thm:discsynge}.
-  This is the expected cost of using a lower order estimator.
+  This is the cost of using a lower order estimator.
   
   Similar techniques can be used to derive an efficiency bound for $\vhsiga$:
   following
@@ -662,11 +669,14 @@ using the results from the previous theorem.
     &\leq \enorm{u - U}_{\w_a} + \uanorm{h_a(I-\Pi_{p-2}^a)(f)}_{\w_a} +  h_{\w_a}^{1/2} \uanorm{\llbracket \nabla U \rrbracket}_{\gamma_a}.
   \end{align*}
   With $\Pi_{p-1}^{a,e}$ the $L^2$-orthogonal projector on the broken polynomial space $\P^{-1}_{p-1}(\gamma_a)$. 
-  For this last jump term we may invoke local efficiency of the classical estimator to see
-  \[
-    h_{\w_a} \norm{\llbracket \nabla U \rrbracket}_{\gamma_a}^2 \lesssim \hat \eta^2_\T(U, \w_a) \lesssim \enorm{u - U}^2_{\w_a} + \norm{h_a(I-\Pi_{p-1})(f)}_{\w_a}^2.
-  \]
-  The projection in this oscillation term is on polynomials of higher degree than we already had.  The local efficiency of $\uanorm{\vhsiga}_{\w_a}$ thus becomes
+  For the jump term we can invoke local efficiency of the classical edge estimator (cf.~\cite[p.~8]{verfurth1996review}):
+  \begin{align*}
+    h_{\w_a} \norm{\llbracket \nabla U \rrbracket }_{\gamma_a}^2 &\eqsim \sum_{e \subset \gamma_a} h_e \norm{\llbracket \nabla U \rrbraclet}_e^2\\
+    &\lesssim  \sum_{e \subset \gamma_a} \sum_{K \in \T_e}  \left[ \enorm{u - U}_{K}^2 + h_K^2\norm{(I- \Pi_{p-1})(f)}_K^2\right]\\
+    &\eqsim \enorm{u - U}^2_{\w_a} + \norm{h_a(I-\Pi_{p-1})(f)}^2_{\w_a},
+  \end{align*}
+  with $\T_e$ the two triangles $K \in \T$ adjacent to the (interior) edge $e \subset \gamma_a$. 
+  This oscillation term is of higher degree than we already had, local efficiency of $\uanorm{\vhsiga}_{\w_a}$ therefore becomes
   \[
     \uanorm{\vhsiga}_{\w_a} \lesssim \enorm{u - U}_{\w_a} + \uanorm{h_a(I-\Pi_{p-2}^a)(f)}_{\w_a}.
   \]
@@ -675,7 +685,7 @@ using the results from the previous theorem.
     of being able to calculate the flux in the lower order  $\RT^{-1}_{p-1, 0}(\w_a)$. We could
     repeat this approach to calculate estimators in even lower order Raviart-Thomas spaces. Unfortunately, this will
     yield bounds for which the decay rate of data oscillation is no longer of higher order. To see this, 
-    suppose that $\enorm{u - U}_\O$ converges as $h^p$. The data oscillation term in the tighest upper bound for $\vhsiga$ is given
+    suppose that $\enorm{u - U}_\O$ converges as $h^p$. The data oscillation term in the tightest upper bound for $\vhsiga$ is given
     by $\frac{h_K}{\pi}\uanorm{f - \Pi_{p-1} f}_K$. For $f$ piecewise smooth, this term converges as $h^{p+1}$: one order
     faster than the finite element solution. If instead one calculates flux estimators in the Raviart-Thomas space $p-2$, then the data
     oscillation term will converge as $h^p$ and is no longer of higher order. 

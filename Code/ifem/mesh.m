@@ -2,14 +2,16 @@
 node(:,2) = .7*node(:,2);
 groen = [200, 238, 200] ./255;
 rood = [236, 124, 111] ./255;
+[node, elem] = uniformrefine(node, elem)
 
 T = auxstructure(elem);
 fig = figure(1); clf;
 showmesh(node, elem, 'facecolor' ,groen);
 findnode(node, 'all', 'noindex');
 set(fig, 'Color', 'none'); % Set background transparent
-export_fig(fig, 'figures/mesh/ex_mesh.pdf', '-painters');
+export_fig(fig, 'figures/mesh/ex_mesh_unif.pdf', '-painters');
 
+adfsdsfsd
 % Highlight some stars, 3 = bdr, 7 = int
 bdrVtx = 3;
 intVtx = 7;

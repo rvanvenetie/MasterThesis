@@ -2,17 +2,17 @@
 \begin{document}
 Many years have passed since the first appearance of the \emph{finite element method}. 
 For a large class of boundary value problems, it has proved to be the approximation method of choice. 
-Let $\O$ be the domain of the boundary value problem of interest. The general finite element method can be characterized as follows.
+Let $\O$ be the domain of the boundary value problem of interest. A general finite element method can be characterized as follows.
 First, the domain $\O$ is partitioned into a set of \emph{elements}.  Each of these elements is equipped with a (local) function space.
 Assembling these local spaces together results in a function space $\VV$ on the entire domain~$\O$. A finite element \emph{approximation} $U$
-is then chosen from $\VV$ such that $U$ is close to the exact solution in some sense 
---- e.g.~U can be the projection of the exact solution on $\VV$. 
+is then computed in $\VV$, such that $U$ is close to the exact solution in some sense;
+typically $U$ is a projection of the exact solution on~$\VV$.
 
 In this work, we concentrate on second-order partial differential equations, with $\VV$
 a space of element-wise polynomials of \emph{fixed} degree. Write $u$ for the exact solution
 of the associated boundary value problem. In general, one wants to construct a sequence of approximations that converge to
 the exact solution. In the original finite element method such a sequence is produced by taking
-approximations for repeated subdivisions of the partition. 
+approximations on repeated subdivisions of the partition. 
 
 For smooth solutions $u$, it has been shown
 that an optimal convergence rate is obtained by subdividing each element of the partition. 
@@ -22,14 +22,14 @@ congruent subtriangles. All of this theory is well established and summarized  i
 For less smooth $u$, this simplistic refinement strategy unfortunately does not provide an optimal convergence rate.
 Instead of uniformly subdividing each element, one could consider a more thoughtful refinement strategy.
 An obvious modification would be refining only those elements for which the current approximation error is large in some sense.
-This idea is formalised by the \emph{adaptive} finite element method, also named the \emph{h}-variant.
+This idea is formalised by the \emph{adaptive} finite element method.
 An essential ingredient of the adaptive method is an \emph{error estimator}, i.e.~a function that estimates
 the error between $u$ and $U$ for every element in the partition --- without knowing $u$. 
 
 Under some assumptions, refining those
 elements for which the error estimator is relatively large leads to an optimal convergence rate for non-smooth
 solutions $u$ as well. The existence of such an error estimator is quite fascinating  if one thinks about it: we
-are somehow estimating the error without actually knowing the exact solution $u$. 
+are somehow estimating the error, without actually knowing the exact solution $u$. 
 A proof of this optimality and an overview of the various contributions that lead to this proof can be found in \cite{cascon2008}.
 
 The first optimality proofs for the adaptive finite element method used the standard \emph{residual} estimator \cite{binev, stevenson2007optimality,cascon2008}. Although
@@ -38,9 +38,9 @@ by the error estimator contain unknown constants. These constants make it harder
 approximations $U$ in practice.  Fortunately, a variety of alternative (nonresidual) estimators are documented in the literature
 \cite{verfurth2013posteriori}.
 
-This work will focus one of these estimators in particular:
+This work will focus on of these estimators in particular:
 the \emph{equilibrated flux} estimator \cite{braessequil, braessequilrobust, ernequil}. This estimator provides a true upper bound
-for the local error without an unkown constant, eliminating one of the shortcomings of the standard residual estimator. 
+for the local error without an unknown constant, eliminating one of the shortcomings of the standard residual estimator. 
 Braess, Pillwein and Sch\"oberl \cite{braessequilrobust} showed another --- arguably more important --- property of this estimator: \emph{polynomial-robustsness}. That is,
 the constant appearing in the lower bound is independent of the polynomial degree used in $\VV$.
 This latter condition might enable one to prove optimality of yet another version of finite element method, the so-called
@@ -50,23 +50,22 @@ Recent experiments show that this can lead to an exponential rate of convergence
 These convenient properties provide reason for an in-depth study of this estimator.
 In this work, we will prove that the adaptive finite element method driven by the equilibrated flux estimator 
 exhibits an optimal convergence rate. This proof will be based on the general results provided by Casc\'on and Nochetto 
-in \cite{cascon2012}. We will provide details for some of the unproven claims stated in \cite{cascon2012}
-by Casc\'on and Nochetto.
+in \cite{cascon2012}. We will provide details for some of the unproven claims stated in \cite{cascon2012}.
 
 The advantages of the equilibrated flux estimator come at the price of implementational
 complexity. We shall therefore discuss an equivalent --- and easier to implement --- construction of the equilibrated flux estimator
-as presented by Ern and Volharik in~\cite{ernequil}. The equilibrated flux estimator
+as presented by Ern and Vohral{\'\i}k in~\cite{ernequil}. The equilibrated flux estimator
 for the lowest order finite element space is implemented using this alternative construction. The implementation
-will be used to analyze and compare the standard residual estimator with the equilibrated flux estimator.
+will be used to analyze and compare the equilibrated flux estimator with the standard residual estimator.
 
 %The equilibrated flux estimator will be further analyzed and compared to the standard residual estimator
 %by providing some numerical results. 
 
 This work is organized as follows.
 In Chapter 1 
-we give a summary of the finite element theory and introduce some notation. The equilibrated flux estimator is then formally introduced 
-in Chapter 2. The main result --- optimality of the adapive finite element method driven by the equilibrated flux estimator --- is 
+we give a summary of the finite element theory and introduce some notation. The equilibrated flux estimator is formally introduced 
+in Chapter 2. The main result --- optimality of the adaptive finite element method driven by the equilibrated flux estimator --- is 
 given in Chapter 3.
- An equivalent construction of the equilibrated flux estimator, and some implementational issues are discussed in Chapter 4. Numerical results and a comparison with the standard estimator is presented
-in Chapter 5. An overview of the used notation and some reference theorems are given in the appendices. 
+ An equivalent construction of the equilibrated flux estimator, and some implementational issues are discussed in Chapter 4. Numerical results and a comparison with the standard residual estimator is presented
+in Chapter 5. An overview of the notation used and some reference theorems are given in the appendices. 
 \end{document}

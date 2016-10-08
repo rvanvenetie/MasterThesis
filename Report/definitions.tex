@@ -36,12 +36,12 @@ The weak divergent Sobolev space is defined by
     \int_\O \v{\sigma} \cdot \nabla v + \int_\O  v \div \v{\sigma} = \int_{\partial \O} v \v{\sigma}\cdot \v{n}
   \]
 \end{thm}
-Actually the right hand side is an abuse of notation, formally one has that $\v{\sigma}\cdot\v{n}$ is an operator working on the
+Actually, the right hand side is an abuse of notation. Formally one has that $\v{\sigma}\cdot\v{n}$ is an operator working on the
 trace of $v$ on $\partial \O$. 
 \section{Poincar\'e-Friedrichs inequality}
 \label{sec:poincfried}
 For some $H^1$ functions it is possible to (universally) bound the $L^2$-norm by its $H^1$-seminorm.
-Both Poincar\'e and Friedrichs inequality provide such bounds. Due to their similarity these type 
+Both Poincar\'e and Friedrichs inequality provide such bounds. Because of their similarities, these type 
 of inequalities are named \emph{Poincar\'e-Friedrichs inequality}.
 \begin{thm}[Friedrichs inequality]
   Suppose that $\O \subset \R^n$ is a  bounded Lipschitz domain, then for $h_\O$ the diameter of $\O$ we have
@@ -114,7 +114,7 @@ Raviart-Thomas functions can be (partially) determined by their divergence and s
 
 \section{Auxiliary results}
 \label{sec:aux}
-Here the proof of Lemma \ref{lem:clasequivlow} is included for self-containedness.
+Here the proof of Lemma \ref{lem:clasequivlow} is included here  for self-containedness.
   \begin{lemstar}
   The estimator $\uanorm{\v{\sigma_a}}_{\w_a}$ is bounded from below by the classical estimator,
   \[
@@ -137,16 +137,16 @@ Here the proof of Lemma \ref{lem:clasequivlow} is included for self-containednes
     &= \sup_{\{v \in H^1(\w_a) : v \not \equiv C_{st}\}} { \ip{r_a, v - v_{\w_a}} \over \norm{\nabla (v - v_{\w_a})}_{\w_a}} \\
     &= \sup_{\{v \in H^1(\w_a) : v \not \equiv C_{st}\}} { \ip{r_a, v} \over \norm{\nabla v}_{\w_a}}.
   \end{align*}
-  Similar to the previous proof we decompose $r_a$ in triangle and edge terms
+  Similar to the proof of Lemma~\ref{lem:clas123} we decompose $r_a$ in triangle and edge terms
   \[
     \ip{r_a,v} = \sum_{K\subset \w_a} \langle{r^T_a, v}\rangle_K + \sum_{e \subset \gamma_a} \ip{r^e_a, v}_e,
     = \sum_{K\subset \w_a} \langle{\psi_a \left [f+\Delta U \right], v}\rangle_K + \sum_{e \subset \gamma_a} \ip{\psi_a \llbracket \nabla U \rrbracket, v}_e.
   \]
   The triangle and edge functions $(r^T_a, r^e_a)$ are actually broken polynomials from the spaces $\P_r^{-1}(\w_a)\times \P_r^{-1}(\gamma_a)$ for some degree $r$.
 
-  Start with an element $K \subset \w_a$, and consider the space $H_0^1(K)$. Since a function $v \in H_0^1(K)$ vanishes on the boundary, 
+  Start with an element $K \subset \w_a$, and consider the space $H_0^1(K)$. Since a function $v \in H_0^1(K)$ vanishes  on the boundary, 
   we can naturally extend it to a function $v \in H^1(\w_a)$ by setting $v \equiv 0$ on $\w_a \setminus K$. As $v$
-  vanishes all edges $e \subset \gamma_a$ and all triangles except $K$, we have $\ip{r_a, v} = \langle{r_a^T, v}\rangle_K$ and thus
+  vanishes on all edges $e \subset \gamma_a$ and all triangles except $K$, we have $\ip{r_a, v} = \langle{r_a^T, v}\rangle_K$, and thus
   \[
     \sup_{\{v \in H^1(\w_a) : v \not \equiv C_{st}\}} { \ip{r_a, v} \over \norm{\nabla v}_{\w_a}} 
     \geq \sup_{\{v \in H_0^1(K) : v \ne 0\}} { \langle{r^T_a, v}\rangle_K \over \norm{\nabla v}_{K}}
@@ -158,7 +158,7 @@ Here the proof of Lemma \ref{lem:clasequivlow} is included for self-containednes
   defines a norm for polynomials $q$ of degree $r$ on $K$. The only troublesome axiom to be satisfied
   is that $\norm{q} = 0$  implies $q=0$. Suppose that $q$ is a non-zero polynomial.
   Then there exists a point $x \in \inte(K)$ for which we have $q(x) \ne 0$, and without loss of generality we suppose that $q(x) > 0$.
-  Since $q$ is continuous we have $q(y) > q(x) / 2 > 0$ for $y$ in $V(x)$, a small neighborhood of $x$.
+  Since $q$ is continuous, we have $q(y) > q(x) / 2 > 0$ for $y$ in $V(x)$, a small neighborhood of $x$.
   The hat function satisfies $\psi_a > 0$ in the interior of $K$. Taking $V(x)$ small enough therefore guarantees that $\psi_a q>0$ on $V(x)$.
   Finally, choose a continuous $v \in H_0^1(K)$  with $v(x) = 1$ and $v = 0$ outside of $V(x)$. For this $v$ we then find
   \[
@@ -178,7 +178,7 @@ Here the proof of Lemma \ref{lem:clasequivlow} is included for self-containednes
   Next, fix an edge $e \subset \gamma_a$ and denote $K_1, K_2$ for the triangles that share this edge. Consider the following space of functions:
   \[
   V_e := \set{v \in H_0^1(K_1 \cup K_2) : \ip{v,P}_{K_1}= \ip{v,P}_{K_2} = 0\quad \forall P \in \P_r}.\]
-  Again we can naturally extend these functions to live in $H^1(\w_a)$. Since $v \in V_e$ vanish on all edges except $e$, and
+  Again, we can naturally extend these functions to live in $H^1(\w_a)$. Since $v \in V_e$ vanish on all edges except $e$, and
   is orthogonal to polynomials of degree $r$ on $K_1$ and $K_2$, we have
   \[
     \sup_{\{v \in H^1(\w_a) : v \not \equiv C_{st}\}} { \ip{r_a, v} \over \norm{\nabla v}_{\w_a}} 

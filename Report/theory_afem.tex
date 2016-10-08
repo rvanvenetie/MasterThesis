@@ -28,7 +28,7 @@ in a distributional sense. Suppose that $u$ solves \eqref{eq:elliptic} with $\ma
   &+ \int_{\Omega} \left( \mathbf{A}(x) \nabla u(x)\right) \cdot \nabla v(x) + \left(\v{b}(x) \cdot \nabla u(x)\right)v(x) + c(x) v(x) \, \dif x,
 \end{align*}
 where the third equality follows from the Divergence theorem, see \ref{thm:divergence}. We write $\ip{\cdot, \cdot}_{\w}$ to mean
-the standard --- possibly vector-valued --- $L^2(\w)$-inner product on any domain~$\w$. Suppose that all test functions $v$ vanish on the boundary $\partial \Omega$; then, the boundary integral disappears and the above simplifies to
+the standard --- possibly vector-valued --- $L^2(\w)$-inner product on any domain~$\w$. Suppose that all test functions $v$ vanish on the boundary $\partial \Omega$, the boundary integral then disappears and the above simplifies to
 \begin{equation}
   \label{eq:ellipticweak}
   F(v) := \ip{f,v}_\O = \ip{\mathbf{A} \nabla u, \nabla v}_\O + \ip{\v{b} \cdot \nabla u + cu, v}_\O=: a(u,v).
@@ -36,7 +36,7 @@ the standard --- possibly vector-valued --- $L^2(\w)$-inner product on any domai
 
 A weak solution of \eqref{eq:elliptic} is a function $u$ that solves the above equation for all $v \in V$.
 It turns out that there are conditions under which there is a unique weak solution $u$. To see this,
-we must formalise the previous calculations. First, we tackle the definition of $V$.
+we must formalise the previous calculations. First, we will tackle the definition of~$V$.
 
 The weak formulation uses the $L^2(\Omega)$-inner product, so we naturally require~$V~\subset~L^2(\Omega)$.
 All the partial derivatives of $v$ are taken in a distributive sense.
@@ -45,7 +45,7 @@ By combining both requirements we deduce that $V$ should lie in the suitable spa
 $W_2^1(\Omega) = H^1(\Omega)$ (conveniently, this is a Hilbert space).
 We must check that the calculations, in particular the Divergence Theorem, are still valid for $v \in H^1(\Omega)$;
 of course this is the case, cf.~\cite[Ch. 5]{brenner}.
-Formalizing the vanishing boundary requirement can be done using the trace operator $T$\footnote{Here we need that $\Omega$ has a Lipschitz boundary, cf.~\cite[Ch. 1.6]{brenner}.},
+Formalizing the vanishing boundary requirement can be done using the trace operator\footnote{Here we need that $\Omega$ has a Lipschitz boundary, cf.~\cite[Ch. 1.6]{brenner}.} T,
 i.e.~we should have $v \in H^1(\Omega)$ such that $\|Tv\|_{L^2(\partial \Omega)} = 0$. All together this yields
 \[
   V := \set{v \in H^1(\Omega): v|_{\partial \Omega} = 0} = H_0^1(\Omega).
@@ -81,9 +81,9 @@ and continuity of $F$ follows from Cauchy-Schwarz, i.e.
 \[
 \abs{F(v)} = \abs{\ip{f,v}_\O} \leq \|f\|_{L^2(\Omega)} \|v\|_{L^2(\Omega)} \leq \|f\|_{L^2(\Omega)} \|v\|_{H^1(\Omega)}.
 \]
-We are left to check the continuity and coercivity of the bilinear form.
+We are left to check the continuity and coercivity of the bilinear form $a(\cdot, \cdot)$.
 \begin{description}
-  \item[Continuity]Using H\"older we find
+  \item[Continuity]Using H\"older's inequality we find
     \begin{align*}
       \abs{a(v,w)} \leq &\int_\Omega \abs{\sum_{i,j} a_{ij} \pd{v}{x_j}\pd{w}{x_i}  + \sum_i b_i \pd{v}{x_i}w + cvw}\\
                    \leq &\sum_{i,j} \norm{ a_{ij}}_{L^\infty(\Omega)} \norm{ \pd{v}{x_j}}_{L^2(\Omega)} \norm{ \pd{w}{x_i}}_{L^2(\Omega)} + \sum_i \norm{b_i}_{L^\infty(\Omega)} \norm{\pd{v}{x_i}}_{L^2(\Omega)} \norm{w}_{L^2(\Omega)} \\
@@ -114,12 +114,12 @@ Instead one generally solves the Galerkin approximation problem:
   \label{eq:galerk_finite}
   \text{Given a finite-dimensional } \VV \subset V \text{: find $U \in \VV$ s.t. } a(U, v) = F(v) \quad \forall v \in \VV.
 \end{equation}
-This is a finite dimensional problem, and carefully choosing subspaces $\VV$ can lead to increasing approximation accuracy of $U$ --- 
+This is a finite dimensional problem, and carefully choosing subspaces $\VV$ can lead to increasing accuracy of the approximation $U$ --- 
 the \emph{discrete} solution. Another application of Lax-Milgram applied to $\VV$ shows that this system has a unique solution as well.
 
 
 
-\section{Finite Element Space}
+\section{Finite element space}
   \label{sec:deffem}
   Construction of subspaces $\VV \subset V$ can be done in a systematic way using \emph{finite elements}. 
   The general idea is to split the domain $\Omega$ into elements $K$, each with its own function space.
@@ -152,13 +152,16 @@ the \emph{discrete} solution. Another application of Lax-Milgram applied to $\VV
   of continuous functions.
 
   In the literature, a variety of finite elements are documented, 
-  each element having its pros and cons. For now we will be using  the \emph{Lagrange element};
-  for a triangle $K$, the lowest order Lagrange element  --- also linear Lagrange --- is given by the 
-  triplet $(K, \mathcal{P}_1(K), \set{N_1, N_2, N_3})$, with $\mathcal{P}_1(K)$ linear polynomials and functionals $N_i(v) = v(z_i)$,
-  evaluation in the vertices $z_i$ of K. This element can be generalised to a Lagrange element of arbitrary order $p$,
+  each element having its pros and cons. For now we will be using  the linear \emph{Lagrange element}.
+  \begin{exmp}
+  For a triangle $K$, the lowest order Lagrange element  --- also linear Lagrange --- is given by 
+  $(K, \mathcal{P}_1(K), \set{N_1, N_2, N_3})$, with $\mathcal{P}_1(K)$ the linear polynomials on~$K$, and functionals $N_i(v) = v(z_i)$,
+  the evaluation of $v$ in the vertices $z_i$ of~$K$.
+  \end{exmp}
+  This element can be generalised to a Lagrange element of arbitrary order $p$,
   whose shape functions are given by $\mathcal{P}_p(K)$: polynomials of degree $p$ on $K$.
 
-  To ensure continuity of the subspace $\VV$, we need more regularity in the partition. In this work  we shall therefore consider subdivisions of the domain into simplices (triangles in $\R^2$, tetrahedra in $\R^3$). Implicitly we therefore also require $\Omega$ to have a polyhedral boundary. Because of the continuity requirement, we need the partition to be \emph{conforming}.
+  We need more regularity of the partition to ensure continuity of the subspace $\VV$.  In this work  we shall consider subdivisions of the domain into simplices (triangles in $\R^2$, tetrahedra in $\R^3$). Implicitly we therefore also require $\Omega$ to have a polyhedral boundary. Because of the continuity requirement, we need the partition to be \emph{conforming}.
   \begin{defn}
     A triangulation $\mathcal{T}$ is a conforming partition of the domain $\Omega$ into a finite family of simplices.
     Formally,
@@ -180,7 +183,7 @@ the \emph{discrete} solution. Another application of Lax-Milgram applied to $\VV
   of continuous functions $v$ that are linear polynomials when restricted to each triangle $K \in \mathcal{T}$. Formally
   \begin{equation}
     \label{eq:linlagr}
-    \VV := \set{v \in C(\OO) : v|_{K} \in \P_1(K), \quad \forall K \in \T}.
+    \VV = \VV(\T) := \set{v \in C(\OO) : v|_{K} \in \P_1(K), \quad \forall K \in \T}.
   \end{equation}
   Why
   would one look at finite elements $(K, \mathcal{P}, \mathcal{N})$? 
@@ -330,14 +333,14 @@ In the literature, the finite element space is frequently defined in terms of th
   \label{sec:afem}
   This last bound \eqref{eq:conv} shows convergence of the finite element method: the approximation error decreases when solving $U$ from spaces $\VV$ with 
   decreasing $h$. 
-  This so called \emph{a priori} error estimation provides an error bound
-  using problem specific information, e.g.~$u \in H^2$. It does not capture
+  This so-called \emph{a priori} error estimation \eqref{eq:conv} provides an error bound
+  using problem specific information, e.g.~${u \in H^2(\O)}$. It does not capture
   any local information; it does not tell \emph{where} the approximation error is substantial. 
   
-  In practice one often does not have the smoothness required to use \eqref{eq:conv}, e.g. $u \not \in H^2$ if the domain $\O$ has a re-entrant corner, which
+  In practice one often does not have the smoothness required to use \eqref{eq:conv}, e.g. ${u \not \in H^2(\O)}$ if the domain $\O$ has a re-entrant corner, which
   is the case for all non-convex polygon domains. 
   Moreover, one expects a higher order convergence rate when using higher order (Lagrange) elements.
-  Indeed, for the $p$-th degree finite element space we obtain the error estimation ${\norm{u - U}_{H^1(\O} \leq C h^{p} \abs{u}_{H^{p+1}(\O)}}$ from Theorem~\ref{thm:apriorio}. Unfortunately, this requires even more smoothness of the exact solution, i.e.~$u \in H^{p+1}$. This weakness can --- to some extent ---
+  Indeed, for the $p$-th degree finite element space we could obtain the error estimation ${\norm{u - U}_{H^1(\O} \leq C h^{p} \abs{u}_{H^{p+1}(\O)}}$ from Theorem~\ref{thm:apriorio}. Unfortunately, this requires even more smoothness of the exact solution, i.e.~${u \in H^{p+1}(\O)}$. This weakness can --- to some extent ---
   be overcome using an alternative refinement strategy.
   
   Rather than globally reducing $h$, it might be more efficient to consider refinements of~$\T$ with
@@ -369,12 +372,12 @@ In the literature, the finite element space is frequently defined in terms of th
   \begin{align*}
     \ip{r,v} :&= a(u - U, v) = \ip{f,v}_\O - a(U, v).
   \end{align*}
-  This is closely related to the approximation error; one easily deduces that
+  The residual is closely related to the approximation error; one easily deduces that
   \begin{equation}
     \label{eq:enormdual}
     \enorm{u - U}_{\O} = \sup_{0\ne v \in V}\frac{a(u - U, v)}{\abs{v}_{H^1(\O)}} = \sup_{0 \ne v \in V}\frac{\ip{r,v}}{\abs{v}_{H^1(\O)}}.
   \end{equation}
-  For any $\tilde v \in \VV(\T)$ we can bound the residual using Galerkin orthogonality:
+  For any $\tilde v \in \VV(\T)$, we can bound the residual using Galerkin orthogonality:
   \begin{equation}
     \label{eq:residualdecomp}
   \begin{aligned}
@@ -408,7 +411,7 @@ In the literature, the finite element space is frequently defined in terms of th
     +&C \left(\sum_{e \in \E^{int}}h_K\norm{\llbracket \nabla U \rrbracket}^2_e\right)^{1/2} \left(\sum_{e \in \E^{int}} \abs{v}^2_{H^1(\w_{K_e})} \right)^{1/2}\\
     \leq &  \tilde C \abs{v}_{H^1(\O)} \left(\sum_{K \in \T} h_K^2\norm{f + \Delta U}_K^2 + \sum_{e \in \E^{int}} h_K \norm{\llbracket \nabla U\rrbracket}_e^2 \right)^{1/2},
   \end{align*}
-  with the second inequality following from Cauchy-Schwarz for sequences. Together with~\eqref{eq:enormdual} this yields a desired error estimation in terms of
+  with the second inequality following from Cauchy-Schwarz for sequences. Together with~\eqref{eq:enormdual}, this yields a desired error estimation in terms of
   localized errors:
   \[
     \enorm{u - U}_{\O} \leq \tilde C \left(\sum_{K \in \T}h_K^2\norm{f +\Delta U}_K^2 + \sum_{e \in \E^{int}}h_K\norm{\llbracket U \rrbracket}_e^2 \right)^{1/2}.
@@ -426,7 +429,7 @@ In the literature, the finite element space is frequently defined in terms of th
     \]
     with $P_K^r$ the $L^2(K)$-orthogonal projector on polynomials of degree $r$ on $K$.
 
-    For  a subset $\M \subset \T$ the above terms are defined as the sum over $K \in \M$, i.e.
+    For  a subset $\M \subset \T$, the above terms are defined as the sum over $K \in \M$, i.e.
     \[
       \eta^2(v, \M) := \sum_{K \in \M} \eta^2(v, K), \quad \text{and} \quad \osc^2(f, \M) := \sum_{K \in \M} \osc^2(f,K).
     \]
@@ -434,8 +437,8 @@ In the literature, the finite element space is frequently defined in terms of th
   Denote $\T_\star \geq \T$ if $\T_\star$ is a refinement of $\T$. That is, every element in $\T_\star$ is 
   either contained in $\T$ or can be obtained by applying a finite number of bisections to an element in $\T$.
   Write $R_{\T \to \T_\star}$ for the set of refined elements, i.e.~$R_{\T \to \T_\star} = \T\setminus \T_\star$.
-  To distinguish between finite element solutions, denote $U_\star$ for the Galerkin approximation in $\VV(\T_\star)$. 
-  The following theorem shows \emph{reliability} and \emph{efficiency} of the estimator.
+  To distinguish between finite element solutions, denote $U_\star$ for the Galerkin approximation in~$\VV(\T_\star)$. 
+  The following theorem shows \emph{reliability} and \emph{efficiency} of the residual estimator.
   \begin{thm}[{\cite{stevenson,cascon2008}}]
     \label{thm:residual_erro}
     There exists a constant $C_1$ such that for $\T_\star \geq \T$ we have 
@@ -458,14 +461,14 @@ In the literature, the finite element space is frequently defined in terms of th
   \label{sec:optimalafem}
   How can one use these local error estimators $\eta(U,K)$?
   Here we notice that $\eta(U, K)$ consists of the \emph{known} quantities $f$ and $U$.
-  Therefore one can actually compute the estimators  $\eta(U,K)$ to find out \emph{where} the approximation error is big. 
+  Therefore, one can actually compute the estimators  $\eta(U,K)$ to find out \emph{where} the approximation error is big. 
   Instead of globally refining every element, one can just refine the elements for which $\eta(U,K)$ is large.
   This leads to the very intuitive algorithm, called the \emph{adaptive finite element method}:
   \[
     \texttt{SOLVE} \to \texttt{ESTIMATE} \to \texttt{MARK} \to \texttt{REFINE}.
   \]
   Solve a discrete solution $U$, estimate local errors using $\eta(U, K)$, select a subset of elements for which
-  the error is large and refine these elements. Later in Chapter 3 a more detailed description of this
+  the error is large and refine these elements. Later, in Chapter 3, a more detailed description of this
   method will be given.
 
   Marking --- making the selection of triangles to be refined --- is  done using D\"orfler marking, named after its inventor D\"orfler in \cite{dorfler1996convergent}.
@@ -495,9 +498,9 @@ In the literature, the finite element space is frequently defined in terms of th
                                   & \abs{u}_{\A^s} := \sup_{N \in \NN} \left(N + 1\right)^s \min_{\set{\T \in \TT : \#\T -\# \T_0 \leq N}} \sqrt{\enorm{u - U_\T}^2_{\O} + \osc^2(f,\T)} < \infty\}.
     \end{align*}
   \end{defn}
-  Suppose that $u \in \A^s$. For $\T_N$, the best partition on $N + \#\T_0$ triangles,
-  the total error satisfies $\sqrt{\enorm{u - U_N}_\O^2 + \osc^2(f, \T_N)} \leq  (N+1)^{-s} \abs{u}_{\A^s}$.
-  The number of triangles are in proportion with the number of degrees of freedom; it therefore provides a representative quantity for comparing
+  Suppose that $u \in \A^s$. For $\wt \T_N$, the best partition in $N + \#\T_0$ triangles,
+  the total error satisfies $\sqrt{\enorm{u - U_N}_\O^2 + \osc^2(f, \wt \T_N)} \leq  (N+1)^{-s} \abs{u}_{\A^s}$.
+  The number of triangles is proportional to the number of degrees of freedom; it therefore provides a representative quantity for comparing
   the error decay.
 
   We have the following celebrated optimality theorem. A proof of this theorem as well as a historic overview of contributions that lead to this result

@@ -1,24 +1,23 @@
 \documentclass[thesis.tex]{subfiles}
 \begin{document}
-Exact solutions of many partial differential equations are hard or impossible to solve. 
+Exact solutions of many partial differential equations are hard or impossible to compute. 
 This is a problem in many practical (research) fields --- think of an engineer wanting to solve a heat
-equation for some object. One way to overcome this problem is to use some \emph{approximation} method.
+equation for some object. One way to overcome this problem is to use an \emph{approximation} method.
 That is, instead of seeking the exact solution one constructs a function that is close in norm to the exact solution.
 For many types of partial differential equations, such approximations are provided by the \emph{finite element method} (FEM).
 
 Consider for example a two-dimensional Poisson
 boundary value problem on the unit square $\O = [0,1] \times [0,1]$: solve $u$ from
-  \begin{equation*}
-  \begin{alignedat}{2}
-    -\Delta u &=1& \quad &\text {in } \Omega, \\
-    u &= 0 &\quad &\text{on } \partial\O.
-  \end{alignedat}
-\end{equation*}
+\[
+  -\Delta u = 1 \,\,\, \text{in} \,\,\, \O, \quad\quad u = 0 \,\,\, \text{on} \,\,\,\partial \O.
+\]
 The first step of FEM is to subdivide the domain $\O$ into smaller pieces, called \emph{elements}. 
 For our example, this means that
 we subdivide the unit square into triangles. In the next step, we define a function space on each of these elements, and
 combine the elements to form a \emph{finite} dimensional function space over the domain $\O$. An approximation $U$ of the exact solution $u$
-is then found in this finite element space by solving a system of equations, where each element induces a set of equations.
+is then found in this finite element space by solving a system of equations, where each element imposes a set of equations.
+The resulting $U$ is the best approximation of  $u$  in this finite element space.
+%BLA
 
 In order to improve the quality of $U$ we could subdivide every element and calculate an approximation for the
 refined subdivision. This classical approach works, i.e.~the sequence of FEM approximations converges towards the exact solution.
@@ -26,13 +25,16 @@ For some problems, a faster convergence rate can be achieved by only subdividing
 those elements where the current approximation $U$ has the worst quality. This is the so-called \emph{adaptive} finite element method (AFEM).
 
 The immediate question is how to determine the approximation error $\norm{u - U}$ on an element. After all, we apply approximation techniques
-because the exact solution $u$ is unknown. Fascinatingly, there are \emph{estimators} that can be used
+because the exact solution~$u$ is unknown. Fascinatingly, there are \emph{estimators} that can be used
 to estimate the error $\norm{u - U}$ on an element --- without knowing the exact solution $u$! One well-known
 estimator is the residual error estimator. This was the first estimator for which \emph{optimal} convergence of adaptive finite element 
-method was proved.
+method was proved. 
 
-Recently quite some research interest has been conducted in finding estimator with more favorable properties.
-In this work, we concentrate on the \emph{equilibrated flux} estimator. We give an in-depth overview its
-properties and use these properties to show that AFEM using this estimator also provides optimal convergence.
-Lastly, we experimentally verify these claims using an actual implementation.
+The bound provided by the residual error estimator contains an unknown constant, making it hard to determine when
+the approximation error $\norm{u - U}$ is small enough.
+Recently, quite some research interest has been conducted in finding estimators with more favourable properties. 
+In this work, we concentrate on the \emph{equilibrated flux} estimator. This estimator provides a guaranteed upper bound, i.e.~without
+an unknown constant.
+We give an in-depth overview of its properties and use these properties to show that AFEM driven by this estimator also provides optimal convergence.
+Lastly, we experimentally examine the performance of the estimator using an actual implementation.
 \end{document}
