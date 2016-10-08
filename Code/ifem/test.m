@@ -53,50 +53,6 @@ function   test(method, estimators, afem, maxN)
   %profile viewer
 end
 
-
-
-%function [N,equilError, resError, mixedError, errH1] = CompareUniform(method, node, elem, pde, bdFlag, maxN)
-%  errH1 = [];
-%  mixedError = [];
-%  equilError = [];
-%  resError = [];
-%  N = [];
-%  % Uniform refinement
-%  t = 1;
-%  while  (size(node, 1) < maxN)
-%    t = t+1;
-%    N(end+1) = size(node,1);
-%
-%    % Solve the poisson problem
-%    uh = Poisson(node, elem, pde, bdFlag);
-%    [Duh,~] = gradu(node, elem, uh);
-%
-%    % Calculate real error
-%    if isempty(pde.Du)
-%      errH1(end+1) = approxH1error(node, elem, bdFlag, pde, uh,3)
-%    else
-%      errH1(end+1) = getH1error(node,elem,pde.Du,uh)
-%    end
-%    [~,sigma] = PoissonRT0(node, elem, pde, bdFlag);
-%    mixedError(end+1) = getL2errorRT0(node, elem,  Duh, sigma);
-%
-%    size(elem)
-%
-%    % Calculate the flux
-%    sig = flux(node,elem,  Duh, pde.f);
-%
-%    %Calculate the error esimate
-%    [equilError(end+1), ~, ~] =  equil(node, elem, Duh, sig, pde.f);
-%
-%    %Calculate the residual eror
-%    eta = estimateresidual(node, elem, uh, pde);
-%    resError(end+1) = sqrt(sum(eta.^2));
-%    %ploterror(method,node, elem, uh, N,equilError, resError,mixedError, errH1, pde.theorate);
-%
-%    [node, elem, bdFlag] = uniformbisect(node, elem, bdFlag);
-%  end
-%end
-
 function plotuh(node, elem, pde, bdFlag)
   savedir = 'figures/uh';
   for j =1:8
